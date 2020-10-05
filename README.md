@@ -1,9 +1,8 @@
 # macOS on Thinkpad X1 Carbon 6th Generation, Experimental branch
 
-[![macOS](https://img.shields.io/badge/macOS-Big-Sur-yellow.svg)](https://www.apple.com/macos/catalina/)
-[![version](https://img.shields.io/badge/11-00-beta-9-yellow)](https://support.apple.com/en-us/HT210642)
+[![macOS](https://img.shields.io/badge/macOS-Big_Sur_Beta_9-yellow.svg)](https://www.apple.com/de/macos/big-sur-preview/)
 [![BIOS](https://img.shields.io/badge/BIOS-1.49-blue)](https://pcsupport.lenovo.com/us/en/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-6th-gen-type-20kh-20kg/downloads/driver-list/component?name=BIOS%2FUEFI)
-[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.2-unreleased-green)](https://github.com/acidanthera/OpenCorePkg)
+[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.2_unreleased-green)](https://github.com/acidanthera/OpenCorePkg)
 [![LICENSE](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 <img align="right" src="https://i.imgur.com/I3yUS4Q.png" alt="Critter" width="300">
