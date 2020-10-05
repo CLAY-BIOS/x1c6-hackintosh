@@ -7,16 +7,27 @@
 
 <img align="right" src="https://i.imgur.com/I3yUS4Q.png" alt="Critter" width="300">
 
+> ## Warning & Notice
+
+### This is an experimental branch for the Thinkpad X1 Carbon Generation 6-Repo by @tylernguyen.
 ### Experimental branch - no docs, no guarantees. Untested - full of bugs - but maybe with new features? :)
 
 Here be dragons! Docs are missing or incorrect at this point. May not boot at all.
 I am not responsible for any damages you may cause.
 
-> ## Warning & Notice
+> ## Differencies to the original repo
 
-### This is an experimental branch for the Thinkpad X1 Carbon Generation 6-Repo by @tylernguyen.
+* Updated for Big Sur
+* Latest stuff
+* Cleanup many old stuff
+* Enabled DYTC (Lenovo thermal management)
+* Disables DPTF (Intel thermal management)
+* Integration of YogaSMC
+* (WIP) TB-Hotplug-support with power-management
+* (WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)
+* ...
 
-Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
+#### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
 
 > ## CREDITS
 
