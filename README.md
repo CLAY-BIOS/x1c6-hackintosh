@@ -17,12 +17,14 @@ I am not responsible for any damages you may cause.
 
 > ## Differencies to the original repo
 
-* Updated for Big Sur
-* Latest stuff
-* Cleanup many old stuff
+* (Beta) Updated for Big Sur
+* Latest kexts for everything
+* Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
 * Integration of YogaSMC
+* (Beta) Patches for Intel Wireless/Bluetooth-Cards (via @openIntelWireless)
+* Patches for the X1C6 Touchscreen (via @voodooI2C)
 * (WIP) TB-Hotplug-support with power-management
 * (WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)
 * ...
@@ -30,6 +32,8 @@ I am not responsible for any damages you may cause.
 #### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
 
 > ## CREDITS
+
+Standing on the shoulders of giants! Based on the works of many great people.
 
 [@tylernguyen](https://github.com/tylernguyen/x1c6-hackintosh) for his great prior art which is ripped apart here ;)  
 [@Colton-Ko](https://github.com/Colton-Ko/macOS-ThinkPad-X1C6) for the great features template.  
