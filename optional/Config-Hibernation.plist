@@ -54,6 +54,14 @@
 			</dict>
 		</array>
 	</dict>
+	<key>Misc</key>
+	<dict>
+		<key>Boot</key>
+		<dict>
+			<key>HibernateMode</key>
+			<string>Auto</string>
+        </dict>
+    </dict>
 	<key>NVRAM</key>
 	<dict>
 		<key>Add</key>
@@ -61,6 +69,7 @@
 			<key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key>
 			<dict>
 				<string>rtcfx_exclude=80-AB</string>
+            </dict>
 		</dict>
     </dict>
 	<key>UEFI</key>
