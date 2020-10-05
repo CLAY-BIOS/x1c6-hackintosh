@@ -11,7 +11,7 @@
 			<key>RebuildAppleMemoryMap</key>
 			<false/>
 		</dict>
-    </dict>
+	</dict>
 	<key>Kernel</key>
 	<dict>
 		<key>Add</key>
@@ -60,8 +60,8 @@
 		<dict>
 			<key>HibernateMode</key>
 			<string>Auto</string>
-        </dict>
-    </dict>
+		</dict>
+	</dict>
 	<key>NVRAM</key>
 	<dict>
 		<key>Add</key>
@@ -69,9 +69,9 @@
 			<key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key>
 			<dict>
 				<string>rtcfx_exclude=80-AB</string>
-            </dict>
+			</dict>
 		</dict>
-    </dict>
+	</dict>
 	<key>UEFI</key>
 	<dict>
 		<key>ReservedMemory</key>
