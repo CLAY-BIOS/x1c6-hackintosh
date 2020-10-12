@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>BuildMachineOSBuild</key>
-	<string>19G2021</string>
+	<string>19H2</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -31,9 +31,9 @@
 	<key>DTPlatformVersion</key>
 	<string>GM</string>
 	<key>DTSDKBuild</key>
-	<string>16E185</string>
+	<string>19G68</string>
 	<key>DTSDKName</key>
-	<string>macosx10.12</string>
+	<string>macosx10.15</string>
 	<key>DTXcode</key>
 	<string>1170</string>
 	<key>DTXcodeBuild</key>
@@ -52,6 +52,8 @@
 			<integer>100</integer>
 			<key>IOProviderClass</key>
 			<string>IOACPIPlatformDevice</string>
+			<key>IOUserClientClass</key>
+			<string>YogaSMCUserClient</string>
 			<key>Sensors</key>
 			<dict>
 				<key>Airflow Left</key>
@@ -95,12 +97,23 @@
 			<string>org.zhen.YogaSMC</string>
 			<key>IOClass</key>
 			<string>ThinkVPC</string>
-			<key>IONameMatch</key>
-			<string>LEN0268</string>
 			<key>IOProbeScore</key>
 			<integer>100</integer>
+			<key>IOPropertyMatch</key>
+			<array>
+				<dict>
+					<key>name</key>
+					<string>LEN0268</string>
+				</dict>
+				<dict>
+					<key>name</key>
+					<string>LEN0068</string>
+				</dict>
+			</array>
 			<key>IOProviderClass</key>
 			<string>IOACPIPlatformDevice</string>
+			<key>IOUserClientClass</key>
+			<string>YogaSMCUserClient</string>
 			<key>Sensors</key>
 			<dict>
 				<key>Airflow Left</key>

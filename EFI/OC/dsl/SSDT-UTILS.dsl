@@ -1,4 +1,4 @@
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00000000)
+DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00001000)
 {
     Scope (\)
     {
@@ -31,24 +31,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00000000)
             }
 
             Return (Zero)
-        }
-
-        //
-        // Many OEM ACPI implementations have a ADBG method which is used for debug
-        // logging. In almost all cases, this function calls MDBG, which is
-        // supposed to be defined in a ACPI debug SSDT (but is usually missing).
-        // This should make ADBG functional.
-        //
-        // To enable ACPI debug logging in AppleACPIPlatform:
-        // Add boot args: acpi_layer=0x8 acpi_level=0x2 debug=0x100
-        // (https://pikeralpha.wordpress.com/2013/12/23/enabling-acpi-debugging/)
-        //
-        // To retrieve the ACPI debug output in macOS:
-        // log show --last boot --predicate 'process == "kernel" AND senderImagePath CONTAINS "AppleACPIPlatform"' --style compact | awk '/ACPI Debug/{getline; getline; print}'
-        //
-        Method (MDBG, 1, NotSerialized)
-        {
-            Debug = Arg0
         }
 
         /**
@@ -171,22 +153,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00000000)
                 Local0++
             }
         }
-
-        //
-        // EC region overlay with 8 bit fields.
-        //
-        OperationRegion(ECO2, EmbeddedControl, 0x00, 0x0100)
-        Field(ECO2, ByteAcc, NoLock, Preserve)
-        {
-            Offset(0x36),
-            WAC0, 8, WAC1, 8,
-        }
-
-        // Method used for replacing reads to HWAC.
-        Method(XWAC, 0, NotSerialized)
-        {
-            Return (B1B2(WAC0, WAC1))
-        }
     }
 
     /*
@@ -210,6 +176,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00000000)
             EST5,   8, // Battery ?
             EST6,   8, // Battery ?
             EST7,   8, // Battery ?
+
             // TP_EC_THERMAL_TMP8
             Offset (0xC0), 
             EST8,   8, 

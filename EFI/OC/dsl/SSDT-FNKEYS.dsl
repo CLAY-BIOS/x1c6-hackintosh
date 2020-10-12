@@ -1,4 +1,9 @@
-DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
+/**
+ * Adapted FNKeys for use with YogaSMC
+ *
+ * Ref: https://github.com/zhen-zen/YogaSMC/blob/master/YogaSMC/YogaVPC/ThinkVPC.hpp
+ */
+DefinitionBlock("", "SSDT", 2, "X1C6", "_FNKEYS", 0x00001000)
 {
     External (\_SB.PCI0.LPCB.EC, DeviceObj)
                                     
@@ -7,8 +12,6 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         External (\_SB.PCI0.LPCB.KBD, DeviceObj)
 
         External (\_SB.PCI0.LPCB.EC.XQ6A, MethodObj) // F4 - Mic Mute
-        External (\_SB.PCI0.LPCB.EC.XQ15, MethodObj) // F5
-        External (\_SB.PCI0.LPCB.EC.XQ14, MethodObj) // F6
         External (\_SB.PCI0.LPCB.EC.XQ16, MethodObj) // F7
         External (\_SB.PCI0.LPCB.EC.XQ64, MethodObj) // F8
         External (\_SB.PCI0.LPCB.EC.XQ66, MethodObj) // F9
@@ -18,8 +21,12 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         External (\_SB.PCI0.LPCB.EC.XQ74, MethodObj) // FnLock
         External (\_SB.PCI0.LPCB.EC.XQ1F, MethodObj) // Keyboard Backlight (Fn+Space)
 
-        External (\_SB.PCI0.LPCB.EC.HKEY.MMTS, MethodObj) // FnLock LED
-        External (\_SB.PCI0.LPCB.EC.HKEY.MLCS, MethodObj) // F4 - Mic Mute LED
+        External (\_SB.PCI0.LPCB.EC.HKEY.MMTS, MethodObj) // Set FnLock LED
+        External (\_SB.PCI0.LPCB.EC.HKEY.MMTG, MethodObj) // Get FnLock LED
+
+        External (\_SB.PCI0.LPCB.EC.HKEY.MLCS, MethodObj) // F4 - Set Mic Mute LED
+        External (\_SB.PCI0.LPCB.EC.HKEY.MLCG, MethodObj) // F4 - Get Mic Mute LED
+
         External (\_SB.PCI0.LPCB.EC.HKEY.MHKQ, MethodObj) // Keyboard Backlight LED
 
         External (OSDW, MethodObj) // 0 Arguments
@@ -37,7 +44,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         Method (_Q74, 0, NotSerialized) // FnLock (Fn + Esc)
         {
             // On OSX we handle the state ourselves
-            If (OSDW())
+            If (OSDW ())
             {
                 FUNL = (FUNL + 1) % 2
 
@@ -76,73 +83,75 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         Method (_Q6A, 0, NotSerialized) // F4 - Microphone Mute = F20
         {
             // On OSX we handle the state ourselves
-            If (OSDW())
+            If (OSDW ())
             {
-                MICL = (MICL + 1) % 2
+                Local0 = \_SB.PCI0.LPCB.EC.HKEY.MMTG()
                 
-                Switch (MICL)
+                if (Local0 == Zero) 
                 {
-                    Case (One) 
-                    {
-                        // Right Shift + F20
-                        Notify (KBD, 0x0136)
-                        Notify (KBD, 0x036B)
-                        Notify (KBD, 0x01b6)
-                        
-                        // Enable LED
-                        \_SB.PCI0.LPCB.EC.HKEY.MMTS (0x02)
-                    }
-                    Case (Zero) 
-                    {
-                        // Left Shift + F20
-                        Notify (KBD, 0x012A)
-                        Notify (KBD, 0x036B)
-                        Notify (KBD, 0x01aa)
-                        
-                        // Disable LED
-                        \_SB.PCI0.LPCB.EC.HKEY.MMTS (Zero)
-                    }
+                    Debug = "MIC ON left"
+
+                    // Left Shift + F20
+                    Notify (KBD, 0x012A)
+                    Notify (KBD, 0x036B)
+                    Notify (KBD, 0x01aa)
+                }
+                Else
+                {
+                    Debug = "MIC OFF right"
+
+                    // Right Shift + F20
+                    Notify (KBD, 0x0136)
+                    Notify (KBD, 0x036B)
+                    Notify (KBD, 0x01b6)
                 }
             }
-            Else
-            {
+                
+
+            //     Debug = "Toggle micmute"
+
+            //     Debug = "MMTG: "
+            //     Debug = Local0
+
+            //     Debug = "MICL: "
+            //     Debug = MICL
+                
+            //     MICL = (MICL + 1) % 2
+                
+            //     Switch (MICL)
+            //     {
+            //         Case (One) 
+            //         {
+            //             // Right Shift + F20
+            //             Notify (KBD, 0x0136)
+            //             Notify (KBD, 0x036B)
+            //             Notify (KBD, 0x01b6)
+                        
+            //             // Enable LED
+            //             // \_SB.PCI0.LPCB.EC.HKEY.MMTS (0x02)
+            //         }
+            //         Case (Zero) 
+            //         {
+            //             // Left Shift + F20
+            //             Notify (KBD, 0x012A)
+            //             Notify (KBD, 0x036B)
+            //             Notify (KBD, 0x01aa)
+                        
+            //             // Disable LED
+            //             // \_SB.PCI0.LPCB.EC.HKEY.MMTS (Zero)
+            //         }
+            //     }
+            // }
+            // Else
+            // {
                 // Call original method.
-                XQ6A()
-            }
+            XQ6A()
+            // }
         }
-
-
-        Method (_Q15, 0, NotSerialized)  // _Qxx: EC Query, xx=0x00-0xFF
-        {
-            If (_OSI ("Darwin"))
-            {
-                Notify (\_SB.PCI0.LPCB.KBD, 0x0405)
-                Notify (\_SB.PCI0.LPCB.KBD, 0x20) // Reserved
-            }
-            Else
-            {
-                \_SB.PCI0.LPCB.EC.XQ15 ()
-            }
-        }
-
-        Method (_Q14, 0, NotSerialized)  // _Qxx: EC Query, xx=0x00-0xFF
-        {
-            If (_OSI ("Darwin"))
-            {
-                Notify (\_SB.PCI0.LPCB.KBD, 0x0406)
-                Notify (\_SB.PCI0.LPCB.KBD, 0x10) // Reserved
-            }
-            Else
-            {
-                \_SB.PCI0.LPCB.EC.XQ14 ()
-            }
-        }
-
-
 
         Method (_Q16, 0, NotSerialized) // F7 - Dual Display = F16
         {
-            If (OSDW())
+            If (OSDW ())
             {
                 Notify(KBD, 0x0367)
             }
@@ -153,7 +162,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         
         Method (_Q64, 0, NotSerialized) // F8 - Network = F17
         {
-            If (OSDW())
+            If (OSDW ())
             {
                 Notify(KBD, 0x0368)
             }
@@ -164,7 +173,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         
         Method (_Q66, 0, NotSerialized) // F9 - Settings = F18
         {
-            If (OSDW())
+            If (OSDW ())
             {
                 Notify(KBD, 0x0369)
             }
@@ -176,7 +185,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         Method (_Q60, 0, NotSerialized) // F10 - Bluetooth
         {
 
-            If (OSDW())
+            If (OSDW ())
             {
                 // Left Shift + F17
                 Notify (KBD, 0x012A)
@@ -190,7 +199,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         
         Method (_Q61, 0, NotSerialized) // F11 - Keyboard
         {
-            If (OSDW())
+            If (OSDW ())
             {
                 // Send a down event for the Control key (scancode 1d), then a one-shot event (down then up) for
                 // the up arrow key (scancode 0e 48), and finally an up event for the Control key (break scancode 9d).
@@ -206,7 +215,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         
         Method (_Q62, 0, NotSerialized) // F12 - Star = F19
         {
-            If (OSDW())
+            If (OSDW ())
             {
                 Notify(KBD, 0x036A)
             }
@@ -219,7 +228,7 @@ DefinitionBlock("", "SSDT", 2, "X1C6", "_KEYS", 0x00000000)
         Method (_Q1F, 0, NotSerialized) // cycle keyboard backlight
         {
             // On OSX we handle the state ourselves
-            If (OSDW())
+            If (OSDW ())
           	{
                 KEYL = (KEYL + 1) % 3
                 

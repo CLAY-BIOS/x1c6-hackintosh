@@ -2,7 +2,7 @@
 
 [![macOS](https://img.shields.io/badge/macOS-Big_Sur_Beta_9-yellow.svg)](https://www.apple.com/de/macos/big-sur-preview/)
 [![BIOS](https://img.shields.io/badge/BIOS-1.49-blue)](https://pcsupport.lenovo.com/us/en/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-6th-gen-type-20kh-20kg/downloads/driver-list/component?name=BIOS%2FUEFI)
-[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.2_unreleased-green)](https://github.com/acidanthera/OpenCorePkg)
+[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.2-green)](https://github.com/acidanthera/OpenCorePkg)
 [![LICENSE](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 <img align="right" src="https://i.imgur.com/I3yUS4Q.png" alt="Critter" width="300">
@@ -23,10 +23,11 @@ I am not responsible for any damages you may cause.
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
 * Integration of YogaSMC
+* (Beta) Battery-reimplementation without ACPI-patching and Battery Information Supplement (https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
 * (Beta) Patches for Intel Wireless/Bluetooth-Cards (via @openIntelWireless)
 * Patches for the X1C6 Touchscreen (via @voodooI2C)
 * (WIP) TB-Hotplug-support with power-management
-* (WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)
+* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)~ doesnt seem to be helpful in terms of suspend power draw
 * ...
 
 #### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.

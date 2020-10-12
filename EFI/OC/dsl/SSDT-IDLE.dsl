@@ -15,100 +15,71 @@
 // Find:     5F53335F
 // Replace:  5853335F
 //
-DefinitionBlock("", "SSDT", 2, "X1C6", "_IDLE", 0)
+DefinitionBlock("", "SSDT", 2, "X1C6", "_IDLE", 0x00001000)
 {
-    External (XS3, IntObj)
-
-    Scope (\)
+    Scope (_SB)
     {
-        If (_OSI ("Darwin"))
-        {
-            // Name (_S0, Package (0x03)  // _S0_: S0 System State
-            // {
-            //     Zero, 
-            //     Zero, 
-            //     Zero
-            // })
-    
-            Scope (_SB)
-            {
-                Method (LPS0, 0, NotSerialized)
-                {
-                    Debug = "LPS0"
-                    Return (One)
-                }
-            }
-            
-            Scope (_GPE)
-            {
-                Method (LXEN, 0, NotSerialized)
-                {
-                        Debug = "LXEN"
-                        Return (One)
-                }
-            }
+        Method (LPS0, 0, NotSerialized)
+        {                    
+            Debug = "LPS0"
+            Return (One)
         }
-        Else
+    }
+    
+    Scope (_GPE)
+    {
+        Method (LXEN, 0, NotSerialized)
         {
-            Method (_S3, 0, NotSerialized)
-            {
-                Return(XS3)
-            }
-        }        
+            Debug = "LXEN"
+            Return (One)
+        }
     }
 
-    // AOAC wake
+    // // AOAC wake
+    // External(_SB.PCI0.LPCB.EC._Q2A, MethodObj)
+    // External(_SB.PCI0.LPCB.EC.AC, DeviceObj)
+    // External(_SB.LID, DeviceObj)
+    // External(_SB.PCI0.LPCB.EC.AC._PSR, MethodObj)
+    // External(PWRS, FieldUnitObj)
+    // External(_GPE._L17, MethodObj)
+
+    External (OSDW, MethodObj) // 0 Arguments
+
     External(_SB.PCI0.LPCB, DeviceObj)
-    External(_SB.PCI0.LPCB.EC.AC, DeviceObj)
-    External(_SB.LID.XLID, MethodObj)
 
     Scope (_SB.PCI0.LPCB)
     {
-        If (_OSI ("Darwin"))
+        If (OSDW ())
         {
-            Method (_S0W, 0, NotSerialized)  // _S0W: S0 Device Wake State
-            {
-                Debug = "LPCB:_S0W"
+            // Method (_S0W, 0, NotSerialized)  // _S0W: S0 Device Wake State
+            // {
+            //     Debug = "LPCB:_S0W"
 
-                Return (0x03)
-            }
+            //     Return (0x03)
+            // }
             
             Method (_PS0, 0, Serialized)
             {
                 Debug = "LPCB:_PS0"
 
-                \_SB.LID.AOAC = 1
-                Notify (\_SB.LID, 0x80) 
-                Sleep (200)
-                \_SB.LID.AOAC = 0
-                Notify (\_SB.PCI0.LPCB.EC.AC, 0x80) // Status Change
+                // \_SB.LID.AOAC = One
+                // Notify (\_SB.LID, 0x80) 
+                // Sleep (200)
+                // \_SB.LID.AOAC = Zero
+                //  \PWRS = \_SB.PCI0.LPCB.EC.AC._PSR ()
+
+                // \_SB.PCI0.LPCB.EC._Q2A()
+                // \_GPE._L17()
+                // Notify (\_SB.LID, 0x80) // Status Change
+
+                // Sleep (200)
+
+                // Notify (\_SB.PCI0.LPCB.EC.AC, 0x80) // Status Change
             }
 
             Method (_PS3, 0, Serialized)
             {
-            }
-        }
-    }
-
-    //path:_SB.PCI0.LPCB.H_EC.LID0._LID
-    External(_SB.LID, DeviceObj)
-    External(_SB.LID.XLID, MethodObj)
-    
-    Scope (_SB.LID)
-    {
-        Name (AOAC, Zero)
-
-        Method (_LID, 0, NotSerialized)
-        {
-            If ((_OSI ("Darwin") && (AOAC == One)))
-            {
-                Debug = "AOAC LID One"
-                Return (One)
-            }
-            Else
-            {
-                Debug = "Normal LID"
-                Return (\_SB.LID.XLID())
+                Debug = "LPCB:_PS3"
             }
         }
     }
