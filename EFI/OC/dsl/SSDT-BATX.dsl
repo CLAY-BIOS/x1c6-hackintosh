@@ -222,11 +222,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             /* Battery Capacity low at 10% */
             Name (DLOW, 10)
 
-            // Method to read 128byte-field SBMN
+            /* Method to read 128byte-field SBMN */
             Method (SBMN, 0, NotSerialized)
             {
                 //
-                // Information ID 5 -
+                // Information Page 5 -
                 //
                 HIID = 0x05
                 
@@ -237,7 +237,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             Method (SBDN, 0, NotSerialized)
             {
                 //
-                // Information ID 6 -
+                // Information Page 6 -
                 //
                 HIID = 0x06
                 
@@ -336,7 +336,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 HIID = Zero
 
-                //  Last Full Charge Capacity
+                // Last Full Charge Capacity
                 PBIX[0x03] = B1B2 (FC00, FC01)
 
                 //
@@ -344,18 +344,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 HIID = 0x02
 
-                //  Design capacity
+                // Design capacity
                 Local0 = B1B2 (DC00, DC01)
 
                 PBIX[0x02] = Local0
 
-                //  Design capacity of High
+                // Design capacity of High
                 PBIX[0x06] = Local0 / 100 * DWRN
 
-                //  Design capacity of Low 
+                // Design capacity of Low 
                 PBIX[0x07] = Local0 / 100 * DLOW
 
-                //  Design voltage
+                // Design voltage
                 PBIX[0x05] = B1B2 (DV00, DV01)
 
                 // Serial Number
@@ -366,15 +366,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 HIID = 0x04
 
-                //  Battery Type - Device Chemistry
+                // Battery Type - Device Chemistry
                 PBIX[0x12] = ToString (Concatenate (B1B4 (CH00, CH01, CH02, CH03), 0x00))
 
                 // OEM Information - Manufacturer Name
                 PBIX[0x13] = ToString (Concatenate(SBMN(), 0x00))
 
-                //
                 // Model Number - Device Name
-                //
                 PBIX[0x10] = ToString (Concatenate(SBDN(), 0x00))
 
                 // Concatenate ("BATX:BIXRevision: ", PBIX[0x00], Debug)
@@ -428,8 +426,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Return (PBST)
                 }
 
-                // Debug = "BATX:CBIS"
-
                 //
                 // Information Page 2 -
                 //
@@ -437,10 +433,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                 // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                 PBST[0x01] = B1B2 (DT00, DT01)
-
-                // Concatenate ("BATX:BISManufactureDate: ", PBST[0x01], Debug)
-                
-                // Debug = "BATX:CBIS end"
 
                 Release (^^BATM)
 
@@ -463,25 +455,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             Method (_BST, 0, NotSerialized)  // _BST: Battery Status
             {
-                If ((HB0S & 0x20))
-                {
-                    Local0 = 0x02
-                }
-                ElseIf ((HB0S & 0x40))
-                {
-                    Local0 = 0x01
-                }
-                Else
-                {
-                    Local0 = 0x00
-                }
-
-                If ((HB0S & 0x07)){}
-                Else
-                {
-                    Local0 |= 0x04
-                }
-
                 // Battery error state
                 If (((HB0S & 0x07) == 0x07))
                 {
@@ -497,22 +470,32 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Return (PBST)
                     }
 
+                    If ((HB0S & 0x20))
+                    {
+                        Local0 = 0x02
+                    }
+                    ElseIf ((HB0S & 0x40))
+                    {
+                        Local0 = 0x01
+                    }
+                    Else
+                    {
+                        Local0 = 0x00
+                    }
+
+                    If ((HB0S & 0x07)){}
+                    Else
+                    {
+                        Local0 |= 0x04
+                    }
+
                     //
                     // Information Page 0 -
                     //
                     HIID = 0x00 /* Battery dynamic information */
 
-                    /*
-                    * Present rate is a 16bit signed int, positive while charging
-                    * and negative while discharging.
-                    */
-                    Local2 = B1B2 (RC00, RC01)
                     Local1 = B1B2 (AC00, AC01)
 
-                    /*
-                    * The present rate value must be positive now, if it is not we have an
-                    * EC bug or inconsistency and force the value to 0.
-                    */
                     If ((Local1 >= 0x8000))
                     {
                         If ((Local0 & 0x01))
@@ -531,7 +514,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     PBST[0x00] = Local0
                     PBST[0x01] = Local1
-                    PBST[0x02] = Local2
+                    PBST[0x02] = B1B2 (RC00, RC01)
                     PBST[0x03] = B1B2 (VO00, VO01)
 
                     // Concatenate ("BATX:HWAT: ", ToDecimalString(HWAT), Debug)
