@@ -65,6 +65,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
+
+        // Method used for replacing reads to HWAC in _L17() & OWAK().
+        Method(XWAC, 0, NotSerialized)
+        {
+            Return (B1B2(WAC0, WAC1))
+        }
+
         //
         // EC region overlay.
         //
@@ -242,12 +249,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 HIID = 0x06
                 
                 Return (RECB (0xA0, 128)) // SBDN
-            }
-
-            // Method used for replacing reads to HWAC in _L17() & OWAK().
-            Method(XWAC, 0, NotSerialized)
-            {
-                Return (B1B2(WAC0, WAC1))
             }
 
             Method (_INI, 0, NotSerialized)
