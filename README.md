@@ -29,7 +29,7 @@ I am not responsible for any damages you may cause.
 * (WIP) TB-Hotplug-support with power-management
 * (WIP) Native ACPI USB for both controllers (USB 3.0/3.1)
 * Hibernation (hibernatemode 25)
-* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) ~ doesnt seem to be helpful in terms of suspend power draw
+* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it)~ doesnt seem to be helpful in terms of suspend power draw
 * ...
 
 #### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
@@ -38,7 +38,9 @@ I am not responsible for any damages you may cause.
 
 Standing on the shoulders of giants! Based on the works of many great people.
 
-[@tylernguyen](https://github.com/tylernguyen/x1c6-hackintosh) for his great prior art which is ripped apart here ;)  
+[@tylernguyen](https://github.com/tylernguyen/x1c6-hackintosh) for his great prior art which is ripped apart here ;)
+[@zhen-zen](https://github.com/zhen-zen) for YogaSMC and all the big and small improvements everywhere
+[@fewtarius](https://github.com/fewtarius) for his help & work to get perfectly working audio on this machine (even if the speakers stay crap)
 [@Colton-Ko](https://github.com/Colton-Ko/macOS-ThinkPad-X1C6) for the great features template.  
 [@stevezhengshiqi](https://github.com/stevezhengshiqi) for the one-key-cpufriend script.  
 [@corpnewt](https://github.com/corpnewt) for GibMacOS, EFIMount, and USBMap.  
@@ -46,7 +48,6 @@ Standing on the shoulders of giants! Based on the works of many great people.
 [@xzhih](https://github.com/xzhih) for one-key-hidpi.  
 [@daliansky](https://github.com/daliansky) for various hotpatches.  
 [@velaar](https://github.com/velaar) for your continual support and contributions.  
-[@benbender](https://github.com/benbender) for your various issue contributions.   
 [@Porco-Rosso](https://github.com/Porco-Rosso) putting up with my requests to test repo changes.  
 [@MSzturc](https://github.com/MSzturc) for adding my requested features to ThinkpadAssistant.  
 paranoidbashthot and \x for the BIOS mod to unlocked Intel Advance Menu.
