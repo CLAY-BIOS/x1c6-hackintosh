@@ -22,12 +22,14 @@ I am not responsible for any damages you may cause.
 * Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
-* Integration of YogaSMC
-* (Beta) Battery-reimplementation without ACPI-patching and Battery Information Supplement (https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
-* (Beta) Patches for Intel Wireless/Bluetooth-Cards (via @openIntelWireless)
-* Patches for the X1C6 Touchscreen (via @voodooI2C)
+* Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
+* (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
+* (Beta) Patches for Intel Wireless/Bluetooth-Cards (via [@openIntelWireless](https://gitter.im/OpenIntelWireless/itlwm))
+* Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
 * (WIP) TB-Hotplug-support with power-management
-* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)~ doesnt seem to be helpful in terms of suspend power draw
+* (WIP) Native ACPI USB for both controllers (USB 3.0/3.1)
+* Hibernation (hibernatemode 25)
+* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) ~ doesnt seem to be helpful in terms of suspend power draw
 * ...
 
 #### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
