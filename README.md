@@ -22,12 +22,14 @@ I am not responsible for any damages you may cause.
 * Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
-* Integration of YogaSMC
-* (Beta) Battery-reimplementation without ACPI-patching and Battery Information Supplement (https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
-* (Beta) Patches for Intel Wireless/Bluetooth-Cards (via @openIntelWireless)
-* Patches for the X1C6 Touchscreen (via @voodooI2C)
+* Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
+* (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
+* (Beta) Patches for Intel Wireless/Bluetooth-Cards (via [@openIntelWireless](https://gitter.im/OpenIntelWireless/itlwm))
+* Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
 * (WIP) TB-Hotplug-support with power-management
-* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it) and Hibernation (hibernatemode 25)~ doesnt seem to be helpful in terms of suspend power draw
+* (WIP) Native ACPI USB for both controllers (USB 3.0/3.1)
+* Hibernation (hibernatemode 25)
+* ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it)~ doesnt seem to be helpful in terms of suspend power draw
 * ...
 
 #### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
@@ -36,18 +38,19 @@ I am not responsible for any damages you may cause.
 
 Standing on the shoulders of giants! Based on the works of many great people.
 
-[@tylernguyen](https://github.com/tylernguyen/x1c6-hackintosh) for his great prior art which is ripped apart here ;)  
-[@Colton-Ko](https://github.com/Colton-Ko/macOS-ThinkPad-X1C6) for the great features template.  
-[@stevezhengshiqi](https://github.com/stevezhengshiqi) for the one-key-cpufriend script.  
-[@corpnewt](https://github.com/corpnewt) for GibMacOS, EFIMount, and USBMap.  
-[@Sniki](https://github.com/Sniki) and [@goodwin](https://github.com/goodwin) for ALCPlugFix.  
-[@xzhih](https://github.com/xzhih) for one-key-hidpi.  
-[@daliansky](https://github.com/daliansky) for various hotpatches.  
-[@velaar](https://github.com/velaar) for your continual support and contributions.  
-[@benbender](https://github.com/benbender) for your various issue contributions.   
-[@Porco-Rosso](https://github.com/Porco-Rosso) putting up with my requests to test repo changes.  
-[@MSzturc](https://github.com/MSzturc) for adding my requested features to ThinkpadAssistant.  
-paranoidbashthot and \x for the BIOS mod to unlocked Intel Advance Menu.
+* [@tylernguyen](https://github.com/tylernguyen/x1c6-hackintosh) for his great prior art which is ripped apart here ;)
+* [@zhen-zen](https://github.com/zhen-zen) for YogaSMC and all the big and small improvements everywhere
+* [@fewtarius](https://github.com/fewtarius) for his help & work to get perfectly working audio on this machine (even if the speakers stay crap)
+* [@Colton-Ko](https://github.com/Colton-Ko/macOS-ThinkPad-X1C6) for the great features template.  
+* [@stevezhengshiqi](https://github.com/stevezhengshiqi) for the one-key-cpufriend script.  
+* [@corpnewt](https://github.com/corpnewt) for GibMacOS, EFIMount, and USBMap.  
+* [@Sniki](https://github.com/Sniki) and [@goodwin](https://github.com/goodwin) for ALCPlugFix.  
+* [@xzhih](https://github.com/xzhih) for one-key-hidpi.  
+* [@daliansky](https://github.com/daliansky) for various hotpatches.  
+* [@velaar](https://github.com/velaar) for your continual support and contributions.  
+* [@Porco-Rosso](https://github.com/Porco-Rosso) putting up with my requests to test repo changes.  
+* [@MSzturc](https://github.com/MSzturc) for adding my requested features to ThinkpadAssistant.  
+* paranoidbashthot and \x for the BIOS mod to unlocked Intel Advance Menu.
 
 
 The greatest thank you and appreciation to [@Acidanthera](https://github.com/acidanthera), without whom's work, none of this would be possible.
