@@ -228,7 +228,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 Device (SSP1)
                 {
-                    Name (_ADR, One)  // _ADR: Address
+                    Name (_ADR, 0x03)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
@@ -310,7 +310,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 Device (SSP2)
                 {
-                    Name (_ADR, 0x02)  // _ADR: Address
+                    Name (_ADR, 0x04)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
@@ -393,7 +393,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 Device (HS01)
                 {
-                    Name (_ADR, 0x03)  // _ADR: Address
+                    Name (_ADR, 0x01)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
@@ -436,7 +436,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 Device (HS02)
                 {
-                    Name (_ADR, 0x04)  // _ADR: Address
+                    Name (_ADR, 0x02)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 

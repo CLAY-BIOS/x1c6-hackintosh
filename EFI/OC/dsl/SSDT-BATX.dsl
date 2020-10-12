@@ -409,7 +409,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              */
             Name (PBIS, Package (0x08)
             {
-                0x006F007F,  // 0x00: BISConfig - config, double check if you have valid AverageRate before
+                0x007F007F,  // 0x00: BISConfig - config, double check if you have valid AverageRate before
                              //       fliping that bit to 0x007F007F since it will disable quickPoll
                 0xFFFFFFFF,  // 0x01: BISManufactureDate - ManufactureDate (0x1), AppleSmartBattery format
                 0xFFFFFFFF,  // 0x02: BISPackLotCode - PackLotCode 

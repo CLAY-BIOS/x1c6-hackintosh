@@ -112,6 +112,14 @@
 			</dict>
 			<dict>
 				<key>Comment</key>
+				<string></string>
+				<key>Enabled</key>
+				<true/>
+				<key>Path</key>
+				<string>SSDT-TB.aml</string>
+			</dict>
+			<dict>
+				<key>Comment</key>
 				<string>USB 3.0</string>
 				<key>Enabled</key>
 				<true/>
@@ -125,14 +133,6 @@
 				<true/>
 				<key>Path</key>
 				<string>SSDT-XHC2.aml</string>
-			</dict>
-			<dict>
-				<key>Comment</key>
-				<string></string>
-				<key>Enabled</key>
-				<true/>
-				<key>Path</key>
-				<string>SSDT-TB.aml</string>
 			</dict>
 		</array>
 		<key>Delete</key>
@@ -1318,8 +1318,6 @@
 				<string>No</string>
 				<key>csr-active-config</key>
 				<data>/w8AAA==</data>
-				<key>prev-lang:kbd</key>
-				<data>ZGU6Mw==</data>
 			</dict>
 		</dict>
 		<key>Delete</key>
