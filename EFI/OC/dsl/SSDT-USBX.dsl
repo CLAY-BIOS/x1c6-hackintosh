@@ -18,14 +18,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_USBX", 0x00001000)
                 {
                     Local0 = Package (0x08)
                     {
-                        "kUSBSleepPowerSupply",
-                        0x13EC,
-                        "kUSBSleepPortCurrentLimit",
-                        0x0834,
-                        "kUSBWakePowerSupply",
-                        0x13EC,
-                        "kUSBWakePortCurrentLimit",
-                        0x0834
+                        "kUSBSleepPortCurrentLimit", 
+                        0x0BB8, 
+                        "kUSBWakePortCurrentLimit", 
+                        0x0BB8
                     }
                     DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                     Return (Local0)
