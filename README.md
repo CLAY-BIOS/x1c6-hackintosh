@@ -22,6 +22,8 @@ I am not responsible for any damages you may cause.
 * Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
+* (WIP) Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper sleep on OSX.
+* (WIP) Enables DeepSleep on S3 for OSX
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
 * (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
 * (Beta) Patches for Intel Wireless/Bluetooth-Cards (via [@openIntelWireless](https://gitter.im/OpenIntelWireless/itlwm))
