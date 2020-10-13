@@ -93,7 +93,15 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC", 0x00001000)
 
         Scope (RHUB)
         {
-            Scope (HS01) // right USB-A / USB 2.0 @ 480Mbit/s
+           Name (UPC8, Package (0x04)
+           {
+               0xFF, 
+               0x08, 
+               Zero, 
+               Zero
+           })
+            
+           Scope (HS01) // right USB-A / USB 2.0 @ 480Mbit/s
             {
                 Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                 {
@@ -129,82 +137,69 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC", 0x00001000)
                 }
             }
 
-            If (TBAS)
+            Scope (HS03) // usb 2 for usb-c ?
             {
-                Scope (HS03) // usb 2 for usb-c ?
+                Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                 {
-                    Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
-                    {
-                        0xFF, 
-                        0x08, 
-                        Zero, 
-                        Zero
-                    })
+                    0xFF, 
+                    0x0A, 
+                    Zero, 
+                    Zero
+                })
 
+                If (TBAS)
+                {
+                    CopyObject (UPC8, _UPC)
                     Name (SSP, Package (0x02)
                     {
                         "XHC2", 
-                        One
+                        0x03
                     })
                     Name (SS, Package (0x02)
                     {
                         "XHC2", 
-                        One
+                        0x03
                     })
-                    
-                    Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
-                    {
-                        Local0 = Package (0x00) {}
-                        DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
-                        Return (Local0)
-                    }
                 }
-
-                Scope (HS04) // usb 2 for usb-c ?
+                
+                Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                 {
-                    Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
-                    {
-                        0xFF, 
-                        0x08, 
-                        Zero, 
-                        Zero
-                    })
-
-                    Name (SSP, Package (0x02)
-                    {
-                        "XHC2", 
-                        0x02
-                    })
-                    Name (SS, Package (0x02)
-                    {
-                        "XHC2", 
-                        0x02
-                    })
-                    
-                    Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
-                    {
-                        Local0 = Package (0x00) {}
-                        DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
-                        Return (Local0)
-                    }
+                    Local0 = Package (0x00) {}
+                    DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                    Return (Local0)
                 }
             }
-            Else
-            {
-                Scope (HS03) // not used
-                {
-                    Method (_STA, 0, NotSerialized)  // _STA: Status
-                    {
-                        Return (Zero)
-                    }
-                }
 
-                Scope (HS04) // not used
+            Scope (HS04) // usb 2 for usb-c ?
+            {
+                Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                 {
-                    Method (_STA, 0, NotSerialized)  // _STA: Status
+                    0xFF, 
+                    0x0A, 
+                    Zero, 
+                    Zero
+                })
+
+                If (TBAS)
+                {
+                    CopyObject (UPC8, _UPC)
+                    Name (SSP, Package (0x02)
                     {
-                        Return (Zero)
-                    }
+                        "XHC2", 
+                        0x04
+                    })
+                    Name (SS, Package (0x02)
+                    {
+                        "XHC2", 
+                        0x04
+                    })
+                }
+                    
+                Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+                {
+                    Local0 = Package (0x00) {}
+                    DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                    Return (Local0)
                 }
             }
 

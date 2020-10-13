@@ -117,6 +117,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
+                Store (One, U2OP)
                 If (U2OP == One)
                 {
                     Local0 = Package (0x06)
@@ -232,7 +233,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x0A, 
                         Zero, 
                         Zero
                     })
@@ -244,8 +245,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Red                = 0x0,
                             PLD_Green              = 0x0,
                             PLD_Blue               = 0x0,
-                            PLD_Width              = 0x0,
-                            PLD_Height             = 0x0,
+                            PLD_Width              = 0x8,
+                            PLD_Height             = 0x3,
                             PLD_UserVisible        = 0x1,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
@@ -255,7 +256,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Shape              = "UNKNOWN",
                             PLD_GroupOrientation   = 0x0,
                             PLD_GroupToken         = 0x0,
-                            PLD_GroupPosition      = 0x0,
+                            PLD_GroupPosition      = 0x1,
                             PLD_Bay                = 0x0,
                             PLD_Ejectable          = 0x0,
                             PLD_EjectRequired      = 0x0,
@@ -269,17 +270,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     })
                     Name (HS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x03
                     })
                     Name (FS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x03
                     })
                     Name (LS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x03
                     })
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -314,7 +315,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x0A, 
                         Zero, 
                         Zero
                     })
@@ -326,8 +327,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Red                = 0x0,
                             PLD_Green              = 0x0,
                             PLD_Blue               = 0x0,
-                            PLD_Width              = 0x0,
-                            PLD_Height             = 0x0,
+                            PLD_Width              = 0x8,
+                            PLD_Height             = 0x3,
                             PLD_UserVisible        = 0x1,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
@@ -337,7 +338,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Shape              = "UNKNOWN",
                             PLD_GroupOrientation   = 0x0,
                             PLD_GroupToken         = 0x0,
-                            PLD_GroupPosition      = 0x0,
+                            PLD_GroupPosition      = 0x1,
                             PLD_Bay                = 0x0,
                             PLD_Ejectable          = 0x0,
                             PLD_EjectRequired      = 0x0,
@@ -352,17 +353,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                     Name (HS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x04
                     })
                     Name (FS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x04
                     })
                     Name (LS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC", 
                         0x04
                     })
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -393,11 +394,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 Device (HS01)
                 {
-                    Name (_ADR, 0x01)  // _ADR: Address
+                    Name (_ADR, One)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
-                        0xFF, 
-                        0x09, 
+                        Zero, 
+                        Zero, 
                         Zero, 
                         Zero
                     })
@@ -411,7 +412,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -439,8 +440,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     Name (_ADR, 0x02)  // _ADR: Address
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
-                        0xFF, 
-                        0x09, 
+                        Zero, 
+                        Zero, 
                         Zero, 
                         Zero
                     })
@@ -454,7 +455,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
