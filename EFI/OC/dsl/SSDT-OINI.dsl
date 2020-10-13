@@ -1,3 +1,4 @@
+// Reference: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
 {
     External (\_SB.PCI0, DeviceObj)
@@ -8,14 +9,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
     External (SADE, FieldUnitObj) // B0D4 
 
     External (VIGD, FieldUnitObj) // Smth with Video/Backlight
-    External (SMD0, FieldUnitObj) // I2C0
     External (TBAS, FieldUnitObj) // TB
-    External (TBTS, FieldUnitObj) // TB enabled?
-    External (TWIN, FieldUnitObj) // Windows native TB
+    External (TBTS, FieldUnitObj) // Thunderbolt(TM) support
+    External (TNAT, FieldUnitObj) // TbtNativeOsHotPlus
+    External (TWIN, FieldUnitObj) // TB Windows native
+    External (TBSE, FieldUnitObj) // Thunderbolt(TM) Root port selector
+    External (RTD3, FieldUnitObj) // Runtime D3 enabled?
     External (UCSI, FieldUnitObj)
     External (USTC, FieldUnitObj) // USB-C 3.1?
     External (USME, FieldUnitObj)
-    External (RTD3, FieldUnitObj) // Runtime D3 enabled?
+    
+
+    External (APIC, FieldUnitObj) // APIC Enabled by SBIOS (APIC Enabled = 1)
+    External (TCNT, FieldUnitObj) // Number of Enabled Threads
+    External (NEXP, FieldUnitObj) // Native PCIE Setup Value
     
     External (RTVM, FieldUnitObj) // Precondition for VMON()/VMOF - Whats this?
 
@@ -37,7 +44,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 // Debug = "Patching OSYS to Darwin"
                 
                 // Set OSYS to Darwin, also enables windows-modernizations in ACPI
-                OSYS = 0x2710
+                // OSYS = 0x2710
 
                 Debug = "USTC: "
                 Debug = USTC
@@ -83,15 +90,28 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 Debug = "USTC: "
                 Debug = USTC
 
-                // Custom I2C0
-                Debug = "Old SMD0: "
-                Debug = SMD0
-
-                // SMD0 = 0x02
-
-                If (((S0ID == One) || (OSYS >= 0x07DF)))
+                If (RTD3 == One)
                 {
-                    Debug = "Modern Standby enabled"
+                    Debug = "Runtime D3 support enabled"
+                }
+
+                If (S0ID == One)
+                {
+                    Debug = "Low Power S0 Idle Enabled"
+                }
+
+                If (STY0 == Zero)
+                {
+                    Debug = "S3 enabled"
+                }
+                Else
+                {
+                    Debug = "S3 disabled"
+
+                    If (((S0ID == One) || (OSYS >= 0x07DF)))
+                    {
+                        Debug = "Modern Standby enabled"
+                    }
                 }
 
                 // // Shutdown TPM

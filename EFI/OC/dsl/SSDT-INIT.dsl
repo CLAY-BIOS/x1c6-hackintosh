@@ -55,31 +55,35 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
     External (S0ID, FieldUnitObj) // S0 enabled
     External (STY0, FieldUnitObj) // S3 Enabled?
 
-    Scope (\)
+    If (OSDW ())
     {
-        If (OSDW ())
-        {
-            Debug = "Set Variables..."
+        Debug = "Set Variables..."
 
-            // disable HPET. It shouldn't be needed on modern systems anyway and is also disabled in genuine OSX
-            HPTE = Zero
+        // disable HPET. It shouldn't be needed on modern systems anyway and is also disabled in genuine OSX
+        HPTE = Zero
 
-            // Enables DYTC, Lenovos thermal solution. Can be controlled by YogaSMC
-            WNTF = One
+        // Enables DYTC, Lenovos thermal solution. Can be controlled by YogaSMC
+        WNTF = One
 
-            // Disable DPTF, we use DYTC!
-            DPTF = Zero
+        // Disable DPTF, we use DYTC!
+        DPTF = Zero
 
-            // S0ID = Zero
+        // Enable S3
+        // 0x00 enables S3
+        // 0x02 disables S3
+        STY0 = Zero
 
-            // STY0 = One
+        // Disable S0
+        S0ID = Zero
 
-            // Disable GPIO 
-            // GPEN = Zero
+        // S0ID = Zero
 
-            // Disable B0D4
-            // SADE = Zero
-        }
+        // STY0 = One
+
+        // Disable GPIO 
+        // GPEN = Zero
+
+        // Disable B0D4
+        // SADE = Zero
     }
 }
-
