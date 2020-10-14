@@ -1,4 +1,4 @@
-// Source: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
+i// Source: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
 //   //
 //   // Miscellaneous Dynamic Registers:
 //   //
@@ -53,7 +53,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
     External (SADE, FieldUnitObj) // B0D4 enabled?
     External (ACC0, FieldUnitObj) // TPM enabled?
     External (S0ID, FieldUnitObj) // S0 enabled
-    External (STY0, FieldUnitObj) // S3 Enabled?
+    External (STY0, FieldUnitObj) // S3 Enabled?    
 
     If (OSDW ())
     {
@@ -85,5 +85,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
 
         // Disable B0D4
         // SADE = Zero
+
+        If (STY0 == Zero && !CondRefOf (\_S3))
+        {
+            Name (\_S3, Package (0x04)  // _S3_: S3 System State
+            {
+                0x05, 
+                0x05, 
+                0x00, 
+                0x00
+            })
+        }
     }
 }
+
