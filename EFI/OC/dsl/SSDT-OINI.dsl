@@ -19,13 +19,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
     External (USTC, FieldUnitObj) // USB-C 3.1?
     External (USME, FieldUnitObj)
     
-
+    External (_SB.PCI0.LPCB.EC.DCBD, FieldUnitObj) // Bluetooth Enabled?
+    
     External (APIC, FieldUnitObj) // APIC Enabled by SBIOS (APIC Enabled = 1)
     External (TCNT, FieldUnitObj) // Number of Enabled Threads
     External (NEXP, FieldUnitObj) // Native PCIE Setup Value
     
     External (RTVM, FieldUnitObj) // Precondition for VMON()/VMOF - Whats this?
-
 
     // External (\_SB.TPM.PTS, MethodObj)
 
@@ -80,6 +80,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 Debug = "TBTS: "
                 Debug = TBTS
 
+                Debug = "DCBD: "
+                Debug = \_SB.PCI0.LPCB.EC.DCBD
+
+                
+
                 // TBAS = One
 
                 // TB Compagnion. If = Zero, Ports on original TB
@@ -89,6 +94,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 // TB USB Ports? If enabled usb-c-ports on XHC2
                 Debug = "USTC: "
                 Debug = USTC
+
+                If (\_SB.PCI0.LPCB.EC.DCBD == One)
+                {
+                    Debug = "Bluetooth enabled"
+                }
 
                 If (RTD3 == One)
                 {
