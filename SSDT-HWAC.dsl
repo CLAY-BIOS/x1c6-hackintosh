@@ -1,8 +1,21 @@
 /**
- * On many modern thinkpad-hackintoshes there are 16-bit-ec-accesses in _OWAK(), 
- * which gets calles by _WAK on wake and crashes there, and the _L17()-event, which are unpatched.
+ * On many modern hackintoshed thinkpads there are 16-bit-ec-accesses in _OWAK() and/or _L17 in ACPI, 
+ * OWAK() gets called by _WAK() on wake and crashes there.
  *
  * This SSDT is a simple solution for the problem and should be stable accross different machines.
+ *
+ * Background:
+ * 
+ * `Later releases of AppleACPIPlatform are unable to correctly access fields within the EC (embedded controller). 
+ * This causes problems for ACPIBatteryManager as the various ACPI methods for battery fail (_BIF, _STA, _BST, etc).
+ * Although it is possible to use an older version of AppleACPIPlatform (from Snow Leopard), it is desirable to use 
+ * the latest version of AppleACPIPlatform because with computers that have Ivy Bridge CPUs it enables native power 
+ * management for those computers. To use the latest version, DSDT must be changed to comply with the limitations of 
+ * Apple's AppleACPIPlatform.
+ * 
+ * In particular, any fields in the EC larger than 8-bit, must be changed to be accessed 8-bits at one time. 
+ * This includes 16, 32, 64, and larger fields.`
+ * - @Rehabman, https://www.tonymacx86.com/threads/guide-how-to-patch-dsdt-for-working-battery-status.116102/
  */
 
 // Patch for OpenCore 0.62
