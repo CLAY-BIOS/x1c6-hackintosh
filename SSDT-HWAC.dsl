@@ -2,7 +2,7 @@
  * On many modern hackintoshed thinkpads there are 16-bit-ec-accesses in _OWAK() and/or _L17 in ACPI, 
  * OWAK() gets called by _WAK() on wake and crashes there.
  *
- * This SSDT is a simple solution for the problem and should be stable accross different machines.
+ * This SSDT is a simple solution for the problem and should be stable accross different machines as it fixes all accesses to EC.HWAC at once.
  *
  * Background:
  * 
