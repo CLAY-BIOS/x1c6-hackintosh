@@ -7,11 +7,7 @@
  * Background:
  * 
  * `Later releases of AppleACPIPlatform are unable to correctly access fields within the EC (embedded controller). 
- * This causes problems for ACPIBatteryManager as the various ACPI methods for battery fail (_BIF, _STA, _BST, etc).
- * Although it is possible to use an older version of AppleACPIPlatform (from Snow Leopard), it is desirable to use 
- * the latest version of AppleACPIPlatform because with computers that have Ivy Bridge CPUs it enables native power 
- * management for those computers. To use the latest version, DSDT must be changed to comply with the limitations of 
- * Apple's AppleACPIPlatform.
+ * [...] DSDT must be changed to comply with the limitations of Apple's AppleACPIPlatform.
  * 
  * In particular, any fields in the EC larger than 8-bit, must be changed to be accessed 8-bits at one time. 
  * This includes 16, 32, 64, and larger fields.`
