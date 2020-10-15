@@ -1,11 +1,11 @@
 /**
- * On many modern hackintoshed thinkpads there are 16-bit-ec-accesses in _OWAK() and/or _L17 in ACPI, 
- * OWAK() gets called by _WAK() on wake and crashes there.
+ * On many modern hackintoshed thinkpads there are accesses to the 16-bit EC-field `HWAC` in (mostly) _OWAK() and/or _L17 in the original DSDT, 
+ * The ACPI-method OWAK() gets called by _WAK() on wake and crashes there, leaving the machine in an undefined/unknown hw-state as the 
+ * wakeup-methods can't run to its end.
  *
  * This SSDT is a simple solution for the problem and should be stable accross different machines as it fixes all accesses to EC.HWAC at once.
  *
  * Background:
- * 
  * `Later releases of AppleACPIPlatform are unable to correctly access fields within the EC (embedded controller). 
  * [...] DSDT must be changed to comply with the limitations of Apple's AppleACPIPlatform.
  * 
