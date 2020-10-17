@@ -1,6 +1,6 @@
 /**
  * On many modern hackintoshed thinkpads there are ofthen accesses to the 16-bit EC-field `HWAC`, which are mostly 
- * not handled by battery-patches (f.e. those currated by @daliansky). Those accesses are (mostly) in the _OWAK() 
+ * not handled by battery-patches (f.e. those currated by @daliansky). Those accesses are (mostly) located in the _OWAK() 
  * and/or _L17-ACPI-methods of the original DSDT.
  *
  * The ACPI-method OWAK() gets called by _WAK() on wake and crashes there on access of the HWAC-field, leaving the 
@@ -8,10 +8,10 @@
  * can't run to its end.
  *
  * Especially this bug is often not clearly visible as the kernel-ringbuffer (msgbuf) is, by default, only 4kb in size and flooded on wake 
- * with many messages. This can be mitigated (up to 16kb) via `msgbuf` boot-arg or patched by `DebugEnhancer.kext` by @acidanthera.
+ * with many messages. This can be mitigated (up to 16kb) via `msgbuf`-boot-arg or patched by `DebugEnhancer.kext` by @acidanthera.
  * You can check the size of your msgbuf with `sysctl -a kern.msgbuf`.
  *
- * This SSDT is a simple solution for that problem and should be stable accross different thinkpad models which suffer from this problem
+ * This SSDT is a simple solution for that problem and should be stable accross different Thinkpad models which suffer from this problem
  * as it fixes all accesses to the EC.HWAC-field at once.
  * 
  * It repleaces all reads to HWAC with a call to XWAC(), returning a newly stitched 16-bit-field out of the
