@@ -24,8 +24,16 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
     External (APIC, FieldUnitObj) // APIC Enabled by SBIOS (APIC Enabled = 1)
     External (TCNT, FieldUnitObj) // Number of Enabled Threads
     External (NEXP, FieldUnitObj) // Native PCIE Setup Value
+
+    External (SDS8, FieldUnitObj) // Blth-Uart
+    External (SMD8, FieldUnitObj)
     
     External (RTVM, FieldUnitObj) // Precondition for VMON()/VMOF - Whats this?
+
+    External (SS1, IntObj)
+    External (SS2, IntObj)
+    External (SS3, IntObj)
+    External (SS4, IntObj)
 
     // External (\_SB.TPM.PTS, MethodObj)
 
@@ -67,8 +75,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 Debug = "RTD3: "
                 Debug = RTD3
 
-                // UCSI = One
-
                 // HPM USB-C PD
                 Debug = "UCSI: "
                 Debug = UCSI
@@ -83,9 +89,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 Debug = "DCBD: "
                 Debug = \_SB.PCI0.LPCB.EC.DCBD
 
-                
+                Debug = "SDS8: "
+                Debug = SDS8
 
-                // TBAS = One
+                Debug = "SMD8: "
+                Debug = SMD8
 
                 // TB Compagnion. If = Zero, Ports on original TB
                 Debug = "USME: "
@@ -129,6 +137,15 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 // {
                 //     \_SB.TPM.PTS (0x03)
                 // }
+
+                Debug = "GPRW: "
+
+                Local0 = (SS1 << 0x01)
+                Local0 |= (SS2 << 0x02)
+                Local0 |= (SS3 << 0x03)
+                Local0 |= (SS4 << 0x04)
+
+                Debug = Local0
             }
 
             ZINI()

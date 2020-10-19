@@ -5,6 +5,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_PLUG", 0x00001000)
 {
     External (OSDW, MethodObj) // 0 Arguments
 
+    //
     // The CPU device name. (PR00 here)
     //
     External (_PR.PR00, ProcessorObj)

@@ -31,6 +31,33 @@
 // 	<data>RFNEVA==</data>
 // </dict>
 //
+// <dict>
+//  <key>Comment</key>
+//  <string>BAT: Fix Notify BAT0 to BATX</string>
+//  <key>Count</key>
+//  <integer>0</integer>
+//  <key>Enabled</key>
+//  <true/>
+//  <key>Find</key>
+//  <data>hkJBVDAK</data>
+//  <key>Limit</key>
+//  <integer>0</integer>
+//  <key>Mask</key>
+//  <data></data>
+//  <key>OemTableId</key>
+//  <data></data>
+//  <key>Replace</key>
+//  <data>hkJBVFgK</data>
+//  <key>ReplaceMask</key>
+//  <data></data>
+//  <key>Skip</key>
+//  <integer>0</integer>
+//  <key>TableLength</key>
+//  <integer>0</integer>
+//  <key>TableSignature</key>
+//  <data>RFNEVA==</data>
+// </dict>
+//
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
@@ -54,7 +81,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
     // HIID: [Battery information ID for 0xA0-0xAF]
     //   (this byte is depend on the interface, 62&66 and 1600&1604)
     External (_SB.PCI0.LPCB.EC.HIID, FieldUnitObj)
-
+    
     // External Methods from SSDT-UTILS.dsl
     External(_SB.PCI0.LPCB.EC.RE1B, MethodObj)
     External(_SB.PCI0.LPCB.EC.RECB, MethodObj)
@@ -87,20 +114,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             B0CH, 1,	/* Battery 0 charging */
             B0DI, 1,	/* Battery 0 discharging */
             B0PR, 1,	/* Battery 0 present */
-
-            // Offset (0x39),
-            // B1ST, 4,	/* Battery 1 state */
-            //     , 1,
-            // B1CH, 1,	/* Battery 1 charging, */
-            // B1DI, 1,    /* Battery 1 discharging,*/
-            // B1PR, 1,	/* Battery 1 present */
-
-            // Offset(0xC9),   // [Wattage of AC/DC]
-            // HWAT, 8,        //
-
-            // Offset(0xCC),   //
-            // PWMH, 8,        // CC : AC Power Consumption (MSB)
-            // PWML, 8,        // CD : AC Power Consumption (LSB) - unit: 100mW
         }
 
         //
@@ -219,9 +232,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
         Device (BATX)
         {
-            Name (_HID, EisaId ("PNP0C0A"))
-            Name (_UID, 0x02)
-            Name (_PCL, Package () { \_SB })
+            Name (_HID, EisaId ("PNP0C0A") /* Control Method Battery */)  // _HID: Hardware ID
+            Name (_UID, Zero)  // _UID: Unique ID
+            Name (_PCL, Package (0x01)  // _PCL: Power Consumer List
+            {
+                _SB
+            })
 
             /* Battery Capacity warning at 15% */
             Name (DWRN, 15)
@@ -269,10 +285,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     // result is bitwise OR between them
                     Return (^^BAT0._STA ())
                 }
-                Else
-                {
-                    Return (Zero)
-                }
+
+                Return (Zero)
             }
 
             /**
@@ -288,21 +302,22 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 0xFFFFFFFF,  // 0x03: BIXLastFullChargeCapacity - Last Full Charge Capacity - Integer (DWORD)
                 0x00000001,  // 0x04: BIXBatteryTechnology - Battery Technology: Rechargeable - Integer (DWORD)
                 0xFFFFFFFF,  // 0x05: BIXDesignVoltage - Design Voltage - Integer (DWORD)
-                0x00000000,  // 0x06: BIXDesignCapacityOfWarning - Design Capacity of Warning - Integer (DWORD)
-                0x00000000,  // 0x07: BIXDesignCapacityOfLow - Design Capacity of Low - Integer (DWORD)
+                0x000000FA,  // 0x06: BIXDesignCapacityOfWarning - Design Capacity of Warning - Integer (DWORD)
+                0x00000064,  // 0x07: BIXDesignCapacityOfLow - Design Capacity of Low - Integer (DWORD)
                 0xFFFFFFFF,  // 0x08: BIXCycleCount - Cycle Count - Integer (DWORD)
                 0x00017318,  // 0x09: BIXMeasurementAccuracy - Measurement Accuracy (98.3%?) - Integer (DWORD)
                 0xFFFFFFFF,  // 0x0a: BIXMaxSamplingTime - Max Sampling Time (500ms) - Integer (DWORD)
                 0xFFFFFFFF,  // 0x0b: BIXMinSamplingTime - Min Sampling Time (10ms) - Integer (DWORD)
                 5000,        // 0x0c: BIXMaxAveragingInterval - Max Averaging Interval - Integer (DWORD)
                 500,         // 0x0d: BIXMinAveragingInterval - Min Averaging Interval - Integer (DWORD)
-                0xFFFFFFFF,  // 0x0e: BIXBatteryCapacityGranularity1 - Capacity Granularity 1
-                0xFFFFFFFF,  // 0x0f: BIXBatteryCapacityGranularity2 - Capacity Granularity 2
-                "",          // 0x10: BIXModelNumber - Model Number - String
-                "",          // 0x11: BIXSerialNumber - Serial Number - String
-                "",          // 0x12: BIXBatteryType - Battery Type - String
-                "",          // 0x13: BIXOEMInformation - OEM Information - String
+                0x0000000A,  // 0x0e: BIXBatteryCapacityGranularity1 - Capacity Granularity 1
+                0x0000000A,  // 0x0f: BIXBatteryCapacityGranularity2 - Capacity Granularity 2
+                " ",         // 0x10: BIXModelNumber - Model Number - String
+                " ",         // 0x11: BIXSerialNumber - Serial Number - String
+                " ",         // 0x12: BIXBatteryType - Battery Type - String
+                " ",         // 0x13: BIXOEMInformation - OEM Information - String
                 0x00000000   // 0x14: ??? - Battery Swapping Capability, 0x00000000 = non-swappable - Integer (DWORD)
+                             //       added in Revision 1: Zero means Non-swappable, One – Cold-swappable, 0x10 – Hot-swappable
             })
 
             /**
@@ -327,6 +342,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 HIID = 0x01
 
                 // Needs conversion?
+                //
+                // For reference: (ignored here for the moment):
+                //  `On Lenovo Thinkpad models from 2010 and 2011, the power unit
+                //  switches between mWh and mAh depending on whether the system
+                //  is running on battery or not.  When mAh is the unit, most
+                //  reported values are incorrect and need to be adjusted by
+                //  10000/design_voltage.  Verified on x201, t410, t410s, and x220.
+                //  Pre-2010 and 2012 models appear to always report in mWh and
+                //  are thus unaffected (tested with t42, t61, t500, x200, x300,
+                //  and x230).  Also, in mid-2012 Lenovo issued a BIOS update for
+                //  the 2011 models that fixes the issue (tested on x220 with a
+                //  post-1.29 BIOS), but as of Nov. 2012, no such update is
+                //  available for the 2010 models.`
+                //  src: https://github.com/torvalds/linux/blob/9ff9b0d392ea08090cd1780fb196f36dbb586529/drivers/acpi/battery.c#L82
                 PBIX[0x01] = SBCM ^ 0x01
 
                 //  Cycle count
@@ -471,63 +500,48 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Return (PBST)
                     }
 
-                    If ((HB0S & 0x20))
-                    {
-                        Local0 = 0x02
-                    }
-                    ElseIf ((HB0S & 0x40))
-                    {
-                        Local0 = 0x01
-                    }
-                    Else
-                    {
-                        Local0 = 0x00
-                    }
-
-                    If ((HB0S & 0x07)){}
-                    Else
-                    {
-                        Local0 |= 0x04
-                    }
+                    Local0 = 0x00
 
                     //
                     // Information Page 0 -
                     //
                     HIID = 0x00 /* Battery dynamic information */
 
+                    // Present rate is a 16bit signed int, positive while charging
+                    // and negative while discharging.
                     Local1 = B1B2 (AC00, AC01)
 
-                    If ((Local1 >= 0x8000))
+                    If (B0CH) // Charging
                     {
-                        If ((Local0 & 0x01))
+                        Or(2, Local0, Local0)
+                    }
+                    Else
+                    {
+                        If (B0DI) // Discharging
                         {
-                            Local1 = (0x00010000 - Local1)
+                            Or(1, Local0, Local0)
+
+                            // Negate present rate
+                            Subtract(0x10000, Local1, Local1)
                         }
-                        Else
+                        Else // Full battery, force to 0
                         {
-                            Local1 = 0x00
+                            Store(0, Local1)
                         }
                     }
-                    ElseIf (!(Local0 & 0x02))
-                    {
-                        Local1 = 0x00
+
+                    /*
+                     * The present rate value must be positive now, if it is not we have an
+                     * EC bug or inconsistency and force the value to 0.
+                     */
+                    If (LGreaterEqual (Local1, 0x8000)) {
+                        Store(0, Local1)
                     }
 
                     PBST[0x00] = Local0
                     PBST[0x01] = Local1
                     PBST[0x02] = B1B2 (RC00, RC01)
                     PBST[0x03] = B1B2 (VO00, VO01)
-
-                    // Concatenate ("BATX:HWAT: ", ToDecimalString(HWAT), Debug)
-                    // Concatenate ("BATX:PMW - AC Power Consumption (LSB) - unit: 100mW: ", ToDecimalString(B1B2 (PWMH, PWML)), Debug)
-
-                    // HIID = 0x00
-
-                    // Concatenate ("BATX:SBBS - Battery State: ", B1B2 (BS00, BS01), Debug)
-
-                    // HIID = 0x01
-
-                    // Concatenate ("BATX:SBMD - Manufacture Data: ", B1B2 (MD00, MD01), Debug)
 
                     Release (^^BATM)
                 }

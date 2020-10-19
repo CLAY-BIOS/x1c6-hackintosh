@@ -37,7 +37,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_TB", 0x00001000)
     External (\_SB.PCI0.RP09.XPS0, MethodObj)         // original _PS0 patched by OC
     External (\_SB.PCI0.RP09.XPS3, MethodObj)         // original _PS3 patched by OC
 
-    External (XLTP, IntObj)
+    External (SLTP, IntObj)
 
     Scope (\_SB.PCI0.RP09)
     {
@@ -2276,7 +2276,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_TB", 0x00001000)
                         {
                             XRTE = Zero
 
-                            If (XLTP == Zero)
+                            If (SLTP == Zero)
                             {
                                 Debug = "TB:NHI0:TRPE L23 Detect"
                                 \_SB.PCI0.RP09.L23R = One
@@ -2303,7 +2303,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_TB", 0x00001000)
                         ElseIf (Arg0 == One)
                         {
                             XRTE = One
-                            If (XLTP == Zero)
+                            If (SLTP == Zero)
                             {
                                 \_SB.PCI0.RP09.PSTX = 0x03
                                 If (\_SB.PCI0.RP09.LACR == One)

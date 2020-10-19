@@ -1,4 +1,4 @@
-i// Source: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
+// Source: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
 //   //
 //   // Miscellaneous Dynamic Registers:
 //   //
@@ -52,8 +52,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
     External (GPEN, FieldUnitObj) // GPIO enabled?
     External (SADE, FieldUnitObj) // B0D4 enabled?
     External (ACC0, FieldUnitObj) // TPM enabled?
-    External (S0ID, FieldUnitObj) // S0 enabled
-    External (STY0, FieldUnitObj) // S3 Enabled?    
+
+    External (SDS8, FieldUnitObj)
+    External (SMD8, FieldUnitObj)
 
     If (OSDW ())
     {
@@ -68,34 +69,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
         // Disable DPTF, we use DYTC!
         DPTF = Zero
 
-        // Enable S3
-        // 0x00 enables S3
-        // 0x02 disables S3
-        STY0 = Zero
-
-        // Disable S0
-        S0ID = Zero
-
-        // S0ID = Zero
-
-        // STY0 = One
+        // Enable broadcom BLTH-uart
+        SDS8 = 0x02
+        SMD8 = 0x02
 
         // Disable GPIO 
         // GPEN = Zero
 
         // Disable B0D4
         // SADE = Zero
-
-        If (STY0 == Zero && !CondRefOf (\_S3))
-        {
-            Name (\_S3, Package (0x04)  // _S3_: S3 System State
-            {
-                0x05, 
-                0x05, 
-                0x00, 
-                0x00
-            })
-        }
     }
 }
-

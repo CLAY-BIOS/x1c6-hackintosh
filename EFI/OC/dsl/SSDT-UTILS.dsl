@@ -38,7 +38,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00001000)
         */
         Method (OSDW, 0, NotSerialized)
         {
-            If (CondRefOf (\_OSI, Local0))
+            If (CondRefOf (\_OSI))
             {
                 If (_OSI ("Darwin"))
                 {

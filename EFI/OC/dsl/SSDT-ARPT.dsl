@@ -1,12 +1,130 @@
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
 {
-    External (OSDW, MethodObj) // 0 Arguments
-
     External (_SB.PCI0.RP01, DeviceObj)
     External (_SB.PCI0.RP01.PXSX, DeviceObj)
     External (PCRO, MethodObj) // 3 Arguments
     External (PCRA, MethodObj) // 3 Arguments
-    External (XLTP, FieldUnitObj)
+    External (SLTP, FieldUnitObj)
+
+    External (_SB.PCI0.UA00.BTH0, DeviceObj)
+
+    External (SDS8, FieldUnitObj)
+
+    External (DTGP, MethodObj) // 4 Arguments
+    External (OSDW, MethodObj) // 0 Arguments
+
+    Scope (_SB.PCI0.UA00.BTH0)
+    {
+        Name (_CID, "apple-uart-blth")  // _CID: Compatible ID
+        Name (_UID, One)  // _UID: Unique ID
+        Name (_ADR, Zero)  // _ADR: Address
+
+        Method (_PS0, 0, Serialized)
+        {
+            SDS8 = 0x02
+
+            Debug = "BTH0:_PS0"
+            Debug = SDS8
+        }
+
+        Method (_PS3, 0, Serialized)
+        {
+            SDS8 = 0x02
+
+            Debug = "BTH0:_PS0"
+            Debug = SDS8
+        }
+
+
+        Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
+        {
+            Return (Package (0x02)
+            {
+                0x6F, 
+                0x04
+            })
+        }
+
+        Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+        {
+            If (Arg0 == ToUUID ("a0b5b7c6-1318-441c-b0c9-fe695eaf949b"))
+            {
+                Debug = "Setup BLTH DeviceProps"
+
+                Local0 = Package (0x08)
+                    {
+                        "baud", 
+                        Buffer (0x08)
+                        {
+                                0xC0, 0xC6, 0x2D, 0x00, 0x00, 0x00, 0x00, 0x00   /* ..-..... */
+                        }, 
+
+                        "parity", 
+                        Buffer (0x08)
+                        {
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00   /* ........ */
+                        }, 
+
+                        "dataBits", 
+                        Buffer (0x08)
+                        {
+                                0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00   /* ........ */
+                        }, 
+
+                        "stopBits", 
+                        Buffer (0x08)
+                        {
+                                0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00   /* ........ */
+                        }
+                    }
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
+            }
+
+            Return (Zero)
+        }
+
+        // Bluetooth Power up
+        Method (BTPU, 0, Serialized)
+        {
+            Debug = "BTH0:BTPU"
+            // ^^^LPCB.EC.BTPC = One
+            Sleep (0x0A)
+        }
+
+        // Bluetooth Power down
+        Method (BTPD, 0, Serialized)
+        {
+            Debug = "BTH0:BTPD"
+            // ^^^LPCB.EC.BTPC = Zero
+            Sleep (0x0A)
+        }
+
+        // Bluetooth reset
+        Method (BTRS, 0, Serialized)
+        {
+            Debug = "BTH0:BTRS"
+            BTPD ()
+            BTPU ()
+        }
+
+        // Bluetooth low power
+        Method (BTLP, 1, Serialized)
+        {
+            Debug = "BTH0:BTLP - Arg0"
+            Debug = Arg0
+            // If (Arg0 == Zero)
+            // {
+            //     SGDI (0x02010002)
+            // }
+
+            // If (Arg0 == One)
+            // {
+            //     SGOV (0x02010002, Zero)
+            //     SGDO (0x02010002)
+            // }
+        }
+    }
 
     // WIFI
     Scope (_SB.PCI0.RP01)
@@ -15,6 +133,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
         Name (WOWE, Zero)
         Name (TAPD, Zero)
         Name (APWC, Zero)
+
+        Name (MPPG, Zero)
+        Name (HCPG, Zero)
 
         OperationRegion (A1E0, PCI_Config, Zero, 0x0380)
         Field (A1E0, ByteAcc, NoLock, Preserve)
@@ -150,19 +271,19 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
                 Return (Zero)
             }
 
-            If ((WOWE == One) && (XLTP != Zero))
+            If ((WOWE == One) && (SLTP != Zero))
             {
                 Return (Zero)
             }
 
-            If ((TAPD == Zero) && (XLTP != Zero))
+            If ((TAPD == Zero) && (SLTP != Zero))
             {
                 Return (Zero)
             }
 
             Debug = "APPD: Put airport module to D3"
             ^PXSX.PSTA = 0x03
-            If (XLTP == Zero)
+            If (SLTP == Zero)
             {
                 Debug = "APPD: Airport Root Port Send PME_Turn_Off"
                 L23X = One
@@ -254,13 +375,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
                 Return (Zero)
             }
 
-            If ((WOWE == One) && (XLTP != Zero))
+            If ((WOWE == One) && (SLTP != Zero))
             {
                 WOWE = Zero
                 Return (Zero)
             }
 
-            If ((TAPD == Zero) && (XLTP != Zero))
+            If ((TAPD == Zero) && (SLTP != Zero))
             {
                 WOWE = Zero
                 Return (Zero)
@@ -276,7 +397,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
             }
 
             BNIR = BNIS /* \_SB_.PCI0.RP09.BNIS */
-            If (XLTP == Zero)
+            If (SLTP == Zero)
             {
                 If ((TAPD == Zero) || (WOWE == One))
                 {
@@ -400,25 +521,25 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
             }
         }
 
-        // Method (_PS0, 0, Serialized)  // _PS0: Power State 0
-        // {
-        //     If (OSDW ())
-        //     {
-        //         ALPR (Zero)
-        //         MPPG = Zero
-        //         HCPG = One
-        //     }
-        // }
+        Method (_PS0, 0, Serialized)  // _PS0: Power State 0
+        {
+            If (OSDW ())
+            {
+                ALPR (Zero)
+                MPPG = Zero
+                HCPG = One
+            }
+        }
 
-        // Method (_PS3, 0, Serialized)  // _PS3: Power State 3
-        // {
-        //     If (OSDW ())
-        //     {
-        //         MPPG = One
-        //         HCPG = Zero
-        //         ALPR (One)
-        //     }
-        // }
+        Method (_PS3, 0, Serialized)  // _PS3: Power State 3
+        {
+            If (OSDW ())
+            {
+                MPPG = One
+                HCPG = Zero
+                ALPR (One)
+            }
+        }
 
         Method (WAPS, 0, Serialized)
         {
@@ -436,7 +557,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
 
     Scope (_SB.PCI0.RP01.PXSX)
     {
+        // Test
+        Name (WOWE, Zero)
+        Name (TAPD, Zero)
         Name (_GPE, 0x31)  // _GPE: General Purpose Events
+
         OperationRegion (ARE2, PCI_Config, Zero, 0x80)
         Field (ARE2, ByteAcc, NoLock, Preserve)
         {
@@ -501,14 +626,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
         {
             Debug = "ARPT:WWEN()"
 
-            ^^WOWE = Arg0
+            WOWE = Arg0
         }
 
         Method (PDEN, 1, NotSerialized)
         {
             Debug = "ARPT:PDEN()"
 
-            ^^TAPD = Arg0
+            TAPD = Arg0
         }
     }
 }
