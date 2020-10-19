@@ -337,7 +337,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x03, 
                         Zero, 
                         Zero
                     })
@@ -386,7 +386,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x03, 
                         Zero, 
                         Zero
                     })
@@ -846,7 +846,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x03, 
                         Zero, 
                         Zero
                     })
@@ -894,7 +894,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x09, 
+                        0x03, 
                         Zero, 
                         Zero
                     })
