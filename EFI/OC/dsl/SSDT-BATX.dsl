@@ -66,6 +66,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
     External (_SB.PCI0.LPCB.EC.BAT0._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT0._INI, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT0._HID, IntObj)
+    External (_SB.PCI0.LPCB.EC.BAT0.B0ST, IntObj)
 
     // HB0S: [Battery 0 status (read only)]
     //   bit 3-0 level
@@ -92,7 +93,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
-
         // Method used for replacing reads to HWAC in _L17() & OWAK().
         Method(XWAC, 0, NotSerialized)
         {
@@ -273,6 +273,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 {
                     // disable original battery objects by setting invalid _HID
                     ^^BAT0._HID = 0
+
+                    // disable bat0-device. As we are reimplementing the device entirely and accessing the EC directly, it is not needed.
+                    ^^BAT0.B0ST = Zero
                 }
             }
 

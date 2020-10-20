@@ -2,8 +2,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 {
     External (_SB_.PCI0, DeviceObj)
     External (_SB_.PCI0.XHC, DeviceObj)
-    External (_SB_.PCI0.RP05.UPSB.DSB2.XHC2, DeviceObj)
-    External (_SB_.PCI0.RP05.UPSB.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
+    External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2, DeviceObj)
+    External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
     External (DTGP, MethodObj)    // 5 Arguments
     External (MPMC, FieldUnitObj)
     External (OSDW, MethodObj)    // 0 Arguments
@@ -253,47 +253,49 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
             Method (RTPC, 1, Serialized)
             {
+                Debug = "XHC:RTPC"
+
                 Return (Zero)
             }
 
             Method (USBM, 0, Serialized)
             {
                 Debug = "XHC1: USBM method for M8 port"
-                ^D0D3 = Zero
-                Local1 = ^PDBM /* \_SB_.PCI0.XHC1.PDBM */
-                Local2 = ^MEMB /* \_SB_.PCI0.XHC1.MEMB */
-                ^PDBM = (Local1 | 0x02)
-                Debug = "XHC1: USM method setting BAR"
-                Local0 = ^MEMB /* \_SB_.PCI0.XHC1.MEMB */
-                Local0 &= 0xFFFFFFFFFFFFFFF0
-                OperationRegion (PSCA, SystemMemory, Local0, 0x0600)
-                Field (PSCA, DWordAcc, NoLock, Preserve)
-                {
-                    Offset (0x480), 
-                    PC01,   32, 
-                    Offset (0x490), 
-                    PC02,   32, 
-                    Offset (0x4A0), 
-                    PC03,   32, 
-                    Offset (0x4B0), 
-                    PC04,   32
-                }
+                // ^D0D3 = Zero
+                // Local1 = ^PDBM /* \_SB_.PCI0.XHC1.PDBM */
+                // Local2 = ^MEMB /* \_SB_.PCI0.XHC1.MEMB */
+                // ^PDBM = (Local1 | 0x02)
+                // Debug = "XHC1: USM method setting BAR"
+                // Local0 = ^MEMB /* \_SB_.PCI0.XHC1.MEMB */
+                // Local0 &= 0xFFFFFFFFFFFFFFF0
+                // OperationRegion (PSCA, SystemMemory, Local0, 0x0600)
+                // Field (PSCA, DWordAcc, NoLock, Preserve)
+                // {
+                //     Offset (0x480), 
+                //     PC01,   32, 
+                //     Offset (0x490), 
+                //     PC02,   32, 
+                //     Offset (0x4A0), 
+                //     PC03,   32, 
+                //     Offset (0x4B0), 
+                //     PC04,   32
+                // }
 
-                Debug = "XHCI PORT HS03 -- before power OFF"
-                Local6 = PC03 /* \_SB_.PCI0.XHC1.USBM.PC03 */
-                Debug = Local6
-                Local6 = (PC03 & 0xFFFFFFFFFFFFFFFD)
-                PC03 = (Local6 & 0xFFFFFFFFFFFFFDFF)
-                Debug = "XHCI PORT HS03->"
-                Debug = Local6
-                Sleep (0x32)
-                Debug = "XHCI PORT HS03 -- after power OFF"
-                Local6 = PC03 /* \_SB_.PCI0.XHC1.USBM.PC03 */
-                Debug = Local6
-                ^PDBM &= 0xFFFFFFFFFFFFFFF9
-                ^D0D3 = 0x03
-                ^MEMB = Local2
-                ^PDBM = Local1
+                // Debug = "XHCI PORT HS03 -- before power OFF"
+                // Local6 = PC03 /* \_SB_.PCI0.XHC1.USBM.PC03 */
+                // Debug = Local6
+                // Local6 = (PC03 & 0xFFFFFFFFFFFFFFFD)
+                // PC03 = (Local6 & 0xFFFFFFFFFFFFFDFF)
+                // Debug = "XHCI PORT HS03->"
+                // Debug = Local6
+                // Sleep (0x32)
+                // Debug = "XHCI PORT HS03 -- after power OFF"
+                // Local6 = PC03 /* \_SB_.PCI0.XHC1.USBM.PC03 */
+                // Debug = Local6
+                // ^PDBM &= 0xFFFFFFFFFFFFFFF9
+                // ^D0D3 = 0x03
+                // ^MEMB = Local2
+                // ^PDBM = Local1
 
                 Return (Zero)
             }
@@ -303,10 +305,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                 Local0 = One
 
                 // TB-Controler enabled?
-                If (CondRefOf (\_SB.PCI0.RP05.UPSB.DSB2.XHC2.MODU))
+                If (CondRefOf (\_SB.PCI0.RP09.UPSB.DSB2.XHC2.MODU))
                 {
                     // If enabled, check if any device is plugged in
-                    Local0 = \_SB.PCI0.RP05.UPSB.DSB2.XHC2.MODU ()
+                    Local0 = \_SB.PCI0.RP09.UPSB.DSB2.XHC2.MODU ()
                 }
 
                 Local1 = Zero
@@ -323,6 +325,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                 {
                     Local0 = Zero
                 }
+
+                // Debug = "XHC1:MODU - Result:"
+                // Debug = Local0
 
                 Return (Local0)
             }
@@ -448,7 +453,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x0,
+                            PLD_UserVisible        = 0x1,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -469,7 +474,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                     })
 
-                    If (TBAS && CondRefOf (\_SB_.PCI0.RP05.UPSB.DSB2.XHC2))
+                    If (CondRefOf (\_SB_.PCI0.RP09.UPSB.DSB2.XHC2))
                     {
                         Name (SSP, Package (0x02)
                         {
@@ -510,7 +515,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x0,
+                            PLD_UserVisible        = 0x1,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -531,7 +536,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                     })
 
-                    If (TBAS && CondRefOf (\_SB_.PCI0.RP05.UPSB.DSB2.XHC2))
+                    If (CondRefOf (\_SB_.PCI0.RP09.UPSB.DSB2.XHC2))
                     {
                         Name (SSP, Package (0x02)
                         {
@@ -572,7 +577,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -620,7 +625,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -668,7 +673,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -716,7 +721,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -764,7 +769,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -812,7 +817,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -956,7 +961,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -1004,7 +1009,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Blue               = 0x0,
                             PLD_Width              = 0x0,
                             PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
+                            PLD_UserVisible        = 0x0,
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
@@ -1035,10 +1040,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
             Method (MBSD, 0, NotSerialized)
             {
+                Debug = "XHC1:MBSD"
                 Return (One)
             }
 
-            If (TBAS && CondRefOf (\_SB_.PCI0.RP05.UPSB.DSB2.XHC2))
+            If (CondRefOf (\_SB_.PCI0.RP09.UPSB.DSB2.XHC2))
             {
                 Name (SSP, Package (0x01)
                 {

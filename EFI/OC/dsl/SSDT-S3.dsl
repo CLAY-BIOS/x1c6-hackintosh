@@ -6,25 +6,24 @@
  * This SSDT tries to be a comprehensive solution for sleep/wake-problems on most modern thinkpads.
  * It was developed on an X1C6 with a T480 in mind.
  *
- * For X1C6 its perfectly possible, to set SleepType=Windows in BIOS. That's the recommended setting 
+ * For X1C6 its perfectly possible to set SleepType=Windows in BIOS. That's the recommended setting 
  * as it enables "modern standby" in Windows for dual-boot-systems
  *
  * ## Background:
- * Sleep on hackintoshes is a complicated topic. More complicated as mostly percieved. The problem is,
- * that many functions of power management, sleep & wake are handled by the Macbook's Embedded Controller (EC)
- * or SMC and therefor many functions and deices are simply missing on Hackintoshes (f.e. the topcase-device). 
- * What we have are our own, vendor-specific ECs and a myriade an different names for different sleep-methods.
+ * Sleep on hackintoshes is a complicated topic. More complicated as mostly percieved. The problem is
+ * that many functions of power management, sleep & wake are handled by the Macbook's embedded controller (EC)
+ * / SMC and therefor many functions and devices are simply missing on Hackintoshes (f.e. the topcase-device). 
+ * What we do have are our own, vendor-specific ECs and a myriade of different names for different sleep-methods.
  *
- * On top of this, most parts of the config have to be configured properly to accomplish working, non power-loosing
- * sleep-states. Many of the (partly) Solutions out there don't try to replicate the sleep-behaviour of a genuine
- * macbook, but try to hide shortcomings and bugs with "ons-size-fits-all"-patches.
+ * On top of this, most parts of the config have to be configured properly to accomplish working, non (or at least less) 
+ * power-loosing sleep-states. Many of the (partly) solutions out there don't try to replicate the sleep-behaviour 
+ * of a genuine macbook, but try to hide shortcomings and bugs with "ons-size-fits-all"-patches.
  * 
  * With this reasoning in mind, this SSDT tries to match the sleep-behaviour of a macbookpro14,1 as closely as possible.
  *
  * # Notice:
  * Please remove every GPRW-, Name6x-, PTSWAK-, FixShutdown-, WakeScren-Patches or similar prior using.
  *
- * Be sure to have a largely working setup for this to work. Especially USB.
  *
  * # The needed patches for this SSDt on a X1C6:
  *

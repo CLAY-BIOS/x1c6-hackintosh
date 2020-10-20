@@ -1,6 +1,9 @@
 // Reference: https://github.com/tianocore/edk2-platforms/blob/master/Platform/Intel/KabylakeOpenBoardPkg/Include/Acpi/GlobalNvs.asl
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
 {
+    External (OSDW, MethodObj)    // 0 Arguments
+    External (DTGP, MethodObj)    // 5 Arguments
+
     External (\_SB.PCI0, DeviceObj)
 
     External (OSYS, FieldUnitObj) // OS Identifier
@@ -30,15 +33,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
     
     External (RTVM, FieldUnitObj) // Precondition for VMON()/VMOF - Whats this?
 
-    External (SS1, IntObj)
-    External (SS2, IntObj)
-    External (SS3, IntObj)
-    External (SS4, IntObj)
 
     // External (\_SB.TPM.PTS, MethodObj)
 
-    External (OSDW, MethodObj)    // 0 Arguments
-    External (DTGP, MethodObj)    // 5 Arguments
     External (ZINI, MethodObj)    // 0 Arguments
 
     Scope (\_SB.PCI0)
@@ -49,10 +46,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
             {
                 Debug = "PCI0:OINI"
 
-                // Debug = "Patching OSYS to Darwin"
+                Debug = "Patching OSYS to Darwin"
                 
                 // Set OSYS to Darwin, also enables windows-modernizations in ACPI
-                // OSYS = 0x2710
+                OSYS = 0x2710
 
                 Debug = "USTC: "
                 Debug = USTC
@@ -137,15 +134,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_OINI", 0x00001000)
                 // {
                 //     \_SB.TPM.PTS (0x03)
                 // }
-
-                Debug = "GPRW: "
-
-                Local0 = (SS1 << 0x01)
-                Local0 |= (SS2 << 0x02)
-                Local0 |= (SS3 << 0x03)
-                Local0 |= (SS4 << 0x04)
-
-                Debug = Local0
             }
 
             ZINI()

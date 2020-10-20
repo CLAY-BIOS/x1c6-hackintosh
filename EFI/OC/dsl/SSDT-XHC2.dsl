@@ -47,15 +47,15 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
              */
             Method (PCED, 0, Serialized)
             {
-                Debug = "XHC2:PCED"
-                Debug = "XHC2:PCED - enable GPIO"
+                Debug = "TB:XHC2:PCED"
+                Debug = "TB:XHC2:PCED - enable GPIO"
 
                 \_SB.PCI0.RP09.GXCI = One
 
                 // this powers up both TBT and USB when needed
                 If (\_SB.PCI0.RP09.UGIO () != Zero)
                 {
-                    Debug = "XHC2:PCED - GPIOs changed, restored = true"
+                    Debug = "TB:XHC2:PCED - GPIOs changed, restored = true"
                     \_SB.PCI0.RP09.UPSB.DSB2.PRSR = One
                 }
 
@@ -64,30 +64,30 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                 Local1 = Zero
                 Local5 = (Timer + 10000000)
 
-                Debug = "XHC2:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR"
+                Debug = "TB:XHC2:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR"
                 Debug = \_SB.PCI0.RP09.UPSB.DSB2.PRSR
 
                 If (\_SB.PCI0.RP09.UPSB.DSB2.PRSR != Zero)
                 {
-                    Debug = "XHC2:PCED - Wait for power up"
-                    Debug = "XHC2:PCED - Wait for downstream bridge to appear"
+                    Debug = "TB:XHC2:PCED - Wait for power up"
+                    Debug = "TB:XHC2:PCED - Wait for downstream bridge to appear"
 
                     Local5 = (Timer + 10000000)
 
                     While (Timer <= Local5)
                     {
-                        Debug = "XHC2:PCED - Wait for link training..."
+                        Debug = "TB:XHC2:PCED - Wait for link training..."
                         If (\_SB.PCI0.RP09.UPSB.DSB2.LACR == Zero)
                         {
                             If (\_SB.PCI0.RP09.UPSB.DSB2.LTRN != One)
                             {
-                                Debug = "XHC2:PCED - Link training cleared"
+                                Debug = "TB:XHC2:PCED - Link training cleared"
                                 Break
                             }
                         }
                         ElseIf ((\_SB.PCI0.RP09.UPSB.DSB2.LTRN != One) && (\_SB.PCI0.RP09.UPSB.DSB2.LACT == One))
                         {
-                            Debug = "XHC2:PCED - Link training cleared and link is active"
+                            Debug = "TB:XHC2:PCED - Link training cleared and link is active"
                             Break
                         }
 
@@ -101,10 +101,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 While (Timer <= Local5)
                 {
-                    Debug = "XHC2:PCED - Wait for config space..."
+                    Debug = "TB:XHC2:PCED - Wait for config space..."
                     If (\_SB.PCI0.RP09.UPSB.DSB2.XHC2.AVND != 0xFFFFFFFF)
                     {
-                        Debug = "XHC2:PCED - Read VID/DID"
+                        Debug = "TB:XHC2:PCED - Read VID/DID"
                         \_SB.PCI0.RP09.UPSB.DSB2.PCIA = One
                         Break
                     }
@@ -146,15 +146,15 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
             Name (HS, Package (0x01)
             {
-                "XHC"
+                "XHC1"
             })
             Name (FS, Package (0x01)
             {
-                "XHC"
+                "XHC1"
             })
             Name (LS, Package (0x01)
             {
-                "XHC"
+                "XHC1"
             })
 
             Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
@@ -168,6 +168,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
             Method (_PS0, 0, Serialized)  // _PS0: Power State 0
             {
+                Debug = "TB:XHC2:_PS0"
+                Debug = "TB:XHC2 - U2OP: "
+                Debug = U2OP
+
                 If (OSDW ())
                 {
                     PCED ()
@@ -179,12 +183,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
             }
 
             /**
-                * Run Time Power Check
-                * Called by XHC driver when idle
-                */
+             * Run Time Power Check
+             * Called by XHC driver when idle
+             */
             Method (RTPC, 1, Serialized)
             {
-                Debug = "XHC2:RTPC called with args:"
+                Debug = "TB:XHC2:RTPC called with args:"
                 Debug = Arg0
 
                 If (OSDW ())
@@ -199,13 +203,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
             }
 
             /**
-                * USB cable check
-                * Called by XHC driver to check cable status
-                * Used as idle hint.
-                */
+             * USB cable check
+             * Called by XHC driver to check cable status
+             * Used as idle hint.
+             */
             Method (MODU, 0, Serialized)
             {
-                Debug = "XHC2:MODU - return = "
+                Debug = "TB:XHC2:MODU - return = "
                 Debug = \_SB.PCI0.RP09.UPSB.MDUV
 
                 Return (\_SB.PCI0.RP09.UPSB.MDUV)
@@ -258,17 +262,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     })
                     Name (HS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1", 
                         0x03
                     })
                     Name (FS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1", 
                         0x03
                     })
                     Name (LS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1", 
                         0x03
                     })
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -321,7 +325,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                             PLD_Dock               = 0x0,
                             PLD_Lid                = 0x0,
                             PLD_Panel              = "UNKNOWN",
-                            PLD_VerticalPosition   = "UPPER",
+                            PLD_VerticalPosition   = "LOWER",
                             PLD_HorizontalPosition = "LEFT",
                             PLD_Shape              = "UNKNOWN",
                             PLD_GroupOrientation   = 0x0,
@@ -341,17 +345,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                     Name (HS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1",
                         0x04
                     })
                     Name (FS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1", 
                         0x04
                     })
                     Name (LS, Package (0x02)
                     {
-                        "XHC2", 
+                        "XHC1", 
                         0x04
                     })
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -378,93 +382,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                         DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                         Return (Local0)
                     }
-                }
-
-                Device (HS01)
-                {
-                    Name (_ADR, 0x01)  // _ADR: Address
-                    Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
-                    {
-                        0xFF, 
-                        0x08, 
-                        Zero, 
-                        Zero
-                    })
-                    Name (_PLD, Package (0x01)  // _PLD: Physical Location of Device
-                    {
-                        ToPLD (
-                            PLD_Revision           = 0x1,
-                            PLD_IgnoreColor        = 0x1,
-                            PLD_Red                = 0x0,
-                            PLD_Green              = 0x0,
-                            PLD_Blue               = 0x0,
-                            PLD_Width              = 0x0,
-                            PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
-                            PLD_Dock               = 0x0,
-                            PLD_Lid                = 0x0,
-                            PLD_Panel              = "UNKNOWN",
-                            PLD_VerticalPosition   = "UPPER",
-                            PLD_HorizontalPosition = "LEFT",
-                            PLD_Shape              = "UNKNOWN",
-                            PLD_GroupOrientation   = 0x0,
-                            PLD_GroupToken         = 0x0,
-                            PLD_GroupPosition      = 0x0,
-                            PLD_Bay                = 0x0,
-                            PLD_Ejectable          = 0x0,
-                            PLD_EjectRequired      = 0x0,
-                            PLD_CabinetNumber      = 0x0,
-                            PLD_CardCageNumber     = 0x0,
-                            PLD_Reference          = 0x0,
-                            PLD_Rotation           = 0x0,
-                            PLD_Order              = 0x0,
-                            PLD_VerticalOffset     = 0x0,
-                            PLD_HorizontalOffset   = 0x0)
-                    })
-                }
-
-                Device (HS02)
-                {
-                    Name (_ADR, 0x02)  // _ADR: Address
-                    Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
-                    {
-                        0xFF, 
-                        0x08, 
-                        Zero, 
-                        Zero
-                    })
-                    Name (_PLD, Package (0x01)  // _PLD: Physical Location of Device
-                    {
-                        ToPLD (
-                            PLD_Revision           = 0x1,
-                            PLD_IgnoreColor        = 0x1,
-                            PLD_Red                = 0x0,
-                            PLD_Green              = 0x0,
-                            PLD_Blue               = 0x0,
-                            PLD_Width              = 0x0,
-                            PLD_Height             = 0x0,
-                            PLD_UserVisible        = 0x1,
-                            PLD_Dock               = 0x0,
-                            PLD_Lid                = 0x0,
-                            PLD_Panel              = "UNKNOWN",
-                            PLD_VerticalPosition   = "UPPER",
-                            PLD_HorizontalPosition = "LEFT",
-                            PLD_Shape              = "UNKNOWN",
-                            PLD_GroupOrientation   = 0x0,
-                            PLD_GroupToken         = 0x0,
-                            PLD_GroupPosition      = 0x0,
-                            PLD_Bay                = 0x0,
-                            PLD_Ejectable          = 0x0,
-                            PLD_EjectRequired      = 0x0,
-                            PLD_CabinetNumber      = 0x0,
-                            PLD_CardCageNumber     = 0x0,
-                            PLD_Reference          = 0x0,
-                            PLD_Rotation           = 0x0,
-                            PLD_Order              = 0x0,
-                            PLD_VerticalOffset     = 0x0,
-                            PLD_HorizontalOffset   = 0x0)
-
-                    })
                 }
             }
         }
