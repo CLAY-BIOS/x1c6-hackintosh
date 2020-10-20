@@ -1426,7 +1426,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
             Offset (0x10), 
                 ,   4, 
             LDXX,   1, 
-                ,   1,
             LRTN,   1, 
             Offset (0x12), 
             CSPD,   4, 
