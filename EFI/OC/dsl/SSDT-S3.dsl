@@ -22,10 +22,9 @@
  * With this reasoning in mind, this SSDT tries to match the sleep-behaviour of a macbookpro14,1 as closely as possible.
  *
  * # Notice:
- * Please remove every other GPRW-, Name6x-, PTSWAK-, FixShutdown-, WakeScren-Patch or similar prior using.
+ * Please remove every GPRW-, Name6x-, PTSWAK-, FixShutdown-, WakeScren-Patches or similar prior using.
  *
  * Be sure to have a largely working setup for this to work. Especially USB.
- *
  *
  * # The needed patches for this SSDt on a X1C6:
  *
@@ -144,6 +143,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     External (STY0, FieldUnitObj) // S3 Enabled?   
 
     External (SS3, FieldUnitObj) // S3 Enabled?    
+    External (LWCP, FieldUnitObj) // S3 Enabled?    
 
     If (OSDW ())
     {
@@ -191,17 +191,25 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         {
             If (OSDW ())
             {
-                If ((0x6D == Arg0))
+                Name (PRWP, Package (0x02)
                 {
-                    Return (Package ()
-                    {
-                        0x6D, 
-                        0x03
-                    })
-                }
-            }
+                    Zero, 
+                    Zero
+                })
 
-            Return (ZPRW (Arg0, Arg1))
+                PRWP[Zero] = Arg0
+
+                If (Arg1 > 0x04)
+                {
+                    PRWP[One] = 0x03
+                }
+
+                Return (PRWP)
+            }
+            Else 
+            {
+                Return (ZPRW (Arg0, Arg1))
+            }
         }
     }
 
@@ -214,11 +222,22 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     {
         Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
         {
-            Return (Package (0x02) // _PRW: Power Resources for Wake
+            If (\LWCP)
             {
-                0x18, 
-                0x03
-            })
+                Return (Package (0x02)
+                {
+                    0x17, 
+                    0x04
+                })
+            }
+            Else
+            {
+                Return (Package (0x02)
+                {
+                    0x17, 
+                    0x03
+                })
+            }
         }
     }
 
@@ -226,9 +245,6 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     {
         Method (LPS0, 0, NotSerialized)
         {
-            Debug = "LPS0 - STY0: "
-            Debug = STY0
-
             Debug = "LPS0 - S0ID: "
             Debug = S0ID
 
