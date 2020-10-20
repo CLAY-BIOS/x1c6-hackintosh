@@ -25,8 +25,8 @@ I am not responsible for any damages you may cause.
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
 * (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
 * Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
-* Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)
-* (WIP) TB-Hotplug-support with power-management. See [SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
+* Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
+* (WIP) (mostly) native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl)
 * Hibernation (hibernatemode 25)
 * Relative comprehensive debug-setup for ACPI-development. See boot-args, DebugEnhancer.kext & See [SSDT-DBG](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-DBG.dsl)
 * ~(WIP) Enables DeepSleep on S3 for OSX~
