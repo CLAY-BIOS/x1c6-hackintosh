@@ -1,15 +1,19 @@
 /**
- * Thunderbolt For Alpine Ridge
+ * Thunderbolt For Alpine Ridge on X1C6
+ * 
  * Large parts (link training and enumeration) 
  * taken from decompiled Mac AML.
- * Note: USB/CIO RTD3 power management largly 
- * missing due to lack of GPIO pins.
+ *
+ * Implements mostly of the ACPI-part for handling Thunderbolt 3 on an Lenovo X1C6. Does power management and force power management for TB & USB 3.1.
+ * WIP but should be complete now. And full of bugs. Its largely untested. Intended to give a mostly complete and as native as possible experience.
+ * Pair with SSDT-XHC1.dsl (native USB 2.0/3.0), SSDT-XHC2.dsl (USB 3.1) & SSDT-PTS.dsl (handling sleep).
+ * See config.plist for details.
  * 
  * Copyright (c) 2019 osy86
- * Copyright (c) 2020 benben
+ * Copyleft (c) 2020 benben
  *
  * Platform-reference: https://github.com/tianocore/edk2-platforms/tree/master/Platform/Intel/KabylakeOpenBoardPkg/Features/Tbt/AcpiTables
- * osy86-implementation: 
+ * osy86-implementation: https://github.com/osy86/HaC-Mini/blob/master/ACPI/SSDT-TbtOnPCH.asl
  */
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
 {
@@ -522,7 +526,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
                 ICMS ()
             }
 
-            \_SB.PCI0.RP09.XINI()
+            // \_SB.PCI0.RP09.XINI()
         }
 
         /**
@@ -1160,112 +1164,202 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
                 }
             }
 
-            Local2 = Zero
 
-            /**
-             * Force power to CIO
-             */
+            If (Local0 == Zero)
+            {
+                Debug = "UGIO - TBT GPIO should be off"
+            }
+            Else
+            {
+                Debug = "UGIO - TBT GPIO should be on"
+            }
+
+            If (Local1 == Zero)
+            {
+                Debug = "UGIO - USB GPIO should be off"
+            }
+            Else
+            {
+                Debug = "UGIO - USB GPIO should be on"
+            }
+
+            Local2 = Zero
             If (Local0 != Zero)
             {
-                Debug = "TB:RP09:UGIO Force power to CIO: GGDV (0x01070004) "
-                Debug = GGDV (0x01070004)
-
-                // TODO: check if CIO power is forced
-                If (GGDV (0x01070004) == Zero)
-                // If (Zero)
+                Debug = "UGIO - Make sure TBT is on"
+                If (GGDV (0x02060000) == Zero)
                 {
-                    // TODO: force CIO power
-                    SGDI (0x01070004)
+                    Debug = "UGIO - Turn on TBT GPIO"
+                    SGDI (0x02060000)
                     Local2 = One
                     \_SB.PCI0.RP09.CTPD = Zero
                 }
             }
 
-            /**
-             * Force power to USB
-             */
             If (Local1 != Zero)
             {
-                Debug = "TB:RP09:UGIO Force power to USB: GGDV (0x01070007) (before) "
-                Debug = GGDV (0x01070007) 
-
-                If (GGDV (0x01070007) == Zero)
+                Debug = "UGIO - Make sure USB is on"
+                If (GGDV (0x02060001) == Zero)
                 {
-                    SGDI (0x01070007)
+                    Debug = "UGIO - Turn on USB GPIO"
+                    SGDI (0x02060001)
                     Local2 = One
-
-                    Debug = "TB:RP09:UGIO Force power to USB: GGDV (0x01070007) (after)"
-                    Debug = GGDV (0x01070007) 
                 }
             }
 
-            // if we did power on
             If (Local2 != Zero)
             {
-                Sleep (500)
+                Sleep (0x01F4)
             }
 
             Local3 = Zero
-
-            /**
-             * Disable force power to CIO
-             */
             If (Local0 == Zero)
             {
-                Debug = "TB:RP09:UGIO Disable force power to CIO: GGDV (0x01070004) (before)"
-                Debug = GGDV (0x01070004)
+                Debug = "UGIO - Make sure TBT is off"
 
-                // TODO: check if CIO power is off
-                If (GGDV (0x01070004) == One)
-                // If (Zero)
+                If (GGDV (0x02060000) == One)
                 {
                     \_SB.PCI0.RP09.CTBT ()
 
                     If (\_SB.PCI0.RP09.CTPD != Zero)
                     {
-                        // TODO: force power off CIO
-                        SGOV (0x01070004, Zero)
-                        SGDO (0x01070004)
+                        Debug = "UGIO - Turn off TBT GPIO"
+                        SGOV (0x02060000, Zero)
+                        SGDO (0x02060000)
                         Local3 = One
-
-                        Debug = "TB:RP09:UGIO Disable force power to CIO: GGDV (0x01070004) (after)"
-                        Debug = GGDV (0x01070004)
+                    }
+                    Else
+                    {
+                        Debug = "UGIO - CP_ACK_POWERDOWN_OVERRIDE not configured, cannot turn off TBT GPIO"
                     }
                 }
             }
 
-            /**
-             * Disable force power to USB
-             */
             If (Local1 == Zero)
             {
-                Debug = "TB:RP09:UGIO Disable force power to USB: GGDV (0x01070007 (before)"
-                Debug = GGDV (0x01070007)
-
-                If (GGDV (0x01070007) == One)
-                // If (Zero)
+                Debug = "UGIO - Make sure USB is off"
+                If (GGDV (0x02060001) == One)
                 {
-                    // TODO: force power off USB
-                    SGOV (0x01070007, Zero)
-                    SGDO (0x01070007)
+                    Debug = "UGIO - Turn off USB GPIO"
+                    SGOV (0x02060001, Zero)
+                    SGDO (0x02060001)
                     Local3 = One
-
-                    Debug = "TB:RP09:UGIO Disable force power to USB: GGDV (0x01070007 (after)"
-                    Debug = GGDV (0x01070007)
                 }
             }
 
-            // if we did power down, wait for things to settle
             If (Local3 != Zero)
             {
-                Sleep (100)
+                Sleep (0x64)
             }
 
-            Debug = "TB:RP09:UGIO finish"
-            Debug = Local2
-            Debug = Local3
-
             Return (Local2)
+
+            // Local2 = Zero
+
+            // /**
+            //  * Force power to CIO
+            //  */
+            // If (Local0 != Zero)
+            // {
+            //     Debug = "TB:RP09:UGIO Force power to CIO: GGDV (0x01070004) "
+            //     Debug = GGDV (0x01070004)
+
+            //     // TODO: check if CIO power is forced
+            //     If (GGDV (0x01070004) == Zero)
+            //     // If (Zero)
+            //     {
+            //         // TODO: force CIO power
+            //         SGDI (0x01070004)
+            //         Local2 = One
+            //         \_SB.PCI0.RP09.CTPD = Zero
+            //     }
+            // }
+
+            // /**
+            //  * Force power to USB
+            //  */
+            // If (Local1 != Zero)
+            // {
+            //     Debug = "TB:RP09:UGIO Force power to USB: GGDV (0x01070007) (before) "
+            //     Debug = GGDV (0x01070007) 
+
+            //     If (GGDV (0x01070007) == Zero)
+            //     {
+            //         SGDI (0x01070007)
+            //         Local2 = One
+
+            //         Debug = "TB:RP09:UGIO Force power to USB: GGDV (0x01070007) (after)"
+            //         Debug = GGDV (0x01070007) 
+            //     }
+            // }
+
+            // // if we did power on
+            // If (Local2 != Zero)
+            // {
+            //     Sleep (500)
+            // }
+
+            // Local3 = Zero
+
+            // /**
+            //  * Disable force power to CIO
+            //  */
+            // If (Local0 == Zero)
+            // {
+            //     Debug = "TB:RP09:UGIO Disable force power to CIO: GGDV (0x01070004) (before)"
+            //     Debug = GGDV (0x01070004)
+
+            //     // TODO: check if CIO power is off
+            //     If (GGDV (0x01070004) == One)
+            //     // If (Zero)
+            //     {
+            //         \_SB.PCI0.RP09.CTBT ()
+
+            //         If (\_SB.PCI0.RP09.CTPD != Zero)
+            //         {
+            //             // TODO: force power off CIO
+            //             SGOV (0x01070004, Zero)
+            //             SGDO (0x01070004)
+            //             Local3 = One
+
+            //             Debug = "TB:RP09:UGIO Disable force power to CIO: GGDV (0x01070004) (after)"
+            //             Debug = GGDV (0x01070004)
+            //         }
+            //     }
+            // }
+
+            // /**
+            //  * Disable force power to USB
+            //  */
+            // If (Local1 == Zero)
+            // {
+            //     Debug = "TB:RP09:UGIO Disable force power to USB: GGDV (0x01070007 (before)"
+            //     Debug = GGDV (0x01070007)
+
+            //     If (GGDV (0x01070007) == One)
+            //     // If (Zero)
+            //     {
+            //         // TODO: force power off USB
+            //         SGOV (0x01070007, Zero)
+            //         SGDO (0x01070007)
+            //         Local3 = One
+
+            //         Debug = "TB:RP09:UGIO Disable force power to USB: GGDV (0x01070007 (after)"
+            //         Debug = GGDV (0x01070007)
+            //     }
+            // }
+
+            // // if we did power down, wait for things to settle
+            // If (Local3 != Zero)
+            // {
+            //     Sleep (100)
+            // }
+
+            // Debug = "TB:RP09:UGIO finish"
+            // Debug = Local2
+            // Debug = Local3
+
+            // Return (Local2)
         }
 
         Method (_PS0, 0, Serialized)  // _PS0: Power State 0
@@ -1568,8 +1662,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
              */
             Method (PCED, 0, Serialized)
             {
-                Debug = "TB:RP09:UPSD:PCED - enable GPIO"
-
+                Debug = "TB:RP09:UPSD:PCED"
+                // Debug = "TB:RP09:UPSD:PCED - enable GPIO"
                 \_SB.PCI0.RP09.GPCI = One
 
                 // power up the controller
@@ -3672,40 +3766,40 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
                  */
                 Method (PCDA, 0, Serialized)
                 {
-                    Debug = "PCDA"
+                    Debug = "TB:RP09:UPSB:DSB02:PCDA"
                     If (\_SB.PCI0.RP09.UPSB.DSB2.POFX () != Zero)
                     {
                         \_SB.PCI0.RP09.UPSB.DSB2.PCIA = Zero
 
-                        Debug = "PCDA - Put upstream bridge into D3"
+                        // Debug = "PCDA - Put upstream bridge into D3"
                         \_SB.PCI0.RP09.UPSB.DSB2.PSTA = 0x03
 
-                        Debug = "PCDA - Set link disable on upstream bridge"
+                        // Debug = "PCDA - Set link disable on upstream bridge"
                         \_SB.PCI0.RP09.UPSB.DSB2.LDIS = One
 
                         Local5 = (Timer + 0x00989680)
 
                         While (Timer <= Local5)
                         {
-                            Debug = "PCDA - Wait for link to drop..."
+                            // Debug = "PCDA - Wait for link to drop..."
                             If (\_SB.PCI0.RP09.UPSB.DSB2.LACR == One)
                             {
                                 If (\_SB.PCI0.RP09.UPSB.DSB2.LACT == Zero)
                                 {
-                                    Debug = "PCDA - No link activity"
+                                    // Debug = "PCDA - No link activity"
                                     Break
                                 }
                             }
                             ElseIf (\_SB.PCI0.RP09.UPSB.DSB2.XHC2.AVND == 0xFFFFFFFF)
                             {
-                                Debug = "PCDA - VID/DID is -1"
+                                // Debug = "PCDA - VID/DID is -1"
                                 Break
                             }
 
                             Sleep (0x0A)
                         }
 
-                        Debug = "PCDA - disable GPIO"
+                        // Debug = "PCDA - disable GPIO"
                         \_SB.PCI0.RP09.GXCI = Zero
                         \_SB.PCI0.RP09.UGIO () // power down if needed
                     }

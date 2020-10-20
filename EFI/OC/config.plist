@@ -655,7 +655,7 @@
 			<key>PciRoot(0x0)/Pci(0x2,0x0)</key>
 			<dict>
 				<key>AAPL,ig-platform-id</key>
-				<data>BQDAhw==</data>
+				<data>AADAhw==</data>
 				<key>AAPL,slot-name</key>
 				<string>Internal@0,2,0</string>
 				<key>device-id</key>
@@ -676,14 +676,18 @@
 			</dict>
 			<key>PciRoot(0x0)/Pci(0x1D,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)</key>
 			<dict>
+				<key>#TBTDPLowToHigh</key>
+				<data>AQAAAA==</data>
+				<key>#ThunderboltConfig</key>
+				<data>AAL//wQABAIBABAABAICAAUABAIBABIABAICAAIAAQA=</data>
 				<key>#ThunderboltDROM</key>
 				<data>4QCEcjzDSgEACptg+gFeAAEADAABAAiBgAKAAAAACIKQAYAAAAAIg4AEgAEAAAiEkAOAAQAACIUAAAAAAAADhiADh4ACyAWJUAAABYpQAAACyw0BQXBwbGUgSW5jLgAMAk1hY2ludG9zaAA=</data>
-				<key>TBTDPLowToHigh</key>
-				<data>AQAAAA==</data>
+				<key>#pathcr</key>
+				<data>BAAAAAAAAAAAAAcAEAAQAAUAAAAAAAAAAAAHABAAEAABAAAABQAOAA4AAAAAAAAAAgAAAAAAAAAAAAIAAgABAAMAAAAAAAAAAAAHAAIAAQA=</data>
+				<key>#sscOffset</key>
+				<data>AAc=</data>
 				<key>TBTFlags</key>
 				<data>AwAAAA==</data>
-				<key>ThunderboltConfig</key>
-				<data>AAL//wQABAIBABAABAICAAUABAIBABIABAICAAIAAQA=</data>
 				<key>ThunderboltDROM</key>
 				<data>mgAAAAAAAIaAGnNQgwFkAIaAcyABIQiBgAKAAAAACIKQAYAAAAAIg4AEgAEAAAiEkAOAAQAAAoULhiABAGQAAAAAAAOHgAWIUAAABYlQAAAFilAAAAWLUAAACAFJbnRlbAAPAkhhZGVzIENhbnlvbgA=</data>
 				<key>ThunderboltUUID</key>
@@ -696,15 +700,6 @@
 				<data>CAAAAAMAAAA=</data>
 				<key>model</key>
 				<string>JHL6540 Thunderbolt 3 NHI (C step) [Alpine Ridge 4C 2016]</string>
-				<key>pathcr</key>
-				<data>BAAAAAAAAAAAAAcAEAAQAAUAAAAAAAAAAAAHABAAEAABAAAABQAOAA4AAAAAAAAAAgAAAAAAAAAAAAIAAgABAAMAAAAAAAAAAAAHAAIAAQA=</data>
-				<key>sscOffset</key>
-				<data>AAc=</data>
-			</dict>
-			<key>PciRoot(0x0)/Pci(0x1D,0x0)/Pci(0x0,0x0)/Pci(0x2,0x0)/Pci(0x0,0x0)</key>
-			<dict>
-				<key>built-in</key>
-				<data>AA==</data>
 			</dict>
 		</dict>
 		<key>Delete</key>
