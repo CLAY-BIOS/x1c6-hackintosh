@@ -1,3 +1,6 @@
+/**
+ * Reference: https://www.intel.com/content/dam/www/public/us/en/documents/technical-specifications/extensible-host-controler-interface-usb-xhci.pdf
+ */
 DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 {
     External (_SB_.PCI0, DeviceObj)
@@ -253,14 +256,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
             Method (RTPC, 1, Serialized)
             {
-                Debug = "XHC:RTPC"
+                Debug = "XHC1:RTPC - USB2/3 Run Time Power Check - always on"
 
                 Return (Zero)
             }
 
             Method (USBM, 0, Serialized)
             {
-                Debug = "XHC1: USBM method for M8 port"
+                Debug = "XHC1:USBM - USBM method for M8 port"
                 // ^D0D3 = Zero
                 // Local1 = ^PDBM /* \_SB_.PCI0.XHC1.PDBM */
                 // Local2 = ^MEMB /* \_SB_.PCI0.XHC1.MEMB */
@@ -300,36 +303,42 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                 Return (Zero)
             }
 
+            /**
+             * USB cable check
+             * Called by XHC driver to check cable status
+             * Used as idle hint.
+             */
             Method (MODU, 0, Serialized)
             {
-                Local0 = One
-
                 // TB-Controler enabled?
                 If (CondRefOf (\_SB.PCI0.RP09.UPSB.DSB2.XHC2.MODU))
                 {
                     // If enabled, check if any device is plugged in
                     Local0 = \_SB.PCI0.RP09.UPSB.DSB2.XHC2.MODU ()
                 }
-
                 Local1 = Zero
 
                 If ((Local0 == One) || (Local1 == One))
                 {
+                    Debug = "XHC1:MODU - USB cable check - plugged (Local0 = One)"
+
                     Local0 = One
                 }
                 ElseIf ((Local0 == 0xFF) || (Local1 == 0xFF))
                 {
+                    Debug = "XHC1:MODU - USB cable check - ??? (Local0 = 0xFF)"
+
                     Local0 = 0xFF
                 }
                 Else
                 {
                     Local0 = Zero
+
+                    Debug = "XHC1:MODU - USB cable check - unplugged (Local0 = Zero)"
                 }
 
-                // Debug = "XHC1:MODU - Result:"
-                // Debug = Local0
-
                 Return (Local0)
+
             }
 
             Device (RHUB)
@@ -379,7 +388,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
-                        Local0 = Package (0x00) {}
+                        Local0 = Package (0x02) {}
                         DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                         Return (Local0)
                     }
@@ -1038,9 +1047,23 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                 }
             }
 
+            Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
+            {
+                Local0 = Package (0x04)
+                    {
+                        "acpi-wake-type", 
+                        One, 
+                        "built-in", 
+                        Zero
+                    }
+                DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
+                Return (Local0)
+            }
+
             Method (MBSD, 0, NotSerialized)
             {
                 Debug = "XHC1:MBSD"
+
                 Return (One)
             }
 

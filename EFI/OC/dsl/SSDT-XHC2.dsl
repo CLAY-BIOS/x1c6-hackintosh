@@ -28,6 +28,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
         {
             Name (_ADR, Zero)  // _ADR: Address
             Name (SDPC, Zero)
+
             OperationRegion (A1E0, PCI_Config, Zero, 0x40)
             Field (A1E0, ByteAcc, NoLock, Preserve)
             {
@@ -47,15 +48,15 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
              */
             Method (PCED, 0, Serialized)
             {
-                Debug = "TB:XHC2:PCED"
-                Debug = "TB:XHC2:PCED - enable GPIO"
+                Debug = "TB:UPSB:DSB2:XHC2:PCED - PCI Enable downstream"
+                // Debug = "TB:UPSB:DSB2:XHC2:PCED - enable GPIO"
 
                 \_SB.PCI0.RP09.GXCI = One
 
                 // this powers up both TBT and USB when needed
                 If (\_SB.PCI0.RP09.UGIO () != Zero)
                 {
-                    Debug = "TB:XHC2:PCED - GPIOs changed, restored = true"
+                    // Debug = "TB:UPSB:DSB2:XHC2:PCED - GPIOs changed, restored = true"
                     \_SB.PCI0.RP09.UPSB.DSB2.PRSR = One
                 }
 
@@ -64,30 +65,30 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                 Local1 = Zero
                 Local5 = (Timer + 10000000)
 
-                Debug = "TB:XHC2:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR"
-                Debug = \_SB.PCI0.RP09.UPSB.DSB2.PRSR
+                // Debug = "TB:UPSB:DSB2:XHC2:PCED - restored flag, THUNDERBOLT_PCI_LINK_MGMT_DEVICE.PRSR"
+                // Debug = \_SB.PCI0.RP09.UPSB.DSB2.PRSR
 
                 If (\_SB.PCI0.RP09.UPSB.DSB2.PRSR != Zero)
                 {
-                    Debug = "TB:XHC2:PCED - Wait for power up"
-                    Debug = "TB:XHC2:PCED - Wait for downstream bridge to appear"
+                    // Debug = "TB:UPSB:DSB2:XHC2:PCED - Wait for power up"
+                    // Debug = "TB:UPSB:DSB2:XHC2:PCED - Wait for downstream bridge to appear"
 
                     Local5 = (Timer + 10000000)
 
                     While (Timer <= Local5)
                     {
-                        Debug = "TB:XHC2:PCED - Wait for link training..."
+                        // Debug = "TB:UPSB:DSB2:XHC2:PCED - Wait for link training..."
                         If (\_SB.PCI0.RP09.UPSB.DSB2.LACR == Zero)
                         {
                             If (\_SB.PCI0.RP09.UPSB.DSB2.LTRN != One)
                             {
-                                Debug = "TB:XHC2:PCED - Link training cleared"
+                                // Debug = "TB:UPSB:DSB2:XHC2:PCED - Link training cleared"
                                 Break
                             }
                         }
                         ElseIf ((\_SB.PCI0.RP09.UPSB.DSB2.LTRN != One) && (\_SB.PCI0.RP09.UPSB.DSB2.LACT == One))
                         {
-                            Debug = "TB:XHC2:PCED - Link training cleared and link is active"
+                            // Debug = "TB:UPSB:DSB2:XHC2:PCED - Link training cleared and link is active"
                             Break
                         }
 
@@ -101,10 +102,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
                 While (Timer <= Local5)
                 {
-                    Debug = "TB:XHC2:PCED - Wait for config space..."
+                    // Debug = "TB:UPSB:DSB2:XHC2:PCED - Wait for config space..."
                     If (\_SB.PCI0.RP09.UPSB.DSB2.XHC2.AVND != 0xFFFFFFFF)
                     {
-                        Debug = "TB:XHC2:PCED - Read VID/DID"
+                        // Debug = "TB:UPSB:DSB2:XHC2:PCED - Read VID/DID"
                         \_SB.PCI0.RP09.UPSB.DSB2.PCIA = One
                         Break
                     }
@@ -168,9 +169,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
             Method (_PS0, 0, Serialized)  // _PS0: Power State 0
             {
-                Debug = "TB:XHC2:_PS0"
-                Debug = "TB:XHC2 - U2OP: "
-                Debug = U2OP
+                Debug = "TB:UPSB:DSB2:XHC2:_PS0"
 
                 If (OSDW ())
                 {
@@ -180,6 +179,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
 
             Method (_PS3, 0, Serialized)  // _PS3: Power State 3
             {
+                Debug = "TB:UPSB:DSB2:XHC2:_PS3"
             }
 
             /**
@@ -188,14 +188,26 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
              */
             Method (RTPC, 1, Serialized)
             {
-                Debug = "TB:XHC2:RTPC called with args:"
-                Debug = Arg0
-
                 If (OSDW ())
                 {
                     If (Arg0 <= One)
                     {
+                        If (Arg0 == One)
+                        {
+                            Debug = "TB:UPSB:DSB2:XHC2:RTPC - USB3.2 Run Time Power Check - Enabling"
+                        }
+
+                        If (Arg0 == Zero)
+                        {
+                            Debug = "TB:UPSB:DSB2:XHC2:RTPC - USB3.2 Run Time Power Check - Disabling"    
+                        }
+
                         \_SB.PCI0.RP09.RUSB = Arg0
+                    }
+                    Else
+                    {
+                        Debug = "TB:UPSB:DSB2:XHC2:RTPC - USB3.2 Run Time Power Check - ??? - Arg0: "
+                        Debug = Arg0
                     }
                 }
 
@@ -209,8 +221,19 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
              */
             Method (MODU, 0, Serialized)
             {
-                Debug = "TB:XHC2:MODU - return = "
-                Debug = \_SB.PCI0.RP09.UPSB.MDUV
+                If (\_SB.PCI0.RP09.UPSB.MDUV == Zero)
+                {
+                    Debug = "TB:UPSB:DSB2:XHC2:MODU - USB cable check - unplugged (MDUV = Zero)"
+                }
+                ElseIf (\_SB.PCI0.RP09.UPSB.MDUV == One)
+                {
+                    Debug = "TB:UPSB:DSB2:XHC2:MODU - USB cable check - plugged (MDUV = One)"
+                }
+                Else
+                {
+                    Debug = "TB:UPSB:DSB2:XHC2:MODU - USB cable check - ??? - MDUV: "
+                    Debug = \_SB.PCI0.RP09.UPSB.MDUV
+                }
 
                 Return (\_SB.PCI0.RP09.UPSB.MDUV)
             }
@@ -279,9 +302,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     {
                         If (U2OP == One)
                         {
-                            Local0 = Package (0x04)
+                            Local0 = Package (0x06)
                                 {
                                     "UsbCPortNumber", 
+                                    One, 
+                                    "UsbPowerSource", 
                                     One, 
                                     "UsbCompanionPortPresent", 
                                     One
@@ -289,10 +314,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                         }
                         Else
                         {
-                            Local0 = Package (0x02)
+                            Local0 = Package (0x04)
                                 {
                                     "UsbCPortNumber", 
-                                    One
+                                    One,
+                                    "UsbPowerSource", 
+                                    One,
                                 }
                         }
 
@@ -358,24 +385,29 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                         "XHC1", 
                         0x04
                     })
+
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
                         If (U2OP == One)
                         {
-                            Local0 = Package (0x04)
+                            Local0 = Package (0x06)
                                 {
                                     "UsbCPortNumber", 
                                     0x02, 
+                                    "UsbPowerSource", 
+                                    0x02,
                                     "UsbCompanionPortPresent", 
                                     One
                                 }
                         }
                         Else
                         {
-                            Local0 = Package (0x02)
+                            Local0 = Package (0x04)
                                 {
                                     "UsbCPortNumber", 
-                                    0x02
+                                    0x02,
+                                    "UsbPowerSource", 
+                                    0x02,
                                 }
                         }
 
