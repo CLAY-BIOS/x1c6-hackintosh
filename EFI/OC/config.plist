@@ -676,20 +676,6 @@
 			</dict>
 			<key>PciRoot(0x0)/Pci(0x1D,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)/Pci(0x0,0x0)</key>
 			<dict>
-				<key>#TBTDPLowToHigh</key>
-				<data>AQAAAA==</data>
-				<key>#ThunderboltConfig</key>
-				<data>AAL//wQABAIBABAABAICAAUABAIBABIABAICAAIAAQA=</data>
-				<key>#ThunderboltDROM</key>
-				<data>4QCEcjzDSgEACptg+gFeAAEADAABAAiBgAKAAAAACIKQAYAAAAAIg4AEgAEAAAiEkAOAAQAACIUAAAAAAAADhiADh4ACyAWJUAAABYpQAAACyw0BQXBwbGUgSW5jLgAMAk1hY2ludG9zaAA=</data>
-				<key>#pathcr</key>
-				<data>BAAAAAAAAAAAAAcAEAAQAAUAAAAAAAAAAAAHABAAEAABAAAABQAOAA4AAAAAAAAAAgAAAAAAAAAAAAIAAgABAAMAAAAAAAAAAAAHAAIAAQA=</data>
-				<key>#sscOffset</key>
-				<data>AAc=</data>
-				<key>TBTFlags</key>
-				<data>AwAAAA==</data>
-				<key>ThunderboltDROM</key>
-				<data>mgAAAAAAAIaAGnNQgwFkAIaAcyABIQiBgAKAAAAACIKQAYAAAAAIg4AEgAEAAAiEkAOAAQAAAoULhiABAGQAAAAAAAOHgAWIUAAABYlQAAAFilAAAAWLUAAACAFJbnRlbAAPAkhhZGVzIENhbnlvbgA=</data>
 				<key>ThunderboltUUID</key>
 				<data>bYT/DabNYl2Vq0VgT/Xr3w==</data>
 				<key>built-in</key>
