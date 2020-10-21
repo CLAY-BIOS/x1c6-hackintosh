@@ -7,8 +7,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
     External (DTGP, MethodObj)
     External (OSDW, MethodObj)                        // OS Is Darwin?
 
-    External (U2OP, IntObj)
-
     External (_SB.PCI0.RP09.RUSB, IntObj)
     External (_SB.PCI0.RP09.GXCI, FieldUnitObj)
     External (_SB.PCI0.RP09.UGIO, MethodObj)
@@ -21,6 +19,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
     External (_SB.PCI0.RP09.UPSB.DSB2.LACR, FieldUnitObj)
     External (_SB.PCI0.RP09.UPSB.DSB2.LACT, FieldUnitObj)
     External (_SB.PCI0.RP09.UPSB.DSB2.LTRN, FieldUnitObj)
+
+    External (_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TPLD, MethodObj)
+    External (_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TUPC, MethodObj)
+
+    External (TBSE, IntObj)
+    External (TBTS, IntObj)
+    External (TBAS, IntObj)
+    External (UPT1, IntObj)
+    External (UPT2, IntObj)
+    External (USME, IntObj)
+
+    Name (U2OP, One) // Companion controller present?
 
     Scope (_SB.PCI0.RP09.UPSB.DSB2)
     {
@@ -163,13 +173,21 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                 Return (Package (0x02)
                 {
                     0x6D, 
-                    0x04
+                    0x03
                 })
             }
 
             Method (_PS0, 0, Serialized)  // _PS0: Power State 0
             {
                 Debug = "TB:UPSB:DSB2:XHC2:_PS0"
+                // Debug = "TB:UPSB:DSB2:XHC2:_PS0 - USME: " // One
+                // Debug = USME
+                // Debug = "TB:UPSB:DSB2:XHC2:_PS0 - TBTS: " // One
+                // Debug = TBTS
+                // Debug = "TB:UPSB:DSB2:XHC2:_PS0 - TBSE: " // 0x09
+                // Debug = TBSE
+                // Debug = "TB:UPSB:DSB2:XHC2:_PS0 - TBAS: " // Zero
+                // Debug = TBAS
 
                 If (OSDW ())
                 {
@@ -245,6 +263,31 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                 Device (SSP1)
                 {
                     Name (_ADR, 0x03)  // _ADR: Address
+
+                    // Method (_UPC, 0, NotSerialized)  // _UPC: USB Port Capabilities
+                    // {
+                    //     If ((USME == Zero))
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TUPC (One, 0x09))
+                    //     }
+                    //     Else
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TUPC (One, 0x0A))
+                    //     }
+                    // }
+
+                    // Method (_PLD, 0, NotSerialized)  // _PLD: Physical Location of Device
+                    // {
+                    //     If ((USME == Zero))
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TPLD (One, One))
+                    //     }
+                    //     Else
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TPLD (One, UPT1))
+                    //     }
+                    // }
+
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
@@ -302,24 +345,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     {
                         If (U2OP == One)
                         {
-                            Local0 = Package (0x06)
+                            Local0 = Package (0x04)
                                 {
                                     "UsbCPortNumber", 
-                                    One, 
-                                    "UsbPowerSource", 
-                                    One, 
+                                    0x02, 
                                     "UsbCompanionPortPresent", 
                                     One
                                 }
                         }
                         Else
                         {
-                            Local0 = Package (0x04)
+                            Local0 = Package (0x02)
                                 {
                                     "UsbCPortNumber", 
-                                    One,
-                                    "UsbPowerSource", 
-                                    One,
+                                    0x02, 
                                 }
                         }
 
@@ -331,6 +370,31 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                 Device (SSP2)
                 {
                     Name (_ADR, 0x04)  // _ADR: Address
+
+                    // Method (_UPC, 0, NotSerialized)  // _UPC: USB Port Capabilities
+                    // {
+                    //     If ((USME == Zero))
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TUPC (One, 0x09))
+                    //     }
+                    //     Else
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TUPC (One, 0x0A))
+                    //     }
+                    // }
+
+                    // Method (_PLD, 0, NotSerialized)  // _PLD: Physical Location of Device
+                    // {
+                    //     If ((USME == Zero))
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TPLD (One, 0x02))
+                    //     }
+                    //     Else
+                    //     {
+                    //         Return (\_SB.PCI0.RP09.PXSX.TBDU.XHC.RHUB.TPLD (One, UPT2))
+                    //     }
+                    // }
+
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
@@ -390,24 +454,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC2", 0x00001000)
                     {
                         If (U2OP == One)
                         {
-                            Local0 = Package (0x06)
+                            Local0 = Package (0x04)
                                 {
                                     "UsbCPortNumber", 
-                                    0x02, 
-                                    "UsbPowerSource", 
-                                    0x02,
+                                    One, 
                                     "UsbCompanionPortPresent", 
                                     One
                                 }
                         }
                         Else
                         {
-                            Local0 = Package (0x04)
+                            Local0 = Package (0x02)
                                 {
                                     "UsbCPortNumber", 
-                                    0x02,
-                                    "UsbPowerSource", 
-                                    0x02,
+                                    One, 
                                 }
                         }
 

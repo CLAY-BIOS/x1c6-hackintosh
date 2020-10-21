@@ -386,6 +386,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                     })
 
+                    Name (SS, Package (0x02)
+                    {
+                        "XHC1", 
+                        0x0D
+                    })
+
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
                         Local0 = Package (0x02) {}
@@ -432,8 +438,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Reference          = 0x0,
                             PLD_Rotation           = 0x0,
                             PLD_Order              = 0x0)
-
                     })
+
+                    Name (SS, Package (0x02)
+                    {
+                        "XHC1", 
+                        0x0E
+                    })
+
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
                         Local0 = Package (0x00) {}
@@ -448,7 +460,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x08, 
+                        0x09,
                         Zero, 
                         Zero
                     })
@@ -488,12 +500,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                         Name (SSP, Package (0x02)
                         {
                             "XHC2", 
-                            One
+                            0x03
                         })
                         Name (SS, Package (0x02)
                         {
                             "XHC2", 
-                            One
+                            0x03
                         })
                     }
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -510,7 +522,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                     Name (_UPC, Package (0x04)  // _UPC: USB Port Capabilities
                     {
                         0xFF, 
-                        0x08, 
+                        0x09,
                         Zero, 
                         Zero
                     })
@@ -550,12 +562,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                         Name (SSP, Package (0x02)
                         {
                             "XHC2", 
-                            0x02
+                            0x04
                         })
                         Name (SS, Package (0x02)
                         {
                             "XHC2", 
-                            0x02
+                            0x04
                         })
                     }
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
@@ -892,8 +904,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Reference          = 0x0,
                             PLD_Rotation           = 0x0,
                             PLD_Order              = 0x0)
-
                     })
+
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
                         Local0 = Package (0x00) {}
@@ -940,11 +952,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                             PLD_Reference          = 0x0,
                             PLD_Rotation           = 0x0,
                             PLD_Order              = 0x0)
-
                     })
+
+
                     Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
                     {
-                        Local0 = Package (0x00) {}
                         DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                         Return (Local0)
                     }
@@ -1060,23 +1072,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
                 Return (Local0)
             }
 
+            Name (SSP, Package (0x01)
+            {
+                "XHC2"
+            })
+            Name (SS, Package (0x01)
+            {
+                "XHC2"
+            })
+
             Method (MBSD, 0, NotSerialized)
             {
                 Debug = "XHC1:MBSD"
 
                 Return (One)
-            }
-
-            If (CondRefOf (\_SB_.PCI0.RP09.UPSB.DSB2.XHC2))
-            {
-                Name (SSP, Package (0x01)
-                {
-                    "XHC2"
-                })
-                Name (SS, Package (0x01)
-                {
-                    "XHC2"
-                })
             }
         }
     }
