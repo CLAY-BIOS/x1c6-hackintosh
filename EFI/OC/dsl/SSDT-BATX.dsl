@@ -90,8 +90,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         //
         // EC region overlay.
         //
-        OperationRegion (ERAM, EmbeddedControl, 0x00, 0x0100)
-        Field(ERAM, ByteAcc, NoLock, Preserve)
+        OperationRegion (BRAM, EmbeddedControl, 0x00, 0x0100)
+        Field(BRAM, ByteAcc, NoLock, Preserve)
         {
             Offset (0x38),
             B0ST, 4,	/* Battery 0 state */
@@ -105,7 +105,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // EC Registers 
         // HIID == 0x00
         //
-        Field (ERAM, ByteAcc, NoLock, Preserve)
+        Field (BRAM, ByteAcc, NoLock, Preserve)
         {
             Offset(0xA0),
             // SBRC, 16,    // Remaining Capacity
@@ -138,7 +138,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // EC Registers 
         // HIID == 0x01
         //
-        Field (ERAM, ByteAcc, NoLock, Preserve)
+        Field (BRAM, ByteAcc, NoLock, Preserve)
         {
             Offset(0xA0),
                         // Battery Mode(w)
@@ -157,7 +157,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // EC Registers 
         // HIID == 0x02
         //
-        Field (ERAM, ByteAcc, NoLock, Preserve)
+        Field (BRAM, ByteAcc, NoLock, Preserve)
         {
             Offset(0xA0),
             // SBDC, 16,    // Design Capacity
@@ -184,7 +184,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // EC Registers 
         // HIID == 0x04: Battery type
         //
-        Field (ERAM, ByteAcc, NoLock, Preserve)
+        Field (BRAM, ByteAcc, NoLock, Preserve)
         {
             Offset(0xA0),
             // SBCH, 32,    // Device Checmistory (string)
@@ -195,7 +195,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         }
 
         /*
-        * Switches the battery information page (16 bytes ERAM @0xa0) with an
+        * Switches the battery information page (16 bytes BRAM @0xa0) with an
         * optional compile-time delay.
         *
         * Arg0:
@@ -213,7 +213,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // // EC Registers 
         // // HIID == 0x05: Battery OEM information
         // //
-        // Field (ERAM, ByteAcc, NoLock, Preserve)
+        // Field (BRAM, ByteAcc, NoLock, Preserve)
         // {
         //     Offset(0xA0),
         //     SBMN, 128,   // Manufacture Name (s)
@@ -223,7 +223,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         // // EC Registers 
         // // HIID == 0x06: Battery name
         // //
-        // Field (ERAM, ByteAcc, NoLock, Preserve)
+        // Field (BRAM, ByteAcc, NoLock, Preserve)
         // {
         //     Offset(0xA0),
         //     SBDN, 128,   // Device Name (s)
