@@ -10,6 +10,7 @@
  * as it enables "modern standby" in Windows for dual-boot-systems
  *
  * ## Background:
+ *
  * Sleep on hackintoshes is a complicated topic. More complicated as mostly percieved. The problem is
  * that many functions of power management, sleep & wake are handled by the Macbook's embedded controller (EC)
  * / SMC and therefor many functions and devices are simply missing on Hackintoshes (f.e. the topcase-device). 
@@ -22,7 +23,9 @@
  * With this reasoning in mind, this SSDT tries to match the sleep-behaviour of a macbookpro14,1 as closely as possible.
  *
  * # Notice:
+ *
  * Please remove every GPRW-, Name6x-, PTSWAK-, FixShutdown-, WakeScren-Patches or similar prior using.
+ * If you adapt this patches to other models, check the occurence of the used variables and methods on your own DSDT beforehand.
  *
  *
  * # The needed patches for this SSDt on a X1C6:
@@ -113,6 +116,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     External (DTGP, MethodObj) // 5 Arguments
     External (OSDW, MethodObj) // 0 Arguments
 
+
     // S0/S3-config from BIOS
     External (S0ID, FieldUnitObj) // S0 enabled
     External (STY0, FieldUnitObj) // S3 Enabled?   
@@ -147,6 +151,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         }
     }
 
+
     Scope (_GPE)
     {
         // This tells xnu to evaluate _GPE.Lxx methods on resume
@@ -158,9 +163,10 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         }
     }
 
+
     External (_SB.LID, DeviceObj) // 0 Arguments
 
-    External(ZPRW, MethodObj)
+    External (ZPRW, MethodObj)
     External (ZWAK, MethodObj) // 1 Arguments
     External (_SB.PCI0.LPCB.EC.AC._PSR, MethodObj) // 0 Arguments
     External (_SB.PCI0.LPCB.EC._Q2A, MethodObj) // 0 Arguments
@@ -190,20 +196,20 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         {
             If (OSDW ())
             {
-                Name (PRWP, Package (0x02)
+                Local0 = Package (0x02)
                 {
                     Zero, 
                     Zero
-                })
+                }
 
-                PRWP[Zero] = Arg0
+                Local0[Zero] = Arg0
 
                 If (Arg1 > 0x04)
                 {
-                    PRWP[One] = 0x03
+                    Local0[One] = 0x03
                 }
 
-                Return (PRWP)
+                Return (Local0)
             }
             Else 
             {
@@ -221,18 +227,19 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
 
             If (OSDW ())
             {
-                // Save old lis-state
+                // Save old lid-state
                 Local1 = LIDS
 
                 // Update lid-state
                 LIDS = \_SB.PCI0.LPCB.EC.HPLD
                 \_SB.PCI0.GFX0.CLID = LIDS
 
-                // Fire missing lid-open event if lid was closed before. Also notifies LID-device
+                // Fire missing lid-open event if lid was closed before. 
+                // Also notifies LID-device and sets LEDs to the right state on wake.
                 If (Local1 == Zero)
                 {
                     // Lid-open Event
-                    \_SB.PCI0.LPCB.EC._Q2A()
+                    \_SB.PCI0.LPCB.EC._Q2A ()
                 }
 
                 // Update ac-state
@@ -257,6 +264,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
             Return (S0ID)
         }
 
+        // Adds ACPI power-button-device
         // https://github.com/daliansky/OC-little/blob/master/06-%E6%B7%BB%E5%8A%A0%E7%BC%BA%E5%A4%B1%E7%9A%84%E9%83%A8%E4%BB%B6/SSDT-PWRB.dsl
         Device (PWRB)
         {
@@ -284,12 +292,13 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     External (LWCP, FieldUnitObj)
 
     // Patching AC-Device so that AppleACPIACAdapter-driver loads.
-    // https://github.com/khronokernel/DarwinDumped/blob/b6d91cf4a5bdf1d4860add87cf6464839b92d5bb/MacBookPro/MacBookPro14%2C1/ACPI%20Tables/DSL/DSDT.dsl#L7965
-    // Named ADP1 on Mac    
+    // Device named ADP1 on Mac
+    // See https://github.com/khronokernel/DarwinDumped/blob/b6d91cf4a5bdf1d4860add87cf6464839b92d5bb/MacBookPro/MacBookPro14%2C1/ACPI%20Tables/DSL/DSDT.dsl#L7965
     Scope (\_SB.PCI0.LPCB.EC.AC)
     {
         Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
         {
+            // Lid-wake control power?
             Debug = "LWCP = "
             Debug = LWCP
 

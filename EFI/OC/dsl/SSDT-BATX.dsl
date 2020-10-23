@@ -4,32 +4,22 @@
 // https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
 // https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md
 //
-// <dict>
-// 	<key>Comment</key>
-// 	<string>BAT: Change HWAC to XWAC EC reads</string>
-// 	<key>Count</key>
-// 	<integer>0</integer>
-// 	<key>Enabled</key>
-// 	<true/>
-// 	<key>Find</key>
-// 	<data>RUNfX0hXQUM=</data>
-// 	<key>Limit</key>
-// 	<integer>0</integer>
-// 	<key>Mask</key>
-// 	<data></data>
-// 	<key>OemTableId</key>
-// 	<data></data>
-// 	<key>Replace</key>
-// 	<data>RUNfX1hXQUM=</data>
-// 	<key>ReplaceMask</key>
-// 	<data></data>
-// 	<key>Skip</key>
-// 	<integer>0</integer>
-// 	<key>TableLength</key>
-// 	<integer>0</integer>
-// 	<key>TableSignature</key>
-// 	<data>RFNEVA==</data>
-// </dict>
+// Changelog:
+// 23.10 - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
+//
+// Todo:
+// [    9.010218]: SMCBatteryManager     acpib: @ invalid supplement info for ManufactureDate (ffffffff)
+// [    9.010221]: SMCBatteryManager     acpib: @ invalid supplement info for PackLotCode (ffffffff)
+// [    9.010224]: SMCBatteryManager     acpib: @ invalid supplement info for PCBLotCode (ffffffff)
+// [    9.010225]: SMCBatteryManager     acpib: @ invalid supplement info for FirmwareVersion (ffffffff)
+// [    9.010227]: SMCBatteryManager     acpib: @ invalid supplement info for HardwareVersion (ffffffff)
+// [    9.010229]: SMCBatteryManager     acpib: @ invalid supplement info for BatteryVersion (ffffffff)
+// [    9.064888]: SMCBatteryManager     acpib: @ invalid supplement info for Temperature (4294967295)
+// [    9.064890]: SMCBatteryManager     acpib: @ invalid supplement info for AverageRate (-1)
+// [    9.064892]: SMCBatteryManager     acpib: @ invalid supplement info for ChargingCurrent (-1)
+// [    9.064894]: SMCBatteryManager     acpib: @ invalid supplement info for ChargingVoltage (-1)
+//
+// Needed patch for notify:
 //
 // <dict>
 //  <key>Comment</key>
@@ -93,11 +83,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
-        // Method used for replacing reads to HWAC in _L17() & OWAK().
-        Method(XWAC, 0, NotSerialized)
-        {
-            Return (B1B2(WAC0, WAC1))
-        }
+        // BATTERY_PAGE_DELAY_MS
+        Name (BDEL, 25)
+
 
         //
         // EC region overlay.
@@ -105,9 +93,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
         OperationRegion (ERAM, EmbeddedControl, 0x00, 0x0100)
         Field(ERAM, ByteAcc, NoLock, Preserve)
         {
-            Offset(0x36),
-            WAC0, 8, WAC1, 8,
-
             Offset (0x38),
             B0ST, 4,	/* Battery 0 state */
                 , 1,
@@ -209,6 +194,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             CH03,    8
         }
 
+        /*
+        * Switches the battery information page (16 bytes ERAM @0xa0) with an
+        * optional compile-time delay.
+        *
+        * Arg0:
+        *   bit7-4: Battery number
+        *   bit3-0: Information page number
+        */
+        Method(BPAG, 1, NotSerialized)
+        {
+            Store(Arg0, HIID)
+            Sleep(BDEL)
+        }
+
         // 128-byte fields are replaced with read-methods below
         // //
         // // EC Registers 
@@ -251,7 +250,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 5 -
                 //
-                HIID = 0x05
+                BPAG(0x05)
                 
                 Return (RECB (0xA0, 128)) // SBMN
             }
@@ -262,7 +261,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 6 -
                 //
-                HIID = 0x06
+                BPAG(0x06)
                 
                 Return (RECB (0xA0, 128)) // SBDN
             }
@@ -334,7 +333,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             {
                 // Debug = "BATX:_BIX"
 
-                If (Acquire (^^BATM, 1000))
+                If (Acquire (^^BATM, 65535))
                 {
                     Return (PBIX)
                 }
@@ -342,7 +341,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 1 -
                 //
-                HIID = 0x01
+                BPAG(0x01)
 
                 // Needs conversion?
                 //
@@ -367,7 +366,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 0 -
                 //
-                HIID = Zero
+                BPAG(Zero)
 
                 // Last Full Charge Capacity
                 PBIX[0x03] = B1B2 (FC00, FC01)
@@ -375,7 +374,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 2 -
                 //
-                HIID = 0x02
+                BPAG(0x02)
 
                 // Design capacity
                 Local0 = B1B2 (DC00, DC01)
@@ -397,7 +396,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 4 -
                 //
-                HIID = 0x04
+                BPAG(0x04)
 
                 // Battery Type - Device Chemistry
                 PBIX[0x12] = ToString (Concatenate (B1B4 (CH00, CH01, CH02, CH03), 0x00))
@@ -454,7 +453,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             Method (CBIS, 0, Serialized)
             {
-                If (Acquire (^^BATM, 1000))
+                If (Acquire (^^BATM, 65535))
                 {
                     Return (PBST)
                 }
@@ -462,7 +461,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 2 -
                 //
-                HIID = 0x02
+                BPAG(0x02)
 
                 // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                 PBST[0x01] = B1B2 (DT00, DT01)
@@ -498,7 +497,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 }
                 Else
                 {
-                    If (Acquire (^^BATM, 1000))
+                    If (Acquire (^^BATM, 65535))
                     {
                         Return (PBST)
                     }
@@ -508,7 +507,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     //
                     // Information Page 0 -
                     //
-                    HIID = 0x00 /* Battery dynamic information */
+                    BPAG(0x00) /* Battery dynamic information */
 
                     // Present rate is a 16bit signed int, positive while charging
                     // and negative while discharging.
@@ -574,7 +573,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             Method (CBSS, 0, Serialized)
             {
-                If (Acquire (^^BATM, 1000))
+                If (Acquire (^^BATM, 65535))
                 {
                     Return (PBSS)
                 }
@@ -582,7 +581,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 //
                 // Information Page 0 -
                 //
-                HIID = 0x00
+                BPAG(0x00)
 
                 // 0x01: TimeToFull (0x11), minutes (0xFF)
                 PBSS[0x01] = B1B2 (AF00, AF01) // ??
