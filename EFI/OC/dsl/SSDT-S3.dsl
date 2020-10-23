@@ -29,32 +29,6 @@
  *
 			<dict>
 				<key>Comment</key>
-				<string>S3: _L6D to XL6D</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<true/>
-				<key>Find</key>
-				<data>X0w2RA==</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>WEw2RA==</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
-			</dict>
-			<dict>
-				<key>Comment</key>
 				<string>S3: SLTP TO XLTP</string>
 				<key>Count</key>
 				<integer>0</integer>
@@ -135,14 +109,16 @@
  */
 DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
 {
+    // Common utils from SSDT-UTILS.dsl
     External (DTGP, MethodObj) // 5 Arguments
     External (OSDW, MethodObj) // 0 Arguments
 
+    // S0/S3-config from BIOS
     External (S0ID, FieldUnitObj) // S0 enabled
     External (STY0, FieldUnitObj) // S3 Enabled?   
 
+    // Package to signal to OS S3-capability. We'll add it if missing.
     External (SS3, FieldUnitObj) // S3 Enabled?    
-    External (LWCP, FieldUnitObj) // S3 Enabled?    
 
     If (OSDW ())
     {
@@ -171,21 +147,45 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         }
     }
 
-    // SLTP already taken on X1C6, therefor renamed via patch.
-    Name (SLTP, Zero)  
-
-    Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
+    Scope (_GPE)
     {
-        Debug = "_TTS() called with Arg0:"
-        Debug = Arg0
+        // This tells xnu to evaluate _GPE.Lxx methods on resume
+        Method (LXEN, 0, NotSerialized)
+        {
+            Debug = "LXEN()"
 
-        SLTP = Arg0
+            Return (One)
+        }
     }
 
+    External (_SB.LID, DeviceObj) // 0 Arguments
+
     External(ZPRW, MethodObj)
+    External (ZWAK, MethodObj) // 1 Arguments
+    External (_SB.PCI0.LPCB.EC.AC._PSR, MethodObj) // 0 Arguments
+    External (_SB.PCI0.LPCB.EC._Q2A, MethodObj) // 0 Arguments
+    External (_SB.LID._LID, MethodObj) // 0 Arguments
+    External (_SB.PCI0.LPCB.EC.HPLD, FieldUnitObj)
+    External (_SB.PCI0.GFX0.CLID, FieldUnitObj)
+    External (LIDS, FieldUnitObj)
+    External (PWRS, FieldUnitObj)
 
     Scope (\)
     {
+        // SLTP already taken on X1C6, therefor renamed via patch.
+        Name (SLTP, Zero)  
+
+        // Save sleep-state in SLTP on transition. Like a genuine Mac.
+        Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
+        {
+            Debug = "_TTS() called with Arg0:"
+            Debug = Arg0
+
+            SLTP = Arg0
+        }
+
+        // Patch _PRW-returns to match the original as closely as possible
+        // and remove instant wakeups and similar sleep-probs
         Method (GPRW, 2, NotSerialized)
         {
             If (OSDW ())
@@ -210,38 +210,44 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
                 Return (ZPRW (Arg0, Arg1))
             }
         }
-    }
 
-    External (_SB.PCI0.LPCB.EC.AC, DeviceObj)
-
-    // Patching AC-Device so that AppleACPIACAdapter-driver loads.
-    // https://github.com/khronokernel/DarwinDumped/blob/b6d91cf4a5bdf1d4860add87cf6464839b92d5bb/MacBookPro/MacBookPro14%2C1/ACPI%20Tables/DSL/DSDT.dsl#L7965
-    // Named ADP1 on Mac    
-    Scope (\_SB.PCI0.LPCB.EC.AC)
-    {
-        Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
+        // Patch _WAK to fire missing LID-Open event and update AC-state
+        Method (_WAK, 1, Serialized)
         {
-            If (\LWCP)
+            Debug = "_WAK start: Arg0"
+            Debug = Arg0
+
+            Local0 = ZWAK(Arg0)
+
+            If (OSDW ())
             {
-                Return (Package (0x02)
+                // Save old lis-state
+                Local1 = LIDS
+
+                // Update lid-state
+                LIDS = \_SB.PCI0.LPCB.EC.HPLD
+                \_SB.PCI0.GFX0.CLID = LIDS
+
+                // Fire missing lid-open event if lid was closed before. Also notifies LID-device
+                If (Local1 == Zero)
                 {
-                    0x17, 
-                    0x04
-                })
+                    // Lid-open Event
+                    \_SB.PCI0.LPCB.EC._Q2A()
+                }
+
+                // Update ac-state
+                \PWRS = \_SB.PCI0.LPCB.EC.AC._PSR ()
             }
-            Else
-            {
-                Return (Package (0x02)
-                {
-                    0x17, 
-                    0x03
-                })
-            }
+
+            Debug = "_WAK end"
+
+            Return (Local0)
         }
     }
 
     Scope (_SB)
     {
+        // Sync S0-state between BIOS and OS
         Method (LPS0, 0, NotSerialized)
         {
             Debug = "LPS0 - S0ID: "
@@ -273,106 +279,36 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         }
     }
 
-    External (_SB.LID, DeviceObj) // 0 Arguments
-    External (ZWAK, MethodObj) // 1 Arguments
-    External (_SB.PCI0.LPCB.EC.AC._PSR, MethodObj) // 0 Arguments
-    External (_SB.PCI0.LPCB.EC._Q2A, MethodObj) // 0 Arguments
-    External (_SB.LID._LID, MethodObj) // 0 Arguments
-    External (_SB.SCGE, FieldUnitObj)
-    External (_SB.PCI0.GFX0.CLID, FieldUnitObj)
-    External (_SB.PCI0.LPCB.EC.HPLD, FieldUnitObj)
-    External (LIDS, FieldUnitObj)
-    External (PWRS, FieldUnitObj)
-    External (PLUX, FieldUnitObj)
-    External (ILNF, FieldUnitObj)
 
-    External (OSDW, MethodObj) // 0 Arguments
+    External (_SB.PCI0.LPCB.EC.AC, DeviceObj)
+    External (LWCP, FieldUnitObj)
 
-    Scope (\)
+    // Patching AC-Device so that AppleACPIACAdapter-driver loads.
+    // https://github.com/khronokernel/DarwinDumped/blob/b6d91cf4a5bdf1d4860add87cf6464839b92d5bb/MacBookPro/MacBookPro14%2C1/ACPI%20Tables/DSL/DSDT.dsl#L7965
+    // Named ADP1 on Mac    
+    Scope (\_SB.PCI0.LPCB.EC.AC)
     {
-        Method (_WAK, 1, Serialized)
+        Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
         {
-            Debug = "_WAK start: Arg0"
-            Debug = Arg0
+            Debug = "LWCP = "
+            Debug = LWCP
 
-            Local0 = ZWAK(Arg0)
-
-            If (OSDW ())
+            If (\LWCP)
             {
-                // Save old lis-state
-                Local1 = LIDS
-
-                Debug = "CLID: "
-                Debug = Local1
-
-                Debug = "SLTP: "
-                Debug = SLTP
-
-                Debug = "LIDS: "
-                Debug = LIDS
-
-                // Update lid-state
-                LIDS = \_SB.PCI0.LPCB.EC.HPLD
-                \_SB.PCI0.GFX0.CLID = LIDS
-
-                // Fire missing lid-open event if lid was closed. Also notifies LID-device
-                If (Local1 == Zero)
+                Return (Package (0x02)
                 {
-                    Debug = "PLUX: "
-                    Debug = \PLUX
-
-                    Debug = "ILNF: "
-                    Debug = \ILNF
-
-                    // Lid-open Event
-                    \_SB.PCI0.LPCB.EC._Q2A()
-                }
-
-                // Update ac-state
-                \PWRS = \_SB.PCI0.LPCB.EC.AC._PSR ()
+                    0x17, 
+                    0x04
+                })
             }
-
-            Debug = "_WAK end"
-
-            Return (Local0)
-        }
-    }
-
-    External (_GPE.XL6D, MethodObj) // 0 Arguments
-    External (_SB.PCI0.XHC1, DeviceObj) 
-    External (_SB.PCI0.HDAS, DeviceObj) 
-    External (_SB.PCI0.GLAN, DeviceObj) 
-    External (_SB.PCI0.XDC1, DeviceObj) 
-
-    Scope (_GPE)
-    {
-        // This tells xnu to evaluate _GPE.Lxx methods on resume
-        Method (LXEN, 0, NotSerialized)
-        {
-            Debug = "LXEN()"
-
-            Return (One)
-        }
-
-        // Device Wake Event
-        Method (_L6D, 0, Serialized)  // _Lxx: Level-Triggered GPE, xx=0x00-0xFF
-        {
-            Debug = "_L6D() start (Device)"
-
-            If (OSDW ())
+            Else
             {
-                // Add missing notify to PowerButton-device
-                Notify (\_SB.PWRB, 0x02) // Device Wake
-                // Notify (\_SB.PCI0.XHC1, 0x02) // Device Wake
-                // Notify (\_SB.PCI0.HDAS, 0x02) // Device Wake
-                // Notify (\_SB.PCI0.GLAN, 0x02) // Device Wake
-                // Notify (\_SB.PCI0.XDC1, 0x02) // Device Wake
-            } 
-
-            \_GPE.XL6D()
-
-
-            Debug = "_L6D() end"
+                Return (Package (0x02)
+                {
+                    0x17, 
+                    0x03
+                })
+            }
         }
     }
 }
