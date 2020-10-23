@@ -42,9 +42,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
     External (_SB.PCI0.RP09.UPSB.DSB2.XHC2, DeviceObj)
     External (_SB.PCI0.RP09.UPSB.DSB2.XHC2.AVND, FieldUnitObj)
 
-    External (_GPE.XL6F, MethodObj) // 0 Arguments
-    External (_GPE.XL27, MethodObj) // 0 Arguments
-
     // get PCI MMIO base
     External (_SB.PCI0.GPCB, MethodObj)              
     // Get GPI Input Value
@@ -70,6 +67,25 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
     External (TBSE, FieldUnitObj)   // TB root port number
     External (TBTS, FieldUnitObj)   // TB enabled?
     External (SLTP, IntObj)
+
+    External (_GPE.XTFY, MethodObj)      // 1 Arguments
+
+    Scope (\_GPE)
+    {
+        Method (NTFY, 1, Serialized)
+        {
+            If (OSDW ())
+            {
+                Debug = "TB:_GPE:NTFY()"
+
+                \_SB.PCI0.RP09.UPSB.AMPE ()
+            }
+            Else
+            {
+                XTFY(Arg0)
+            }
+        }
+    }
 
     Scope (\_SB)
     {
@@ -136,25 +152,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_TB", 0x00001000)
 
     Scope (\_SB.PCI0.RP09)
     {
-        Scope (\_GPE)
-        {
-            Method (_L27, 0, NotSerialized)  // _Lxx: Level-Triggered GPE
-            {
-                Debug = "TB:_L27"
-                \_GPE.XL27 ()
-            }
-
-            // This event is fired for USB3.2 and TB
-            Method (_L6F, 0, NotSerialized)  // _Lxx: Level-Triggered GPE
-            {
-                Debug = "TB:_L6F (TB-Port hotplug)"
-                \_GPE.XL6F ()
-
-                \_SB.PCI0.RP09.UPSB.AMPE ()
-                // \_SB.PCI0.RP09.UPSB.UMPE ()
-            }
-        }
-
         Name (EICM, Zero)
         Name (R020, Zero) // RP base/limit from UEFI
         Name (R024, Zero) // RP prefetch base/limit from UEFI
