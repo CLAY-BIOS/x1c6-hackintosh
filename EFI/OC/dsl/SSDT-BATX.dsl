@@ -52,11 +52,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
     External (_SB.PCI0.LPCB.EC.BATM, MutexObj)
+
     External (_SB.PCI0.LPCB.EC.BAT0, DeviceObj)
     External (_SB.PCI0.LPCB.EC.BAT0._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT0._INI, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT0._HID, IntObj)
     External (_SB.PCI0.LPCB.EC.BAT0.B0ST, IntObj)
+
+    External (_SB.PCI0.LPCB.EC.BAT1, DeviceObj)
+    External (_SB.PCI0.LPCB.EC.BAT1._STA, MethodObj)
+    External (_SB.PCI0.LPCB.EC.BAT1._INI, MethodObj)
+    External (_SB.PCI0.LPCB.EC.BAT1._HID, IntObj)
+    External (_SB.PCI0.LPCB.EC.BAT1.B0ST, IntObj)
 
     // HB0S: [Battery 0 status (read only)]
     //   bit 3-0 level
@@ -83,154 +90,139 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
-        // BATTERY_PAGE_DELAY_MS
-        Name (BDEL, 25)
-
-
-        //
-        // EC region overlay.
-        //
-        OperationRegion (BRAM, EmbeddedControl, 0x00, 0x0100)
-        Field(BRAM, ByteAcc, NoLock, Preserve)
-        {
-            Offset (0x38),
-            B0ST, 4,	/* Battery 0 state */
-                , 1,
-            B0CH, 1,	/* Battery 0 charging */
-            B0DI, 1,	/* Battery 0 discharging */
-            B0PR, 1,	/* Battery 0 present */
-        }
-
-        //
-        // EC Registers 
-        // HIID == 0x00
-        //
-        Field (BRAM, ByteAcc, NoLock, Preserve)
-        {
-            Offset(0xA0),
-            // SBRC, 16,    // Remaining Capacity
-            RC00,   8,
-            RC01,   8,
-            // SBFC, 16,    // Fully Charged Capacity
-            FC00,   8,
-            FC01,   8,
-            // SBAE, 16,    // Average Time To Empty
-            AE00,   8,
-            AE01,   8,
-            // SBRS, 16,    // Relative State Of Charge
-            RS00,   8,
-            RS01,   8,
-            // SBAC, 16,    // Average Current / present rate
-            AC00,   8,
-            AC01,   8,
-            // SBVO, 16,    // Voltage
-            VO00,   8,
-            VO01,   8,
-            // SBAF, 16,    // Average Time To Full
-            AF00,   8,
-            AF01,   8,
-            // SBBS, 16,    // Battery State
-            BS00,   8,
-            BS01,   8,
-        }
-
-        //
-        // EC Registers 
-        // HIID == 0x01
-        //
-        Field (BRAM, ByteAcc, NoLock, Preserve)
-        {
-            Offset(0xA0),
-                        // Battery Mode(w)
-                , 15,
-            SBCM, 1,     //  bit 15 - CAPACITY_MODE
-                         //   0: Report in mA/mAh ; 1: Enabled
-            // SBMD, 16,    // Manufacture Data
-            MD00,   8,
-            MD01,   8,
-            // SBCC, 16,    // Cycle Count
-            CC00,   8,
-            CC01,   8,
-        }
-
-        //
-        // EC Registers 
-        // HIID == 0x02
-        //
-        Field (BRAM, ByteAcc, NoLock, Preserve)
-        {
-            Offset(0xA0),
-            // SBDC, 16,    // Design Capacity
-            DC00,   8,
-            DC01,   8,
-            // SBDV, 16,    // Design Voltage
-            DV00,   8,
-            DV01,   8,
-            // SBOM, 16,    // Optional Mfg Function 1
-            OM00,   8,
-            OM01,   8,
-            // SBSI, 16,    // Specification Info
-            SI00,   8,
-            SI01,   8,
-            // SBDT, 16,    // Manufacture Date
-            DT00,   8,
-            DT01,   8,
-            // SBSN, 16,    // Serial Number
-            SN00,   8,
-            SN01,   8,
-        }
-
-        //
-        // EC Registers 
-        // HIID == 0x04: Battery type
-        //
-        Field (BRAM, ByteAcc, NoLock, Preserve)
-        {
-            Offset(0xA0),
-            // SBCH, 32,    // Device Checmistory (string)
-            CH00,    8,
-            CH01,    8,
-            CH02,    8,
-            CH03,    8
-        }
-
-        /*
-        * Switches the battery information page (16 bytes BRAM @0xa0) with an
-        * optional compile-time delay.
-        *
-        * Arg0:
-        *   bit7-4: Battery number
-        *   bit3-0: Information page number
-        */
-        Method(BPAG, 1, NotSerialized)
-        {
-            Store(Arg0, HIID)
-            Sleep(BDEL)
-        }
-
-        // 128-byte fields are replaced with read-methods below
-        // //
-        // // EC Registers 
-        // // HIID == 0x05: Battery OEM information
-        // //
-        // Field (BRAM, ByteAcc, NoLock, Preserve)
-        // {
-        //     Offset(0xA0),
-        //     SBMN, 128,   // Manufacture Name (s)
-        // }
-
-        // //
-        // // EC Registers 
-        // // HIID == 0x06: Battery name
-        // //
-        // Field (BRAM, ByteAcc, NoLock, Preserve)
-        // {
-        //     Offset(0xA0),
-        //     SBDN, 128,   // Device Name (s)
-        // }
-
         Device (BATX)
         {
+            // BATTERY_PAGE_DELAY_MS
+            Name (BDEL, 25)
+
+            //
+            // EC region overlay.
+            //
+            OperationRegion (BRAM, EmbeddedControl, 0x00, 0x0100)
+            Field(BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset (0x38),
+                B0ST, 4,	/* Battery 0 state */
+                    , 1,
+                B0CH, 1,	/* Battery 0 charging */
+                B0DI, 1,	/* Battery 0 discharging */
+                B0PR, 1,	/* Battery 0 present */
+            }
+
+            //
+            // EC Registers 
+            // HIID == 0x00
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                // SBRC, 16,    // Remaining Capacity
+                RC00,   8,
+                RC01,   8,
+                // SBFC, 16,    // Fully Charged Capacity
+                FC00,   8,
+                FC01,   8,
+                // SBAE, 16,    // Average Time To Empty
+                AE00,   8,
+                AE01,   8,
+                // SBRS, 16,    // Relative State Of Charge
+                RS00,   8,
+                RS01,   8,
+                // SBAC, 16,    // Average Current / present rate
+                AC00,   8,
+                AC01,   8,
+                // SBVO, 16,    // Voltage
+                VO00,   8,
+                VO01,   8,
+                // SBAF, 16,    // Average Time To Full
+                AF00,   8,
+                AF01,   8,
+                // SBBS, 16,    // Battery State
+                BS00,   8,
+                BS01,   8,
+            }
+
+            //
+            // EC Registers 
+            // HIID == 0x01
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                            // Battery Mode(w)
+                    , 15,
+                SBCM, 1,     //  bit 15 - CAPACITY_MODE
+                            //   0: Report in mA/mAh ; 1: Enabled
+                // SBMD, 16,    // Manufacture Data
+                MD00,   8,
+                MD01,   8,
+                // SBCC, 16,    // Cycle Count
+                CC00,   8,
+                CC01,   8,
+            }
+
+            //
+            // EC Registers 
+            // HIID == 0x02
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                // SBDC, 16,    // Design Capacity
+                DC00,   8,
+                DC01,   8,
+                // SBDV, 16,    // Design Voltage
+                DV00,   8,
+                DV01,   8,
+                // SBOM, 16,    // Optional Mfg Function 1
+                OM00,   8,
+                OM01,   8,
+                // SBSI, 16,    // Specification Info
+                SI00,   8,
+                SI01,   8,
+                // SBDT, 16,    // Manufacture Date
+                DT00,   8,
+                DT01,   8,
+                // SBSN, 16,    // Serial Number
+                SN00,   8,
+                SN01,   8,
+            }
+
+            //
+            // EC Registers 
+            // HIID == 0x04: Battery type
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                // SBCH, 32,    // Device Checmistory (string)
+                CH00,    8,
+                CH01,    8,
+                CH02,    8,
+                CH03,    8
+            }
+
+            // 128-byte fields are replaced with read-methods below
+            // //
+            // // EC Registers 
+            // // HIID == 0x05: Battery OEM information
+            // //
+            // Field (BRAM, ByteAcc, NoLock, Preserve)
+            // {
+            //     Offset(0xA0),
+            //     SBMN, 128,   // Manufacture Name (s)
+            // }
+
+            // //
+            // // EC Registers 
+            // // HIID == 0x06: Battery name
+            // //
+            // Field (BRAM, ByteAcc, NoLock, Preserve)
+            // {
+            //     Offset(0xA0),
+            //     SBDN, 128,   // Device Name (s)
+            // }
+
             Name (_HID, EisaId ("PNP0C0A") /* Control Method Battery */)  // _HID: Hardware ID
             Name (_UID, Zero)  // _UID: Unique ID
             Name (_PCL, Package (0x01)  // _PCL: Power Consumer List
@@ -243,6 +235,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             /* Battery Capacity low at 10% */
             Name (DLOW, 10)
+
+            /*
+            * Switches the battery information page (16 bytes BRAM @0xa0) with an
+            * optional compile-time delay.
+            *
+            * Arg0:
+            *   bit7-4: Battery number
+            *   bit3-0: Information page number
+            */
+            Method(BPAG, 1, NotSerialized)
+            {
+                Store(Arg0, HIID)
+                Sleep(BDEL)
+            }
 
             /* Method to read 128byte-field SBMN */
             Method (SBMN, 0, NotSerialized)
@@ -270,11 +276,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             {
                 If (OSDW ())
                 {
-                    // disable original battery objects by setting invalid _HID
-                    ^^BAT0._HID = 0
+                    If (CondRefOf (\_SB.PCI0.LPCB.EC.BAT0))
+                    {
+                        Debug = "BATX:_INI - Found BAT0, disabling"
+                        // disable original battery objects by setting invalid _HID
+                        \_SB.PCI0.LPCB.EC.BAT0._HID = 0
+                    }
 
-                    // disable bat0-device. As we are reimplementing the device entirely and accessing the EC directly, it is not needed.
-                    ^^BAT0.B0ST = Zero
+                    If (CondRefOf (\_SB.PCI0.LPCB.EC.BAT1))
+                    {
+                        Debug = "BATX:_INI - Found BAT1, disabling"
+
+                        // disable original battery objects by setting invalid _HID
+                        \_SB.PCI0.LPCB.EC.BAT1._HID = 0
+                    }
                 }
             }
 
@@ -285,7 +300,21 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 {
                     // call original _STA for BAT0 and BAT1
                     // result is bitwise OR between them
-                    Return (^^BAT0._STA ())
+                    If (CondRefOf (\_SB.PCI0.LPCB.EC.BAT0))
+                    {
+                        Local0 = \_SB.PCI0.LPCB.EC.BAT0._STA ()
+                    }
+
+                    If (CondRefOf (\_SB.PCI0.LPCB.EC.BAT1))
+                    {
+                        Local1 = \_SB.PCI0.LPCB.EC.BAT1._STA ()
+
+                        Return (Local0 | Local1)
+                    }
+                    Else
+                    {
+                        Return (Local0)
+                    }
                 }
 
                 Return (Zero)
