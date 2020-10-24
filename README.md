@@ -24,6 +24,7 @@ I am not responsible for any damages you may cause.
 * (WIP) Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper sleep on OSX. See [SSDT-S3](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-S3.dsl)
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
 * (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
+* (Beta) "native" ACPI-API for broadcom-wifi-cards to handle complete power-down of the PCIe-interface if the OS requests it. As on genuine machines. See [SSDT-ARPT](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-ARPT.dsl)
 * Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
 * Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
 * (WIP) (mostly) native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl)

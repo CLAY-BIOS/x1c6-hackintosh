@@ -10,7 +10,6 @@
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
 {
     External (DTGP, MethodObj) // 4 Arguments
-    External (OSDW, MethodObj) // 0 Arguments
 
     External (_SB.PCI0.RP01, DeviceObj)
     External (_SB.PCI0.RP01.PXSX, DeviceObj)
@@ -19,12 +18,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
     External (_SB.PCI0.RP01.L23E, FieldUnitObj)
     External (_SB.PCI0.RP01.L23R, FieldUnitObj)
     External (_SB.PCI0.RP01.D3HT, FieldUnitObj)
-    
-    
-    External (PCRO, MethodObj) // 3 Arguments
-    External (PCRA, MethodObj) // 3 Arguments
-    External (SLTP, FieldUnitObj)
-    External (HCPG, FieldUnitObj)
 
     Name (WOWE, Zero)
     Name (TAPD, Zero)
@@ -148,11 +141,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
 
                 Sleep (0x0A)
             }
-
-            // If (WOWE == One)
-            // {
-            //     Return (Zero)
-            // }
 
             If (TAPD == One)
             {
@@ -405,3 +393,4 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
         }
     }
 }
+
