@@ -130,10 +130,18 @@
 				<key>Comment</key>
 				<string>Optional: Match german windows keyboard</string>
 				<key>Enabled</key>
-				<true/>
+				<false/>
 				<key>Path</key>
 				<string>SSDT-KBD.aml</string>
 			</dict>
+                        <dict>
+                                <key>Comment</key>
+                                <string>Native Airport</string>
+                                <key>Enabled</key>
+                                <true/>
+                                <key>Path</key>
+                                <string>SSDT-ARPT.aml</string>
+                        </dict>
 			<dict>
 				<key>Comment</key>
 				<string></string>
