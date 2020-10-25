@@ -9,7 +9,7 @@
 
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
 {
-    External (DTGP, MethodObj) // 4 Arguments
+    External (OSDW, MethodObj) // 0 Arguments
 
     External (_SB.PCI0.RP01, DeviceObj)
     External (_SB.PCI0.RP01.PXSX, DeviceObj)
