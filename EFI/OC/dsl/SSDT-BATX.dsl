@@ -13,7 +13,7 @@
 // support for `Battery Information Supplement` (see: https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
 //
 // It is faster, more compatbile and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
-// for battery handling and EC-access. It therefor does not need to patch the existing DSDT accesses to various 16-bit EC-Fields.
+// for battery-handling and EC-access. It therefor doesn't need to patch the existing DSDT-accesses to various 16-bit EC-fields.
 //
 // It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and 3 helper methods 
 // to access those memory-fields. These methods are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
@@ -22,7 +22,7 @@
 //
 // For most thinkpads, this should be the only thing you need to handle your batteries. Nothing more, nothing less.
 //
-// But be aware: this is newly created stuff, not much tested or battle proven yet. May contain bugs and edgcases. 
+// But be aware: this is newly created stuff, not much tested or battle proven yet. May contain bugs and edgecases. 
 // If so, please open a bug @ https://github.com/benbender/x1c6-hackintosh/issues
 //
 // 
