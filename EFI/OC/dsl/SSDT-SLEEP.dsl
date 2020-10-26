@@ -5,9 +5,10 @@
  *
  * This SSDT tries to be a comprehensive solution for sleep/wake-problems on most modern thinkpads.
  * It was developed on an X1C6 with a T480 in mind.
+ * It immitates the behaviour of a macbookpro14,1 which is perfectly adequate for modern, kabylake-based Thinkpads.
  *
- * For X1C6 its perfectly possible to set SleepType=Windows in BIOS. That's the recommended setting 
- * as it enables "modern standby" in Windows for dual-boot-systems
+ * For X1C6 its perfectly possible to set SleepType=Windows in BIOS while getting perfect S3-Standby in OSX. 
+ * That's the recommended setting as it enables "modern standby" in Windows for dual-boot-systems.
  *
  * With this SSDT it is perfectly possible to have ACPI-sleepstates S0 (DeepIde), S3 (Standby) & S4 (Hibernation) working.
  * So generally hibernatemode 0, 3 & 25 in OSX' terms are possible. There might be smaller bugs and hickups though. 
@@ -16,7 +17,10 @@
  * directly rooted in hackintoshing.
  *
  * No special setup via pmset per se needed, but may be needed anyways depending f.e. on your bluetooth implementation.
- * If you have played with `pmset` and want to restore the defaults to have clean state, use `sudo pmset -a restoredefaults`.
+ * If you have played with `pmset` and want to restore the defaults to have a clean state, use `sudo pmset -a restoredefaults`.
+ *
+ * Bottom line: We are near a relative native pm-/sleep-setup with this. 
+ *
  *
  * ## Background:
  *
@@ -31,13 +35,14 @@
  * 
  * With this reasoning in mind, this SSDT tries to match the sleep-behaviour of a macbookpro14,1 as closely as possible.
  *
+ *
  * # Notice:
  *
  * Please remove every GPRW-, Name6x-, PTSWAK-, FixShutdown-, WakeScren-Patches or similar prior using.
  * If you adapt this patches to other models, check the occurence of the used variables and methods on your own DSDT beforehand.
  *
  *
- * # The needed patches for this SSDt on a X1C6:
+ * # Needed patches for this SSDT on a X1C6:
  *
 			<dict>
 				<key>Comment</key>
