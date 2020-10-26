@@ -32,32 +32,6 @@
  *
 			<dict>
 				<key>Comment</key>
-				<string>S3: SLTP TO XLTP</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<true/>
-				<key>Find</key>
-				<data>U0xUUA==</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>WExUUA==</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
-			</dict>
-			<dict>
-				<key>Comment</key>
 				<string>S3: GRPW(2,N) to ZRPW</string>
 				<key>Count</key>
 				<integer>0</integer>
@@ -119,7 +93,8 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
 
     // S0/S3-config from BIOS
     External (S0ID, FieldUnitObj) // S0 enabled
-    External (STY0, FieldUnitObj) // S3 Enabled?   
+    External (STY0, FieldUnitObj) // S3 Enabled?
+    External (LWCP, FieldUnitObj) // LID control power
 
     // Package to signal to OS S3-capability. We'll add it if missing.
     External (SS3, FieldUnitObj) // S3 Enabled?    
@@ -135,6 +110,9 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
 
         // Disable S0 for now
         S0ID = Zero
+
+        // Enable LID control power
+        // LWCP = One
 
         // This adds S3 for OSX, even when sleep=windows in bios.
         If (STY0 == Zero && !CondRefOf (\_S3))
@@ -164,32 +142,31 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     }
 
 
-    External (_SB.LID, DeviceObj) // 0 Arguments
-
-    External (ZPRW, MethodObj)
-    External (ZWAK, MethodObj) // 1 Arguments
     External (_SB.PCI0.LPCB.EC.AC._PSR, MethodObj) // 0 Arguments
     External (_SB.PCI0.LPCB.EC._Q2A, MethodObj) // 0 Arguments
     External (_SB.LID._LID, MethodObj) // 0 Arguments
+    External (ZPRW, MethodObj) // 2 ARguments
+    External (ZWAK, MethodObj) // 1 Arguments
+
     External (_SB.PCI0.LPCB.EC.HPLD, FieldUnitObj)
     External (_SB.PCI0.GFX0.CLID, FieldUnitObj)
     External (LIDS, FieldUnitObj)
     External (PWRS, FieldUnitObj)
 
+    // SLTP named on OSX but already taken on X1C6. Therefor named XLTP.
+    Name (XLTP, Zero)  
+
+    // Save sleep-state in SLTP on transition. Like a genuine Mac.
+    Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
+    {
+        Debug = "_TTS() called with Arg0:"
+        Debug = Arg0
+
+        XLTP = Arg0
+    }
+
     Scope (\)
     {
-        // SLTP already taken on X1C6, therefor renamed via patch.
-        Name (SLTP, Zero)  
-
-        // Save sleep-state in SLTP on transition. Like a genuine Mac.
-        Method (_TTS, 1, NotSerialized)  // _TTS: Transition To State
-        {
-            Debug = "_TTS() called with Arg0:"
-            Debug = Arg0
-
-            SLTP = Arg0
-        }
-
         // Patch _PRW-returns to match the original as closely as possible
         // and remove instant wakeups and similar sleep-probs
         Method (GPRW, 2, NotSerialized)
@@ -206,7 +183,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
 
                 If (Arg1 > 0x04)
                 {
-                    Local0[One] = 0x03
+                    Local0[One] = 0x04
                 }
 
                 Return (Local0)
@@ -223,21 +200,29 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
             Debug = "_WAK start: Arg0"
             Debug = Arg0
 
+            // Save old lid-state
+            Local1 = \LIDS
+
+            Debug = "_WAK - old lid state LIDS: "
+            Debug = \LIDS
+
             Local0 = ZWAK(Arg0)
 
             If (OSDW ())
             {
-                // Save old lid-state
-                Local1 = LIDS
-
                 // Update lid-state
-                LIDS = \_SB.PCI0.LPCB.EC.HPLD
+                \LIDS = \_SB.PCI0.LPCB.EC.HPLD
                 \_SB.PCI0.GFX0.CLID = LIDS
+
+                Debug = "_WAK - new lid state LIDS: "
+                Debug = \LIDS
 
                 // Fire missing lid-open event if lid was closed before. 
                 // Also notifies LID-device and sets LEDs to the right state on wake.
                 If (Local1 == Zero)
                 {
+                    Debug = "_WAK - fire lid open-event "
+
                     // Lid-open Event
                     \_SB.PCI0.LPCB.EC._Q2A ()
                 }
@@ -246,9 +231,21 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
                 \PWRS = \_SB.PCI0.LPCB.EC.AC._PSR ()
             }
 
-            Debug = "_WAK end"
+            Debug = "_WAK end - return Local0: "
+            Debug = Local0
 
-            Return (Local0)
+            If (OSDW ())
+            {
+                Return (Package (0x02)
+                {
+                    Zero, 
+                    Zero
+                })
+            }
+            Else 
+            {
+                Return (Local0)
+            }
         }
     }
 
@@ -288,21 +285,44 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
     }
 
 
+    External (_SB.PCI0.LPCB.EC, DeviceObj)
+
+    Scope (\_SB.PCI0.LPCB.EC)
+    {
+        Name (EWAI, Zero)
+        Name (EWAR, Zero)
+    }
+
+
     External (_SB.PCI0.LPCB.EC.AC, DeviceObj)
-    External (LWCP, FieldUnitObj)
 
     // Patching AC-Device so that AppleACPIACAdapter-driver loads.
     // Device named ADP1 on Mac
     // See https://github.com/khronokernel/DarwinDumped/blob/b6d91cf4a5bdf1d4860add87cf6464839b92d5bb/MacBookPro/MacBookPro14%2C1/ACPI%20Tables/DSL/DSDT.dsl#L7965
     Scope (\_SB.PCI0.LPCB.EC.AC)
     {
+        Name (WK00, One)
+
+        Method (SWAK, 1, NotSerialized)
+        {
+            Debug = "AC:SWAK()"
+
+            WK00 = (Arg0 & 0x03)
+
+            If (!WK00)
+            {
+                Debug = "AC:SWAK() - WK00 = One"
+                WK00 = One
+            }
+        }
+
         Method (_PRW, 0, NotSerialized)  // _PRW: Power Resources for Wake
         {
-            // Lid-wake control power?
-            Debug = "LWCP = "
+            // Lid-wake control power
+            Debug = "AC:_PRW() - LWCP = "
             Debug = LWCP
 
-            If (\LWCP)
+            If (OSDW () || \LWCP)
             {
                 Return (Package (0x02)
                 {
@@ -321,3 +341,4 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         }
     }
 }
+//EOF

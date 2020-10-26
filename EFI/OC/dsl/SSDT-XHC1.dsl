@@ -14,13 +14,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
     External (_SB_.PCI0.XHC.XFLT, IntObj)
     External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2, DeviceObj)
     External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
+
     External (DTGP, MethodObj)    // 5 Arguments
-    External (MPMC, FieldUnitObj)
     External (OSDW, MethodObj)    // 0 Arguments
-    External (PMFS, FieldUnitObj)
-    External (SLTP, IntObj)
-    External (U2OP, IntObj)
-    External (UWAB, FieldUnitObj)
 
     Scope (\_SB.PCI0.XHC)
     {
