@@ -12,11 +12,11 @@
 // It doesn't need any patches to the original DSDT, handles single- and dual-battery-systems gracefully and adds
 // support for `Battery Information Supplement` (see: https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
 //
-// It is faster, more compatbile and much more robust as existing patches as it doesn't relies on the original DSDT-implementation 
-// and therefor does not need to patch it's accesses to various 16-bit EC-Fields.
+// It is faster, more compatbile and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
+// for battery handling and EC-access. It therefor does not need to patch the existing DSDT accesses to various 16-bit EC-Fields.
 //
-// It's only dependencies are the memory-layout of the Embedded Controller (EC) and 3 helper methods to access those memory-fields. These methods
-// are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
+// It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and 3 helper methods 
+// to access those memory-fields. These methods are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
 //
 // 
 // References:
