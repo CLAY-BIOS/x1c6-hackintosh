@@ -15,6 +15,9 @@
  * native OSX & native Windows. Bugs are not infrequently rooted in poor ACPI-implementations or OSX-bugs and not 
  * directly rooted in hackintoshing.
  *
+ * No special setup via pmset per se needed, but may be needed anyways depending f.e. on your bluetooth implementation.
+ * If you have played with `pmset` and want to restore the defaults to have clean state, use `sudo pmset -a restoredefaults`.
+ *
  * ## Background:
  *
  * Sleep on hackintoshes is a complicated topic. More complicated as mostly percieved. The problem is
