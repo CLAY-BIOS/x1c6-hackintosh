@@ -9,6 +9,12 @@
  * For X1C6 its perfectly possible to set SleepType=Windows in BIOS. That's the recommended setting 
  * as it enables "modern standby" in Windows for dual-boot-systems
  *
+ * With this SSDT it is perfectly possible to have ACPI-sleepstates S0 (DeepIde), S3 (Standby) & S4 (Hibernation) working.
+ * So generally hibernatemode 0, 3 & 25 in OSX' terms are possible. There might be smaller bugs and hickups though. 
+ * F.e. S0-DeepIdle has a much higher power draw on sleep as S3 atm. There are also reports about such behaviour on 
+ * native OSX & native Windows. Bugs are not infrequently rooted in poor ACPI-implementations or OSX-bugs and not 
+ * directly rooted in hackintoshing.
+ *
  * ## Background:
  *
  * Sleep on hackintoshes is a complicated topic. More complicated as mostly percieved. The problem is
@@ -32,7 +38,7 @@
  *
 			<dict>
 				<key>Comment</key>
-				<string>S3: GRPW(2,N) to ZRPW</string>
+				<string>SLEEP: GRPW(2,N) to ZRPW</string>
 				<key>Count</key>
 				<integer>0</integer>
 				<key>Enabled</key>
@@ -58,7 +64,7 @@
 			</dict>
 			<dict>
 				<key>Comment</key>
-				<string>S3: _WAK(1,S) to ZWAK</string>
+				<string>SLEEP: _WAK(1,S) to ZWAK</string>
 				<key>Count</key>
 				<integer>0</integer>
 				<key>Enabled</key>
@@ -91,7 +97,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_SLEEP", 0x00002000)
     External (OSDW, MethodObj) // 0 Arguments
 
 
-    // S0/S3-config from BIOS
+    // Sleep-config from BIOS
     External (S0ID, FieldUnitObj) // S0 enabled
     External (STY0, FieldUnitObj) // S3 Enabled?
     External (LWCP, FieldUnitObj) // LID control power
