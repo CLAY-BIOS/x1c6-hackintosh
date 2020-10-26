@@ -1,8 +1,29 @@
 //
+// SSDT-BATX
+// Version 2.0
+//
+// Copyleft (c) 2020 by bb. No rights reserved.
+//
+//
+// Abstract:
+// This SSDT is a complete, (mostly) self-contained replacement for all(?) battery-patches on Thinkpads which share
+// the same EC-layout. It should be compatible with all(?) T- and X-series Thinkpads and maybe more.
+//
+// It doesn't need any patches to the original DSDT, handles single- and dual-battery-systems gracefully and adds
+// support for `Battery Information Supplement` (see: https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
+//
+// It is faster, more compatbile and much more robust as existing patches as it doesn't relies on the original DSDT-implementation 
+// and therefor does not need to patch it's accesses to various 16-bit EC-Fields.
+//
+// It's only dependencies are the memory-layout of the Embedded Controller (EC) and 3 helper methods to access those memory-fields. These methods
+// are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
+//
+// 
 // References:
 // https://github.com/coreboot/coreboot/blob/master/src/ec/quanta/it8518/acpi/ec.asl
 // https://uefi.org/sites/default/files/resources/ACPI_6_3_final_Jan30.pdf
 // https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md
+//
 //
 // Changelog:
 // 23.10. - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
