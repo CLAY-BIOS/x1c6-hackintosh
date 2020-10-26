@@ -28,14 +28,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
     //   (this byte is depend on the interface, 62&66 and 1600&1604)
     External (_SB.PCI0.LPCB.EC.HIID, FieldUnitObj)
     
-    // External Methods from SSDT-EC.dsl
-    External (_SB.PCI0.LPCB.EC.RECB, MethodObj)
-
-    External (B1B2, MethodObj)
-    External (B1B4, MethodObj)
-
-    // External Methods from SSDT-UTILS.dsl
-    External (OSDW, MethodObj)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
@@ -219,6 +211,65 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             }
 
             /**
+             * Called from RECB, grabs a single byte from EC
+             * Arg0 - offset in bytes from zero-based EC
+             */
+            Method (RE1B, 1, Serialized)
+            {
+                OperationRegion (ERAM, EmbeddedControl, Arg0, One)
+                Field (ERAM, ByteAcc, NoLock, Preserve)
+                {
+                    BYTE,   8
+                }
+
+                Return (BYTE) /* \RE1B.BYTE */
+            }
+
+            /** 
+             * Read specified number of bytes from EC
+             *
+             * Arg0 - offset in bytes from zero-based EC
+             * Arg1 - size of buffer in bits
+             */
+            Method (RECB, 2, Serialized)
+            {
+                Arg1 = ((Arg1 + 0x07) >> 0x03)
+                Name (TEMP, Buffer (Arg1) {})
+                Arg1 += Arg0
+                Local0 = Zero
+                While ((Arg0 < Arg1))
+                {
+                    TEMP [Local0] = RE1B (Arg0)
+                    Arg0++
+                    Local0++
+                }
+
+                Return (TEMP) /* \RECB.TEMP */
+            }
+
+            /**
+             * Status from two EC fields
+             * 
+             * e.g. B1B2 (0x3A, 0x03) -> 0x033A
+             */
+            Method (B1B2, 2, NotSerialized)
+            {
+                Return ((Arg0 | (Arg1 << 0x08)))
+            }
+
+            /**
+             * Status from four EC fields
+             */
+            Method (B1B4, 4, NotSerialized)
+            {
+                Local0 = (Arg2 | (Arg3 << 0x08))
+                Local0 = (Arg1 | (Local0 << 0x08))
+                Local0 = (Arg0 | (Local0 << 0x08))
+
+                Return (Local0)
+            }
+
+            /**
              * Switches the battery information page (16 bytes BRAM @0xa0) with an
              * optional compile-time delay.
              *
@@ -245,7 +296,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             {
                 // call original _STA for BAT0 and BAT1
                 // result is bitwise OR between them
-                If (OSDW())
+                If (_OSI ("Darwin"))
                 {
                     If (CondRefOf (^^BAT0))
                     {
@@ -256,7 +307,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     {
                         Local1 = ^^BAT1._STA()
 
-                        Return(Local0 | Local1)
+                        Return (Local0 | Local1)
                     }
                     Else
                     {
@@ -269,7 +320,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             Method (_INI, 0, NotSerialized)
             {
-                If (OSDW ())
+                If (_OSI ("Darwin"))
                 {
                     If (CondRefOf (^^BAT0))
                     {
@@ -326,22 +377,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 BPAG(Arg1 | 0x01) 
 
                 // Needs conversion?
-                //
-                // For reference: (ignored here for the moment):
-                //  `On Lenovo Thinkpad models from 2010 and 2011, the power unit
-                //  switches between mWh and mAh depending on whether the system
-                //  is running on battery or not.  When mAh is the unit, most
-                //  reported values are incorrect and need to be adjusted by
-                //  10000/design_voltage.  Verified on x201, t410, t410s, and x220.
-                //  Pre-2010 and 2012 models appear to always report in mWh and
-                //  are thus unaffected (tested with t42, t61, t500, x200, x300,
-                //  and x230).  Also, in mid-2012 Lenovo issued a BIOS update for
-                //  the 2011 models that fixes the issue (tested on x220 with a
-                //  post-1.29 BIOS), but as of Nov. 2012, no such update is
-                //  available for the 2010 models.`
-                //  src: https://github.com/torvalds/linux/blob/9ff9b0d392ea08090cd1780fb196f36dbb586529/drivers/acpi/battery.c#L82
 		        Local7 = SBCM != 0x01
-                // Arg0[0x01] = SBCM ^ One
 
                 //  Cycle count
                 Arg0[0x08] = B1B2 (CC00, CC01)
@@ -1161,7 +1197,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     
                     // 0x01: TimeToFull (0x11), minutes (0xFF)
                     // Valid integer in minutes when charging, otherwise 0xFF.
-
                     Local4 = DerefOf (Local0 [0x01])
                     Local5 = DerefOf (Local1 [0x01])
 
@@ -1170,7 +1205,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     // 0x02: BSSTimeToEmpty - TimeToEmpty, minutes (0)
                     // Valid integer in minutes when discharging, otherwise 0.
-
                     Local4 = DerefOf (Local0 [0x02])
                     Local5 = DerefOf (Local1 [0x02])
 
@@ -1179,7 +1213,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     // 0x03: BSSChargeLevel - ChargeLevel, percentage
                     // 0 - 100 for percentage.
-
                     Local4 = DerefOf (Local0 [0x03])
                     Local5 = DerefOf (Local1 [0x03])
 
@@ -1188,7 +1221,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     // 0x04: BSSAverageRate - AverageRate, mA (signed)
                     // Valid signed integer in mA. Double check if you have valid value since this bit will disable quickPoll.
-
                     Local4 = DerefOf (Local0 [0x04])
                     Local5 = DerefOf (Local1 [0x04])
 
@@ -1222,7 +1254,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                 If (BDBG == One)
                 {
-
                     Concatenate ("BATX:BSSTimeToFull: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x01))), Debug)
                     Concatenate ("BATX:BSSTimeToEmpty: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x02))), Debug)
                     Concatenate ("BATX:BSSChargeLevel: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x03))), Debug)
