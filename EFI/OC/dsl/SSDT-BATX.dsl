@@ -18,6 +18,13 @@
 // It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and 3 helper methods 
 // to access those memory-fields. These methods are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
 //
+// It replaces any batterie-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
+//
+// For most thinkpads, this should be the only thing you need to handle your batteries. Nothing more, nothing less.
+//
+// But be aware: this is newly created stuff, not much tested or battle proven yet. May contain bugs and edgcases. 
+// If so, please open a bug @ https://github.com/benbender/x1c6-hackintosh/issues
+//
 // 
 // References:
 // https://github.com/coreboot/coreboot/blob/master/src/ec/quanta/it8518/acpi/ec.asl
