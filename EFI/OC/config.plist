@@ -191,32 +191,6 @@
 			</dict>
 			<dict>
 				<key>Comment</key>
-				<string>BAT: Fix Notify BAT0 to BATX</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<true/>
-				<key>Find</key>
-				<data>hkJBVDAK</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>hkJBVFgK</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
-			</dict>
-			<dict>
-				<key>Comment</key>
 				<string>HWAC: Change HWAC to XWAC EC reads</string>
 				<key>Count</key>
 				<integer>0</integer>
@@ -362,32 +336,6 @@
 				<data></data>
 				<key>Replace</key>
 				<data>FENHWFRGWQk=</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
-			</dict>
-			<dict>
-				<key>Comment</key>
-				<string>S3: SLTP TO XLTP</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<true/>
-				<key>Find</key>
-				<data>U0xUUA==</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>WExUUA==</data>
 				<key>ReplaceMask</key>
 				<data></data>
 				<key>Skip</key>
