@@ -1,10 +1,15 @@
 /**
- * Adds the OSX-native ACPI-interface for broadcom-wifi-cards
- * Shuts the whole PCIe-interface down on disable and sleep of the machine and wakes it up on resume/reenable.
+ * Adds the OSX-native ACPI-interface for broadcom-wifi-cards.
+ *
+ * Shuts down the whole PCIe-interface on disable and sleep of the machine and wakes it up on resume/reenable.
+ * Should respect settings regarding wakeonwifi and similar.
+ *
+ * Only works with the OSX-native broadcom-drivers for now. The card can be spoofed by `AirportBrcmFixup`.
+ * No support in Itlwm (intel-based WIFI-cards) for the moment.
  *
  * I hope it helps with the usual power drain on sleep of ~1% battery per hour. To be verified.
  * 
- * Working, but not widely tested. 
+ * Working, but not widely tested yet.
  **/
 
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
