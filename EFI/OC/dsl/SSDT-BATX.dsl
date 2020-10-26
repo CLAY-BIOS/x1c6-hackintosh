@@ -7,8 +7,9 @@
 // Changelog:
 // 23.10. - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
 // 25.10. - Prelimitary dual-battery-support, large refactoring
-// 26.10. - Remove need of patched notifies, handle battery attach/detach inside, make the whole device self-contained
+// 26.10. - Remove need of patched notifies, handle battery attach/detach inside, make the whole device self-contained (exept for the EC-helpers)
 //
+// Add the following methods if didn't have them defined anyways:
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
@@ -24,6 +25,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
     External (_SB.PCI0.LPCB.EC.AC, DeviceObj)
 
+    // External Methods from SSDT-EC.dsl
+    External (_SB.PCI0.LPCB.EC.RECB, MethodObj)	
+
+    External (B1B2, MethodObj)	
+    External (B1B4, MethodObj)
+
+    // @see https://en.wikipedia.org/wiki/Bank_switching
+    //
     // HIID: [Battery information ID for 0xA0-0xAF]
     //   (this byte is depend on the interface, 62&66 and 1600&1604)
     External (_SB.PCI0.LPCB.EC.HIID, FieldUnitObj)
