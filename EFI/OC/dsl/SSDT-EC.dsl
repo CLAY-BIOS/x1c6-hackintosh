@@ -1,8 +1,6 @@
 /**
 https://github.com/coreboot/coreboot/blob/master/src/ec/quanta/it8518/acpi/ec.asl
-
 Memory layout of X1C6-embedded controller as far as known:
-
     OperationRegion (ECOR, EmbeddedControl, 0x00, 0x0100)
     Field (ECOR, ByteAcc, NoLock, Preserve)
     {
@@ -13,7 +11,6 @@ Memory layout of X1C6-embedded controller as far as known:
             ,   1, 
             ,   1, 
         HLDM,   1, 
-
         Offset (0x01),  // [Configuration Space 1]
         BBLS,   1,        
         BTCM,   1, 
@@ -22,25 +19,19 @@ Memory layout of X1C6-embedded controller as far as known:
             ,   1, 
         HBPR,   1, 
         BTPC,   1, 
-
         Offset (0x02),   // [Configuration Space 2]
         HDUE,   1, 
             ,   4, 
         SNLK,   1, 
-
         Offset (0x03),   // [Configuration Space 3]
             ,   5, 
         HAUM,   2, 
-
         Offset (0x05),  // [Sound Mask 1]
         HSPA,   1,        //   power off alarm
-
         Offset (0x06),  // [Sound ID (Write only)]
         HSUN,   8,        //   Sound ID (Write Only)
-
         Offset(0x07),   // [Sound Repeat Interval (unit time 125ms)]
         HSRP,   8,        //   Sound Repeat Interval (Unit time : 125ms )
-
         Offset (0x0C),  // [LED On/Off/ Blinking Control (Write only)]
         HLCL,   4,        //   0: power LED
                         //   1: battery status 0
@@ -55,18 +46,15 @@ Memory layout of X1C6-embedded controller as far as known:
                         //   15: reserved
             ,   4, 
         CALM,   1, 
-
         Offset (0x0E),  // [Peripheral Status 4]
         HFNS,   2,        //   Bit[1, 0] : Fn Key Status
                         //      [0, 0] ... Unlock
                         //      [0, 1] ... Sticky
                         //      [1, 0] ... Lock
                         //      [1, 1] ... Reserved
-
         Offset (0x0F),   // [Peripheral status 5 (read only)] ?
             ,   6, 
         NULS,   1, 
-
         Offset (0x10),   // [Attention Mask (00-127)]
         HAM0,   8,        // 10 : Attention Mask (00-07)
         HAM1,   8,        // 11 : Attention Mask (08-0F)
@@ -84,41 +72,31 @@ Memory layout of X1C6-embedded controller as far as known:
         HAMD,   8,        // 1D : Attention Mask (68-6F)
         HAME,   8,        // 1E : Attention Mask (70-77)
         HAMF,   8,        // 1F : Attention Mask (78-7F)
-
         Offset (0x23),   // [Misc. control]
         HANT,   8, 
-
         Offset (0x26), 
             ,   2, 
         HANA,   2, 
-
         Offset (0x27),   // [Passward Scan Code]
-
         Offset (0x28), 
             ,   1, 
         SKEM,   1, 
-
         Offset (0x29), 
-
         Offset (0x2A),   // [Attention Request]
         HATR,   8,        // 2A : Attention request
-
         Offset(0x2B),   // [Trip point of battery capacity]
         HT0H,   8,        // 2B : MSB of Trip Point Capacity for Battery 0
         HT0L,   8,        // 2C : LSB of Trip Point Capacity for Battery 0
         HT1H,   8,        // 2D : MSB of Trip Point Capacity for Battery 1
         HT1L,   8,        // 2E : LSB of Trip Point Capacity for Battery 1
-
         Offset(0x2F),   // [Fan Speed Control]
         HFSP,   8,        //  bit 2-0: speed (0: stop, 7:highest speed)
                           //  bit 5-3: reserved (should be 0)
                           //  bit 6: max. speed
                           //  bit 7: Automatic mode (fan speed controlled by thermal level)
-
         Offset(0x30),   // [Audio mute control]
             ,   7,        //  Reserved bits[0:6]
         SMUT,   1,        //  Mute
-
         Offset (0x31),   // [Peripheral Control 2] 
         FANS,   2,        //   bit 0,1 Fan selector ?
                           //	   00: Fan 1, 01: Fan 2 ?
@@ -126,7 +104,6 @@ Memory layout of X1C6-embedded controller as far as known:
             ,   3, 
         VPON,   1, 
         VRST,   1, 
-
         Offset(0x32),   // [EC Event Mask 0]
         HWPM,   1,        //   PME : Not used. PME# is connected to GPE directly.
         HWLB,   1,        //   Critical Low Bat
@@ -137,16 +114,13 @@ Memory layout of X1C6-embedded controller as far as known:
         HWRI,   1,        //   Ring Indicator (UART)
         HWBU,   1,        //   Bay Unlock
         HWLU,   1, 
-
         Offset (0x34), 
             ,   3, 
         PIBS,   1, 
             ,   3, 
         HPLO,   1, 
-
         Offset (0x36), 
         HWAC,   16, 
-
         Offset(0x38),   // [Battery 0 status (read only)]
         HB0S,   7,        //   bit 3-0 level
                           //     F: Unknown
@@ -157,10 +131,8 @@ Memory layout of X1C6-embedded controller as far as known:
                           //   bit 5 charge
                           //   bit 6 discharge
         HB0A,   1,        //   bit 7 battery attached
-
         Offset(0x39),   // [Battery 1 status (read only)]
                           //    bit definition is the same as offset(0x38)
-
         Offset(0x3A),   // [Peripheral control 0]
         HCMU,   1,        //   Mute
             ,   2, 
@@ -169,8 +141,6 @@ Memory layout of X1C6-embedded controller as far as known:
         DCWL,   1,        //   Wireless Lan On
         DCWW,   1,        //   Wireless Wan On
         HB1I,   1, 
-
-
         Offset(0x3B),   // [Peripheral control 1]
             ,   1,        //   Speaker Mute 
         KBLT,   1,        //   Keyboard Light
@@ -180,11 +150,9 @@ Memory layout of X1C6-embedded controller as far as known:
         BDPW,   1,        // Bluetooth power?
         BDDT,   1,        // Bluetooth detach?
         HUBB,   1, 
-
         Offset(0x3C),   // [Resume reason (Read only)]
         Offset(0x3D),   // [Password Control byte]
         Offset(0x3E),   // [Password data (8 byte)~ offset:45h]
-
         Offset (0x46),   // [sense status 0] 
             ,   1, 
         BTWK,   1, 
@@ -193,7 +161,6 @@ Memory layout of X1C6-embedded controller as far as known:
         HPAC,   1,        //   External power (AC status)
         BTST,   1, 
         PSST,   1, 
-
         Offset (0x47),   // [sense status 1]
         HPBU,   1,        //   Bay Unlock
             ,   1, 
@@ -201,7 +168,6 @@ Memory layout of X1C6-embedded controller as far as known:
             ,   3, 
         HBCS,   1, 
         HPNF,   1, 
-
         Offset(0x48),   // [sense status 2]
             ,   1, 
         GSTS,   1,        //   Global Wan Enable Switch
@@ -209,14 +175,12 @@ Memory layout of X1C6-embedded controller as far as known:
         HLBU,   1, 
         DOCD,   1, 
         HCBL,   1, 
-
         Offset (0x49),   // [sense status 3]
         SLUL,   1, 
             ,   1, 
         ACAT,   1, 
             ,   4, 
         ELNK,   1, 
-
         Offset (0x4C),   // [MSB of Event Timer]
         HTMH,   8, 
         HTML,   8, 
@@ -224,15 +188,11 @@ Memory layout of X1C6-embedded controller as far as known:
         HMPR,   8, 
             ,   7, 
         HMDN,   1, 
-
         Offset (0x78),   // [Temperature of thermal sensor 0 (centigrade)]
         TMP0,   8,        // 78 : Temperature of thermal sensor 0
-
         Offset (0x80),   // [Attention control byte]
-
         Offset (0x81),   // [Battery information ID for 0xA0-0xAF]
         HIID,   8,        //   (this byte is depend on the interface, 62&66 and 1600&1604)
-
         Offset (0x83),   // [Fn Dual function ID]
         HFNI,   8,        //	0: none
                           //	1-3: Reserved
@@ -240,60 +200,45 @@ Memory layout of X1C6-embedded controller as far as known:
                           //	5: ACPI Sleep
                           //	6: ACPI Wake
                           //  7: Left Ctrl key
-
         Offset(0x84),   // [Fan Speed]
         HSPD,   16,       //
                           // (I/F Offset 3Bh bit5 => 0:Main Fan , 1:Second Fan)
-
         Offset (0x88), // [Thermal Status of Level 0 (low)]
         TSL0,   7, 
         TSR0,   1, 
-
         Offset (0x89), // [Thermal Status of Level 1 (middle)]
         TSL1,   7, 
         TSR1,   1, 
-
         Offset (0x8A), // [Thermal Status of Level 2 (middle high)]
         TSL2,   7, 
         TSR2,   1, 
-
         Offset (0x8B), // [Thermal Status of Level 3 (high)]
         TSL3,   7, 
         TSR3,   1, 
         GPUT,   1, 
-
         Offset(0x8D),   // [Interval of polling Always-on cards in half minute]
         HDAA,   3,        //   Warning Delay Period
         HDAB,   3,        //   Stolen Delay Period
         HDAC,   2,        //   Sensitivity
-
         Offset (0xB0),
         HDEN,   32, 
         HDEP,   32, 
         HDEM,   8, 
         HDES,   8, 
-
         Offset (0xC4), 
         SDKL,   1, 
-
         Offset (0xC5), 
-
         Offset (0xC8),  // [Adaptive Thermal Management (ATM)]
         ATMX,   8,        //  bit 7-4 - Thermal Table & bit 3-0 - Fan Speed Table
-
         Offset(0xC9),   // [Wattage of AC/DC]
         HWAT,   8,        //
-
         Offset (0xCC),   //
         PWMH,   8,        // CC : AC Power Consumption (MSB)
         PWML,   8,        // CD : AC Power Consumption (LSB) - unit: 100mW
-
         Offset (0xCF), 
             ,   6, 
         ESLP,   1, 
-
         Offset (0xD0), 
-
         Offset (0xED), 
             ,   4, 
         HDDD,   1
@@ -306,12 +251,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
     {
         /*
          * Status from two EC fields
+         * 
+         * e.g. B1B2 (0x3A, 0x03) -> 0x033A
          */
         Method (B1B2, 2, NotSerialized)
         {
-            Local0 = (Arg1 << 0x08)
-            Local0 |= Arg0
-            Return (Local0)
+            Return ((Arg0 | (Arg1 << 0x08)))
         }
 
         /*
@@ -319,17 +264,28 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
          */
         Method (B1B4, 4, NotSerialized)
         {
-            Local0 = Arg3
-            Local0 = (Arg2 | (Local0 << 0x08))
+            Local0 = (Arg2 | (Arg3 << 0x08))
             Local0 = (Arg1 | (Local0 << 0x08))
             Local0 = (Arg0 | (Local0 << 0x08))
+
             Return (Local0)
+        }
+
+
+        // Word to Bytes
+        // e.g. W16B (ARG0, ARG1, 0x033A) -> ARG0=0x3A, ARG1=0x03
+        Method (W16B, 3, NotSerialized)
+        {
+            Arg0 = Arg2
+
+            Arg1 = (Arg2 >> 0x08)
         }
     }
 
     /*
      * Methods to EC read / write access in case you don't have battery patch
      * Taken from Rehabmman's guide: https://www.tonymacx86.com/threads/guide-how-to-patch-dsdt-for-working-battery-status.116102/
+     * https://xstar-dev.github.io/hackintosh_advanced/Guide_For_Battery_Hotpatch.html#%E6%8B%86%E5%88%86%E5%87%BD%E6%95%B0%E5%8E%9F%E7%90%86
      */
     External (_SB_.PCI0.LPCB.EC, DeviceObj)    // EC path
 
@@ -347,11 +303,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
                 BYTE,   8
             }
 
-            Return (BYTE)
+            Return (BYTE) /* \RE1B.BYTE */
         }
 
-        /* 
-         * Grabs specified number of bytes from EC
+        /** 
+         * Read specified number of bytes from EC
+         *
          * Arg0 - offset in bytes from zero-based EC
          * Arg1 - size of buffer in bits
          */
@@ -368,9 +325,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
                 Local0++
             }
 
-            Return (TEMP)
+            Return (TEMP) /* \RECB.TEMP */
         }
 
+        /**
+         * Write 1 byte to EC
+         *
+         * Arg0: Offset, Arg1: Byte to be written
+         */
         Method (WE1B, 2, Serialized)
         {
             OperationRegion (ERAM, EmbeddedControl, Arg0, One)
@@ -382,18 +344,27 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
             BYTE = Arg1
         }
 
+        /**
+         * Write to EC field
+         *
+         * Arg0: Offset
+         * Arg1: Length, Arg2: Data to be written
+         */
         Method (WECB, 3, Serialized)
         {
-            Arg1 = ((Arg1 + 0x07) >> 0x03)
-            Name (TEMP, Buffer (Arg1) {})
+            Arg1 = ((Arg1 + 0x07) >> 0x03)  // Arg1 = ceil(Arg1 / 8), this is loop counter
+
+            Name (TEMP, Buffer (Arg1) {})   // Initial buffer to be written
             TEMP = Arg2
-            Arg1 += Arg0
-            Local0 = Zero
+
+            Arg1 += Arg0                    // Shift write window to target area
+            Local0 = Zero                   // Buffer index
+
             While ((Arg0 < Arg1))
             {
                 WE1B (Arg0, DerefOf (TEMP [Local0]))
-                Arg0++
-                Local0++
+                Arg0++                      // Offset++
+                Local0++                    // Index++
             }
         }
     }
