@@ -23,7 +23,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
     External (_SB.PCI0.LPCB.EC.BAT1._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT1._HID, IntObj)
 
-    External (_SB.PCI0.LPCB.EC.AC, DeviceObj)
 
     // External Methods from SSDT-EC.dsl
     External (_SB.PCI0.LPCB.EC.RECB, MethodObj)	
@@ -1028,9 +1027,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     If (Local3 != 0xFF || Local4 != 0xFF)
                     {
-                        Debug = "BATX:_BST() - PBAI:NOTIFY(BATX, 0x81)"
-                        Notify (BATX, 0x80) // Information Change
-                        Notify (^^AC, 0x80) // Information Change
+                        //
+                        // Here we actually would need an option to tell VirtualSMC to refresh the static battery data
+                        // because a battery was dettached or attached.
+                        // I'm not aware of any method to do that yet as VirtualSMC doesn't seem to react on ACPI-notifies.
+                        //
+                        // @TODO Try to investigate or open a bug.
+                        //
+                        // Notify (BATX, 0x80) // Information Change
                     }
                 }
 
