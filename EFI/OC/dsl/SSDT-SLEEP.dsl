@@ -84,7 +84,7 @@
 			</dict>
  *
  */
-DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
+DefinitionBlock ("", "SSDT", 1, "X1C6", "_SLEEP", 0x00002000)
 {
     // Common utils from SSDT-UTILS.dsl
     External (DTGP, MethodObj) // 5 Arguments
@@ -112,7 +112,7 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
         S0ID = Zero
 
         // Enable LID control power
-        // LWCP = One
+        LWCP = One
 
         // This adds S3 for OSX, even when sleep=windows in bios.
         If (STY0 == Zero && !CondRefOf (\_S3))
@@ -280,6 +280,95 @@ DefinitionBlock ("", "SSDT", 1, "X1C6", "_S3", 0x00002000)
                 }
 
                 Return (Zero)
+            }
+        }
+    }
+
+
+    External (_SB.PCI0.LPCB, DeviceObj)
+    External (_SB.PCI0.LPCB.EC.LID, DeviceObj)
+    External (_SB.PCI0.LPCB.EC.LED, MethodObj) // 2 Arguments
+    External (_SB.PCI0.LPCB.EC._Q2A, MethodObj) // 0 Arguments
+    External (_SB.PCI0.LPCB.EC._Q2B, MethodObj) // 0 Arguments
+    
+
+    // Scope (_SB.PCI0.LPCB.EC.LID)
+    // {
+    //     Name (AOAC, Zero)
+    // }
+    
+    Scope (_SB.PCI0.LPCB)
+    {
+        Method (_PS0, 0, Serialized)
+        {
+            If (OSDW () && S0ID == One)
+            {
+                Debug = "LPCB:_PS0"
+                Debug = "LPCB:_PS0 - old lid state LIDS: "
+                Debug = \LIDS
+
+                Debug = "LPCB:_PS0 - hw lid state LIDS: "
+                Debug = \_SB.PCI0.LPCB.EC.HPLD
+
+                Local1 = \LIDS
+
+                \_SB.PCI0.LPCB.EC.LED (0x00, 0x80)
+                \_SB.PCI0.LPCB.EC.LED (0x0A, 0x80)
+                \_SB.PCI0.LPCB.EC.LED (0x07, 0x80)
+
+                // Update lid-state
+                \LIDS = \_SB.PCI0.LPCB.EC.HPLD
+                \_SB.PCI0.GFX0.CLID = LIDS
+
+                Debug = "LPCB:_PS0 - new lid state LIDS: "
+                Debug = \LIDS
+
+                // Fire missing lid-open event if lid was closed before. 
+                // Also notifies LID-device and sets LEDs to the right state on wake.
+                If (Local1 == Zero)
+                {
+                    Debug = "LPCB:_PS0 - fire lid open-event "
+
+                    // Lid-open Event
+                    \_SB.PCI0.LPCB.EC._Q2A ()
+                }
+
+                Sleep (200) /* Delay 200 */ 
+
+                // Update ac-state
+                \PWRS = \_SB.PCI0.LPCB.EC.AC._PSR ()
+
+                // Notify (\_SB.PWRB, 0x80)
+            }
+
+        }
+
+        Method (_PS3, 0, Serialized)
+        {
+            If (OSDW () && S0ID == One)
+            {
+                Debug = "LPCB:_PS3"
+
+                \_SB.PCI0.LPCB.EC.LED (0x07, 0xA0)
+                \_SB.PCI0.LPCB.EC.LED (0x00, 0xA0)
+                \_SB.PCI0.LPCB.EC.LED (0x0A, 0xA0)
+
+                // Update lid-state
+                \LIDS = \_SB.PCI0.LPCB.EC.HPLD
+                \_SB.PCI0.GFX0.CLID = LIDS
+
+                Debug = "LPCB:_PS3 - lid state LIDS: "
+                Debug = \LIDS
+
+                If (\LIDS == Zero)
+                {
+                    Debug = "LPCB:_PS3 - fire lid close-event "
+
+                    // Lid-open Event
+                    \_SB.PCI0.LPCB.EC._Q2B ()
+
+                    // \_SB.PCI0.LPCB.EC.LED (0x00, 0xA0)
+                }
             }
         }
     }

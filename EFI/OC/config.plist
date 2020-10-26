@@ -46,14 +46,14 @@
 				<key>Path</key>
 				<string>SSDT-PM.aml</string>
 			</dict>
-			<dict>
-				<key>Comment</key>
-				<string>S3/Sleep</string>
-				<key>Enabled</key>
-				<true/>
-				<key>Path</key>
-				<string>SSDT-S3.aml</string>
-			</dict>
+                        <dict>
+                                <key>Comment</key>
+                                <string>Comprehensive sleep-patch</string>
+                                <key>Enabled</key>
+                                <true/>
+                                <key>Path</key>
+                                <string>SSDT-SLEEP.aml</string>
+                        </dict>
 			<dict>
 				<key>Comment</key>
 				<string>LPCB/Memory Controller</string>
@@ -347,7 +347,7 @@
 			</dict>
 			<dict>
 				<key>Comment</key>
-				<string>S3: GRPW to ZRPW</string>
+				<string>SLEEP: GRPW to ZRPW</string>
 				<key>Count</key>
 				<integer>0</integer>
 				<key>Enabled</key>
@@ -373,7 +373,7 @@
 			</dict>
 			<dict>
 				<key>Comment</key>
-				<string>S3: _WAK(1,S) to ZWAK</string>
+				<string>SLEEP: _WAK(1,S) to ZWAK</string>
 				<key>Count</key>
 				<integer>0</integer>
 				<key>Enabled</key>
