@@ -21,7 +21,7 @@ I am not responsible for any damages you may cause.
 * Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
-* (WIP) Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper sleep on OSX. See [SSDT-S3](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-S3.dsl)
+* (WIP) Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper S3-sleep on OSX. See [SSDT-SLEEP](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-SLEEP.dsl)
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
 * (Beta) "native" Battery-reimplementation without ACPI-patching and [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md). See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
 * (Beta) "native" ACPI-API for broadcom-wifi-cards to handle complete power-down of the PCIe-interface if the OS requests it. As on genuine machines. See [SSDT-ARPT](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-ARPT.dsl)
