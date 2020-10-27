@@ -10,6 +10,8 @@
  * I hope it helps with the usual power drain on sleep of ~1% battery per hour. To be verified.
  * 
  * Working, but not widely tested yet.
+ *
+ * IMPORTANT: If you want to adapt this for your config, please ensure that the PCIe-prt (RPXX) matches or adapt accordingly!
  **/
 
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
@@ -24,10 +26,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
     External (_SB.PCI0.RP01.L23R, FieldUnitObj)
     External (_SB.PCI0.RP01.D3HT, FieldUnitObj)
 
-    Name (WOWE, Zero)
-    Name (TAPD, Zero)
-    Name (APWC, Zero)
-
     Scope (_SB.PCI0.RP01.PXSX)
     {
         Method (_STA, 0, NotSerialized)
@@ -39,6 +37,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
     // WIFI
     Scope (_SB.PCI0.RP01)
     {
+        Name (WOWE, Zero)
+        Name (TAPD, Zero)
+        Name (APWC, Zero)
+
         OperationRegion (A1E0, PCI_Config, Zero, 0x0380)
         Field (A1E0, ByteAcc, NoLock, Preserve)
         {
@@ -378,7 +380,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
                 Debug = "ARPT:WWEN - ADID"
                 Debug = ADID
 
-                WOWE = Arg0
+                ^^WOWE = Arg0
             }
 
             Method (PDEN, 1, NotSerialized)
@@ -393,7 +395,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_ARPT", 0x00001000)
                     Debug = Arg0
                 }
 
-                TAPD = Arg0
+                ^^TAPD = Arg0
             }
         }
     }
