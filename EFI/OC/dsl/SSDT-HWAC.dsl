@@ -58,7 +58,14 @@
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
+    External (_SB.PCI0.LPCB.EC.HWAC, FieldUnitObj)
+
+    // External method from SSDT-UTILS
+    External (OSDW, MethodObj) // 0 Arguments
+
+    // External method from SSDT-EC
     External (B1B2, MethodObj) // 2 Arguments
+
     
     Scope (\_SB.PCI0.LPCB.EC)
     {
@@ -77,16 +84,22 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
         // EC region overlay.
         //
         OperationRegion (ERAM, EmbeddedControl, 0x00, 0x0100)
-        Field(ERAM, ByteAcc, NoLock, Preserve)
+        Field (ERAM, ByteAcc, NoLock, Preserve)
         {
             Offset(0x36),
             WAC0, 8, WAC1, 8,
         }
 
         // Method used for replacing reads to HWAC in _L17() & OWAK().
-        Method(XWAC, 0, NotSerialized)
+        Method (XWAC, 0, NotSerialized)
         {
-            Return (B1B2(WAC0, WAC1))
+            If (OSDW ())
+            {
+                Return (B1B2 (WAC0, WAC1))
+            }
+
+            Return (HWAC)
         }
     }
 }
+// EOF
