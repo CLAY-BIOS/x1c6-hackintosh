@@ -83,8 +83,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             /* Battery Capacity low at 20% */
             Name (DLOW, 20)
 
-            /* BATTERY_PAGE_DELAY_MS */
-            Name (BDEL, 20)
 
             Field(BRAM, ByteAcc, NoLock, Preserve)
             {
@@ -100,8 +98,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                             //   bit 6 discharge
                 HB0S, 7,	/* Battery 0 state */
                 HB0A, 1,	/* Battery 0 present */
-                
-                Offset (0x39),
+
                 HB1S, 7,	/* Battery 0 state */
                 HB1A, 1		/* Battery 1 present */
             }
@@ -247,65 +244,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             }
 
             /**
-             * Called from RECB, grabs a single byte from EC
-             * Arg0 - offset in bytes from zero-based EC
-             */
-            Method (RE1B, 1, Serialized)
-            {
-                OperationRegion (ERAM, EmbeddedControl, Arg0, One)
-                Field (ERAM, ByteAcc, NoLock, Preserve)
-                {
-                    BYTE,   8
-                }
-
-                Return (BYTE) /* \RE1B.BYTE */
-            }
-
-            /** 
-             * Read specified number of bytes from EC
-             *
-             * Arg0 - offset in bytes from zero-based EC
-             * Arg1 - size of buffer in bits
-             */
-            Method (RECB, 2, Serialized)
-            {
-                Arg1 = ((Arg1 + 0x07) >> 0x03)
-                Name (TEMP, Buffer (Arg1) {})
-                Arg1 += Arg0
-                Local0 = Zero
-                While ((Arg0 < Arg1))
-                {
-                    TEMP [Local0] = RE1B (Arg0)
-                    Arg0++
-                    Local0++
-                }
-
-                Return (TEMP) /* \RECB.TEMP */
-            }
-
-            /**
-             * Status from two EC fields
-             * 
-             * e.g. B1B2 (0x3A, 0x03) -> 0x033A
-             */
-            Method (B1B2, 2, NotSerialized)
-            {
-                Return ((Arg0 | (Arg1 << 0x08)))
-            }
-
-            /**
-             * Status from four EC fields
-             */
-            Method (B1B4, 4, NotSerialized)
-            {
-                Local0 = (Arg2 | (Arg3 << 0x08))
-                Local0 = (Arg1 | (Local0 << 0x08))
-                Local0 = (Arg0 | (Local0 << 0x08))
-
-                Return (Local0)
-            }
-
-            /**
              * Switches the battery information page (16 bytes BRAM @0xa0) with an
              * optional compile-time delay.
              *
@@ -317,7 +255,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             {
                 HIID = Arg0
 
-                Sleep(BDEL)
+                Sleep(25)
             }
 
             Name (_HID, EisaId ("PNP0C0A") /* Control Method Battery */)  // _HID: Hardware ID
@@ -400,7 +338,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 " ",         // 0x12: BIXBatteryType - Battery Type - String
                 " ",         // 0x13: BIXOEMInformation - OEM Information - String
                 0x00000000   // 0x14: ??? - Battery Swapping Capability, 0x00000000 = non-swappable - Integer (DWORD)
-                             //       added in Revision 1: Zero means Non-swappable, One – Cold-swappable, 0x10 – Hot-swappable
+                             //       added in Revision 1: Zero means Non-swappable, One - Cold-swappable, 0x10 - Hot-swappable
             })
 
             Method(BINF, 2, Serialized)
