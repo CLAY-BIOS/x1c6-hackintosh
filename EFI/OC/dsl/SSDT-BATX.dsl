@@ -73,7 +73,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
          */
         Device (BATX)
         {
-            Name (BDBG, Zero)
+            Name (BDBG, One)
 
             /* Battery Capacity warning at 25% */
             Name (DWRN, 25)
@@ -94,20 +94,20 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                             //   bit 4 error
                             //   bit 5 charge
                             //   bit 6 discharge
-                HB0S, 7,	/* Battery 0 state */
-                HB0A, 1,	/* Battery 0 present */
+                HB0S, 7,    /* Battery 0 state */
+                HB0A, 1,    /* Battery 0 present */
                 
                 Offset (0x39),
-                HB1S, 7,	/* Battery 0 state */
-                HB1A, 1,	/* Battery 1 present */
+                HB1S, 7,    /* Battery 1 state */
+                HB1A, 1,    /* Battery 1 present */
 
                 Offset (0xC9), 
                 HWAT, 8,    /* Wattage of AC/DC */
 
                 // Zero on the X1C6. Probably because of the charging is handled by the TI USB-C-PD-chip.
                 // Offset (0xCC), 
-		        // PWMH, 8,    /* CC : AC Power Consumption (MSB) */
-		        // PWML, 8,    /* CD : AC Power Consumption (LSB) - unit: 100mW */
+                // PWMH, 8,    /* CC : AC Power Consumption (MSB) */
+                // PWML, 8,    /* CD : AC Power Consumption (LSB) - unit: 100mW */
             }
 
             //
@@ -364,7 +364,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 _SB
             })
 
-	        /**
+            /**
              * Battery Slot Status
              */
             Method (_STA, 0, NotSerialized)
@@ -438,7 +438,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 " ",         // 0x12: BIXBatteryType - Battery Type - String
                 " ",         // 0x13: BIXOEMInformation - OEM Information - String
                 0x00000000   // 0x14: ??? - Battery Swapping Capability, 0x00000000 = non-swappable - Integer (DWORD)
-                             //       added in Revision 1: Zero means Non-swappable, One – Cold-swappable, 0x10 – Hot-swappable
+                             //       added in Revision 1: Zero means Non-swappable, One ? Cold-swappable, 0x10 ? Hot-swappable
             })
 
             Method (GBIX, 2, Serialized)
@@ -863,7 +863,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 BPAG (Arg1 | 0x01) 
 
                 // Needs conversion to mA/mAh?
-		        Local7 = (SBCM ^ Zero)
+               Local7 = (SBCM ^ Zero)
 
 
                 //
