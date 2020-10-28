@@ -36,6 +36,7 @@
 // 23.10. - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
 // 25.10. - Prelimitary dual-battery-support, large refactoring
 // 26.10. - Remove need of patched notifies, handle battery attach/detach inside, make the whole device self-contained (exept for the EC-helpers)
+// 28.10. - Waits on initialization of the batts now. Besides that: Optimization, rework, cleanup, fixes. Truely self-contained now. And faster. 
 //
 // Add the following methods if didn't have them defined anyways:
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
@@ -51,28 +52,25 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
     External (_SB.PCI0.LPCB.EC.BAT1._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT1._HID, IntObj)
 
-
-    // External Methods from SSDT-EC.dsl
-    External (_SB.PCI0.LPCB.EC.RECB, MethodObj)	
-
-    External (B1B2, MethodObj)	
-    External (B1B4, MethodObj)
-
     // @see https://en.wikipedia.org/wiki/Bank_switching
     //
     // HIID: [Battery information ID for 0xA0-0xAF]
     //   (this byte is depend on the interface, 62&66 and 1600&1604)
     External (_SB.PCI0.LPCB.EC.HIID, FieldUnitObj)
-    
+
+    External (H8DR, FieldUnitObj)
+
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
-
         //
         // EC region overlay.
         //
         OperationRegion (BRAM, EmbeddedControl, 0x00, 0x0100)
 
+        /**
+         * New battery device
+         */
         Device (BATX)
         {
             Name (BDBG, Zero)
@@ -98,9 +96,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                             //   bit 6 discharge
                 HB0S, 7,	/* Battery 0 state */
                 HB0A, 1,	/* Battery 0 present */
-
+                
+                Offset (0x39),
                 HB1S, 7,	/* Battery 0 state */
-                HB1A, 1		/* Battery 1 present */
+                HB1A, 1,	/* Battery 1 present */
+
+                Offset (0xC9), 
+                HWAT, 8,    /* Wattage of AC/DC */
+
+                // Zero on the X1C6. Probably because of the charging is handled by the TI USB-C-PD-chip.
+                // Offset (0xCC), 
+		        // PWMH, 8,    /* CC : AC Power Consumption (MSB) */
+		        // PWML, 8,    /* CD : AC Power Consumption (LSB) - unit: 100mW */
             }
 
             //
@@ -196,51 +203,120 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 CH03,    8
             }
 
-            // 128-byte fields are replaced with read-methods below
-            // //
-            // // EC Registers 
-            // // HIID == 0x05: Battery OEM information
-            // //
-            // Field (BRAM, ByteAcc, NoLock, Preserve)
-            // {
-            //     Offset(0xA0),
-            //     SBMN, 128,   // Manufacture Name (s)
-            // }
+            //
+            // EC Registers 
+            // HIID == 0x05: Battery OEM information
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                // SBMN, 128,   // Manufacture Name (s)
+                MN00,   8,
+                MN01,   8,
+                MN02,   8,
+                MN03,   8,
+                MN04,   8,
+                MN05,   8,
+                MN06,   8,
+                MN07,   8,
+                MN08,   8,
+                MN09,   8,
+                MN0A,   8,
+                MN0B,   8,
+                MN0C,   8,
+                MN0D,   8,
+                MN0E,   8,
+                MN0F,   8,
+            }
 
-            // //
-            // // EC Registers 
-            // // HIID == 0x06: Battery name
-            // //
-            // Field (BRAM, ByteAcc, NoLock, Preserve)
-            // {
-            //     Offset(0xA0),
-            //     SBDN, 128,   // Device Name (s)
-            // }
+            //
+            // EC Registers 
+            // HIID == 0x06: Battery name
+            //
+            Field (BRAM, ByteAcc, NoLock, Preserve)
+            {
+                Offset(0xA0),
+                // SBDN, 128,   // Device Name (s)
+                DN00,   8,
+                DN01,   8,
+                DN02,   8,
+                DN03,   8,
+                DN04,   8,
+                DN05,   8,
+                DN06,   8,
+                DN07,   8,
+                DN08,   8,
+                DN09,   8,
+                DN0A,   8,
+                DN0B,   8,
+                DN0C,   8,
+                DN0D,   8,
+                DN0E,   8,
+                DN0F,   8,
+            }
 
             /**
              * Method to read 128byte-field SBMN 
              */
-            Method (SBMN, 1, NotSerialized)
+            Method (SBMN, 1, Serialized)
             {
                 //
                 // Information Page 5 -
                 //
-                BPAG(Arg0 | 0x05)
-                
-                Return (RECB (0xA0, 128)) // SBMN
+                BPAG (Arg0 | 0x05)
+
+                Local0 = Buffer (0x10) {}
+
+                Local0[0x00] = MN00
+                Local0[0x01] = MN01
+                Local0[0x02] = MN02
+                Local0[0x03] = MN03
+                Local0[0x04] = MN04
+                Local0[0x05] = MN05
+                Local0[0x06] = MN06
+                Local0[0x07] = MN07
+                Local0[0x08] = MN08
+                Local0[0x09] = MN09
+                Local0[0x0A] = MN0A
+                Local0[0x0B] = MN0B
+                Local0[0x0C] = MN0C
+                Local0[0x0D] = MN0D
+                Local0[0x0E] = MN0E
+                Local0[0x0F] = MN0F
+
+                Return (Local0)
             }
 
             /**
              * Method to read 128byte-field SBDN
              */
-            Method (SBDN, 1, NotSerialized)
+            Method (SBDN, 1, Serialized)
             {
                 //
                 // Information Page 6 -
                 //
-                BPAG(Arg0 | 0x06)
+                BPAG (Arg0 | 0x06)
                 
-                Return (RECB (0xA0, 128)) // SBDN
+                Local0 = Buffer (0x10) {}
+
+                Local0[0x00] = DN00
+                Local0[0x01] = DN01
+                Local0[0x02] = DN02
+                Local0[0x03] = DN03
+                Local0[0x04] = DN04
+                Local0[0x05] = DN05
+                Local0[0x06] = DN06
+                Local0[0x07] = DN07
+                Local0[0x08] = DN08
+                Local0[0x09] = DN09
+                Local0[0x0A] = DN0A
+                Local0[0x0B] = DN0B
+                Local0[0x0C] = DN0C
+                Local0[0x0D] = DN0D
+                Local0[0x0E] = DN0E
+                Local0[0x0F] = DN0F
+
+                Return (Local0)
             }
 
             /**
@@ -251,12 +327,35 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              *   bit7-4: Battery number
              *   bit3-0: Information page number
              */
-            Method(BPAG, 1, NotSerialized)
+            Method (BPAG, 1, Serialized)
             {
                 HIID = Arg0
 
-                Sleep(25)
+                Sleep (50)
             }
+
+            /**
+             * Status from two EC fields
+             * 
+             * e.g. B1B2 (0x3A, 0x03) -> 0x033A
+             */
+            Method (B1B2, 2, Serialized)
+            {
+                Return ((Arg0 | (Arg1 << 0x08)))
+            }
+
+            /**
+             * Status from four EC fields
+             */
+            Method (B1B4, 4, Serialized)
+            {
+                Local0 = (Arg2 | (Arg3 << 0x08))
+                Local0 = (Arg1 | (Local0 << 0x08))
+                Local0 = (Arg0 | (Local0 << 0x08))
+
+                Return (Local0)
+            }
+
 
             Name (_HID, EisaId ("PNP0C0A") /* Control Method Battery */)  // _HID: Hardware ID
             Name (_UID, Zero)  // _UID: Unique ID
@@ -265,7 +364,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 _SB
             })
 
-	        // Battery Slot Status
+	        /**
+             * Battery Slot Status
+             */
             Method (_STA, 0, NotSerialized)
             {
                 // call original _STA for BAT0 and BAT1
@@ -316,7 +417,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             Name (PBIX, Package () {
                 0x01,        // 0x00: BIXRevision - Revision - Integer
                 0x01,        // 0x01: BIXPowerUnit - Power Unit: mAh - Integer (DWORD)
-                             //       SMART battery : 1 - 10mWh : 0 - mAh
                              //       ACPI spec     : 0 - mWh   : 1 - mAh                
                              //       We are always outputting mAh.
                 0xFFFFFFFF,  // 0x02: BIXDesignCapacity - Design Capacity - Integer (DWORD)
@@ -338,49 +438,48 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 " ",         // 0x12: BIXBatteryType - Battery Type - String
                 " ",         // 0x13: BIXOEMInformation - OEM Information - String
                 0x00000000   // 0x14: ??? - Battery Swapping Capability, 0x00000000 = non-swappable - Integer (DWORD)
-                             //       added in Revision 1: Zero means Non-swappable, One - Cold-swappable, 0x10 - Hot-swappable
+                             //       added in Revision 1: Zero means Non-swappable, One – Cold-swappable, 0x10 – Hot-swappable
             })
 
-            Method(BINF, 2, Serialized)
+            Method (GBIX, 2, Serialized)
             {
                 If (Acquire (^^BATM, 65535))
                 {
+                    Debug = "BATX:AcquireLock failed in GBIX"
+
                     Return (Arg0)
                 }
 
-                BPAG(Arg1 | 0x01) 
 
-                // Needs conversion?
-		        Local7 = SBCM != 0x01
+                //
+                // Information Page 1 -
+                //
+                BPAG (Arg1 | 0x01) 
+
+                // Needs conversion to mA/mAh?
+                Local7 = (SBCM ^ Zero)
 
                 //  Cycle count
                 Arg0[0x08] = B1B2 (CC00, CC01)
-
-                //
-                // Information Page 0 -
-                //
-                BPAG(Arg1 | 0x00)
-
-                // Last Full Charge Capacity
-                If (Local7)
-                {
-                    Arg0[0x03] = B1B2 (FC00, FC01) * 10
-                }
-                Else
-                {
-                    Arg0[0x03] = B1B2 (FC00, FC01)
-                }
 
 
                 //
                 // Information Page 2 -
                 //
-                BPAG(Arg1 | 0x02)
+                BPAG (Arg1 | 0x02)
+
+                // Design voltage
+                Local6 = B1B2 (DV00, DV01)
+
+                Arg0[0x05] = Local6
+
+                // Serial Number
+                Arg0[0x11] = B1B2 (SN00, SN01)
 
                 // Design capacity
                 If (Local7)
                 {
-                    Local0 = B1B2 (DC00, DC01) * 10
+                    Local0 = 1000 * B1B2 (DC00, DC01) / Local6
                 }
                 Else
                 {
@@ -395,27 +494,38 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // Design capacity of Low 
                 Arg0[0x07] = Local0 / 100 * DLOW
 
-                // Design voltage
-                Arg0[0x05] = B1B2 (DV00, DV01)
 
-                // Serial Number
-                Arg0[0x11] = ToHexString (B1B2 (SN00, SN01))
+                //
+                // Information Page 0 -
+                //
+                BPAG (Arg1 | 0x00)
+
+                // Last Full Charge Capacity
+                If (Local7)
+                {
+                    Arg0[0x03] = 1000 * B1B2 (FC00, FC01) / Local6
+                }
+                Else
+                {
+                    Arg0[0x03] = B1B2 (FC00, FC01)
+                }
+
 
                 //
                 // Information Page 4 -
                 //
-                BPAG(Arg1 | 0x04)
+                BPAG (Arg1 | 0x04)
 
                 // Battery Type - Device Chemistry
-                Arg0[0x12] = ToString (Concatenate (B1B4 (CH00, CH01, CH02, CH03), 0x00))
+                Arg0[0x12] = B1B4 (CH00, CH01, CH02, CH03)
 
                 // OEM Information - Manufacturer Name
-                Arg0[0x13] = ToString (Concatenate(SBMN(0x00), 0x00))
+                Arg0[0x13] = SBMN (0x00)
 
                 // Model Number - Device Name
-                Arg0[0x10] = ToString (Concatenate(SBDN(0x00), 0x00))
+                Arg0[0x10] = SBDN (0x00)
 
-                Release(^^BATM)
+                Release (^^BATM)
 
                 Return (Arg0)
             }
@@ -431,15 +541,39 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             {
                 Debug = "BATX:_BIX"
 
+                // Wait for the battery to become available
+                Local7 = 0x00
+                Local6 = 30
+
+                While ((!Local7 && Local6))
+                {
+                    If (HB0A)
+                    {
+                        If (((HB0S & 0x07) == 0x07))
+                        {
+                            Sleep (1000)
+                            Local6--
+                        }
+                        Else
+                        {
+                            Local7 = 0x01
+                        }
+                    }
+                    Else
+                    {
+                        Local6 = 0x00
+                    }
+                }
+
+                // Fetch data
                 Local0 = PBIX
 
                 If (HB0A) 
                 {
-                    Local0 = BINF(PBIX, 0x0)
+                    Local0 = GBIX (Local0, 0x00)
 
                     If (BDBG == One)
                     {
-                        Concatenate ("BATX:BIXRevision: BAT0 ", Local0[0x00], Debug)
                         Concatenate ("BATX:BIXPowerUnit: BAT0 ", Local0[0x01], Debug)
                         Concatenate ("BATX:BIXDesignCapacity: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x02))), Debug)
                         Concatenate ("BATX:BIXLastFullChargeCapacity: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x03))), Debug)
@@ -448,13 +582,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Concatenate ("BATX:BIXDesignCapacityOfWarning: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x06))), Debug)
                         Concatenate ("BATX:BIXDesignCapacityOfLow: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x07))), Debug)
                         Concatenate ("BATX:BIXCycleCount: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x08))), Debug)
-                        Concatenate ("BATX:BIXMeasurementAccuracy: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x09))), Debug)
-                        Concatenate ("BATX:BIXMaxSamplingTime: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0a))), Debug)
-                        Concatenate ("BATX:BIXMinSamplingTime: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0b))), Debug)
-                        Concatenate ("BATX:BIXMaxAveragingInterval: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0c))), Debug)
-                        Concatenate ("BATX:BIXMinAveragingInterval: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0d))), Debug)
-                        Concatenate ("BATX:BIXBatteryCapacityGranularity1: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0e))), Debug)
-                        Concatenate ("BATX:BIXBatteryCapacityGranularity2: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x0f))), Debug)
                         Concatenate ("BATX:BIXModelNumber: BAT0 ", Local0[0x10], Debug)
                         Concatenate ("BATX:BIXSerialNumber: BAT0 ", Local0[0x11], Debug)
                         Concatenate ("BATX:BIXBatteryType: BAT0 ", Local0[0x12], Debug)
@@ -466,11 +593,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                 If (HB1A) 
                 {
-                    Local1 = BINF(PBIX, 0x10)
+                    Local1 = GBIX (Local1, 0x10)
 
                     If (BDBG == One)
                     {
-                        Concatenate ("BATX:BIXRevision: BAT1 ", Local1[0x00], Debug)
                         Concatenate ("BATX:BIXPowerUnit: BAT1 ", Local1[0x01], Debug)
                         Concatenate ("BATX:BIXDesignCapacity: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x02))), Debug)
                         Concatenate ("BATX:BIXLastFullChargeCapacity: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x03))), Debug)
@@ -479,13 +605,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Concatenate ("BATX:BIXDesignCapacityOfWarning: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x06))), Debug)
                         Concatenate ("BATX:BIXDesignCapacityOfLow: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x07))), Debug)
                         Concatenate ("BATX:BIXCycleCount: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x08))), Debug)
-                        Concatenate ("BATX:BIXMeasurementAccuracy: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x09))), Debug)
-                        Concatenate ("BATX:BIXMaxSamplingTime: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0a))), Debug)
-                        Concatenate ("BATX:BIXMinSamplingTime: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0b))), Debug)
-                        Concatenate ("BATX:BIXMaxAveragingInterval: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0c))), Debug)
-                        Concatenate ("BATX:BIXMinAveragingInterval: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0d))), Debug)
-                        Concatenate ("BATX:BIXBatteryCapacityGranularity1: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0e))), Debug)
-                        Concatenate ("BATX:BIXBatteryCapacityGranularity2: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x0f))), Debug)
                         Concatenate ("BATX:BIXModelNumber: BAT1 ", Local1[0x10], Debug)
                         Concatenate ("BATX:BIXSerialNumber: BAT1 ", Local1[0x11], Debug)
                         Concatenate ("BATX:BIXBatteryType: BAT1 ", Local1[0x12], Debug)
@@ -616,16 +735,16 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     }
 
                     // _BIX 10 Model Number - concatenate BAT0 and BAT1 values
-                    // PBIX[0x10] = Concatenate (Concatenate (DerefOf (Local0[0x10]), " / "), DerefOf (Local1[0x10]))
+                    PBIX[0x10] = Concatenate (Concatenate (DerefOf (Local0[0x10]), " / "), DerefOf (Local1[0x10]))
 
                     // _BIX 11 Serial Number - concatenate BAT0 and BAT1 values
-                    // PBIX[0x11] = Concatenate (Concatenate (DerefOf (Local0[0x11]), " / "), DerefOf (Local1[0x11]))
+                    PBIX[0x11] = Concatenate (Concatenate (DerefOf (Local0[0x11]), " / "), DerefOf (Local1[0x11]))
 
                     // _BIX 12 Battery Type - concatenate BAT0 and BAT1 values
-                    // PBIX[0x12] = Concatenate (Concatenate (DerefOf (Local0[0x12]), " / "), DerefOf (Local1[0x12]))
+                    PBIX[0x12] = Concatenate (Concatenate (DerefOf (Local0[0x12]), " / "), DerefOf (Local1[0x12]))
 
                     // _BIX 13 OEM Information - concatenate BAT0 and BAT1 values
-                    // PBIX[0x13] = Concatenate (Concatenate (DerefOf (Local0[0x13]), " / "), DerefOf (Local1[0x13]))
+                    PBIX[0x13] = Concatenate (Concatenate (DerefOf (Local0[0x13]), " / "), DerefOf (Local1[0x13]))
 
                     // _BIX 14 Battery Swapping Capability - leave BAT0 value for now
                 }
@@ -640,7 +759,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                 If (BDBG == One)
                 {
-                    Concatenate ("BATX:BIXRevision: BATX ", PBIX[0x00], Debug)
+                    // Concatenate ("BATX:BIXRevision: BATX ", PBIX[0x00], Debug)
                     Concatenate ("BATX:BIXPowerUnit: BATX ", PBIX[0x01], Debug)
                     Concatenate ("BATX:BIXDesignCapacity: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x02))), Debug)
                     Concatenate ("BATX:BIXLastFullChargeCapacity: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x03))), Debug)
@@ -649,13 +768,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Concatenate ("BATX:BIXDesignCapacityOfWarning: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x06))), Debug)
                     Concatenate ("BATX:BIXDesignCapacityOfLow: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x07))), Debug)
                     Concatenate ("BATX:BIXCycleCount: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x08))), Debug)
-                    Concatenate ("BATX:BIXMeasurementAccuracy: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x09))), Debug)
-                    Concatenate ("BATX:BIXMaxSamplingTime: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0a))), Debug)
-                    Concatenate ("BATX:BIXMinSamplingTime: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0b))), Debug)
-                    Concatenate ("BATX:BIXMaxAveragingInterval: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0c))), Debug)
-                    Concatenate ("BATX:BIXMinAveragingInterval: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0d))), Debug)
-                    Concatenate ("BATX:BIXBatteryCapacityGranularity1: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0e))), Debug)
-                    Concatenate ("BATX:BIXBatteryCapacityGranularity2: BATX ", ToDecimalString(DerefOf(Index(PBIX, 0x0f))), Debug)
                     Concatenate ("BATX:BIXModelNumber: BATX ", PBIX[0x10], Debug)
                     Concatenate ("BATX:BIXSerialNumber: BATX ", PBIX[0x11], Debug)
                     Concatenate ("BATX:BIXBatteryType: BATX ", PBIX[0x12], Debug)
@@ -681,19 +793,30 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 0xFFFFFFFF,
             })
 
+            /**
+             *  Battery Information Supplement 
+             */
             Method (CBIS, 0, Serialized)
             {
                 Debug = "BATX:CBIS()"
 
-                If (Acquire (^^BATM, 65535))
+                If (!H8DR)
                 {
                     Return (PBIS)
                 }
 
+                If (Acquire (^^BATM, 65535))
+                {
+                    Debug = "BATX:AcquireLock failed in CBIS"
+
+                    Return (PBIS)
+                }
+
+
                 //
                 // Information Page 2 -
                 //
-                BPAG(0x00 | 0x02)
+                BPAG (0x00 | 0x02)
 
                 // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                 PBIS[0x01] = B1B2 (DT00, DT01)
@@ -712,47 +835,49 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                              //       Bit 0 - discharge
                              //       Bit 1 - charge
                              //       Bit 2 - critical state
-                0,           // 0x01: BSTPresentRate - Battery Present Rate
-                0,           // 0x02: BSTRemainingCapacity - Battery Remaining Capacity
-                0,           // 0x03: BSTPresentVoltage - Battery Present Voltage
+                0,           // 0x01: BSTPresentRate - Battery Present Rate [mW], 0xFFFFFFFF if unknown rate
+                0,           // 0x02: BSTRemainingCapacity - Battery Remaining Capacity [mWh], 0xFFFFFFFF if unknown capacity
+                0,           // 0x03: BSTPresentVoltage - Battery Present Voltage [mV], 0xFFFFFFFF if unknown voltage
             })
 
-
-            /* Arg0: Battery
-             * Arg1: Battery Status Package
+            /**
+             * Get Battery Status per battery
+             *
+             * Arg0: Battery Real-time Information pack
+             * Arg1: Battery id 0x00 / 0x10
              * Arg2: Battery EC status
              */
-            Method(BSTA, 3, NotSerialized)
+            Method (GBST, 3, Serialized)
             {
                 If (Acquire (^^BATM, 65535))
                 {
-                    Return (Arg1)
+                    Debug = "BATX:AcquireLock failed in GBST"
+
+                    Return (Arg0)
                 }
-                
-                Local0 = 0
 
 
-                BPAG(Arg0 | 0x01) 
-
-                // Needs conversion?
                 //
-                // For reference: (ignored here for the moment):
-                //  `On Lenovo Thinkpad models from 2010 and 2011, the power unit
-                //  switches between mWh and mAh depending on whether the system
-                //  is running on battery or not.  When mAh is the unit, most
-                //  reported values are incorrect and need to be adjusted by
-                //  10000/design_voltage.  Verified on x201, t410, t410s, and x220.
-                //  Pre-2010 and 2012 models appear to always report in mWh and
-                //  are thus unaffected (tested with t42, t61, t500, x200, x300,
-                //  and x230).  Also, in mid-2012 Lenovo issued a BIOS update for
-                //  the 2011 models that fixes the issue (tested on x220 with a
-                //  post-1.29 BIOS), but as of Nov. 2012, no such update is
-                //  available for the 2010 models.`
-                //  src: https://github.com/torvalds/linux/blob/9ff9b0d392ea08090cd1780fb196f36dbb586529/drivers/acpi/battery.c#L82
-		        Local7 = SBCM != One
+                // Information Page 1 -
+                //
+                BPAG (Arg1 | 0x01) 
+
+                // Needs conversion to mA/mAh?
+		        Local7 = (SBCM ^ Zero)
 
 
-                BPAG(Arg0 | 0x00) /* Battery dynamic information */
+                //
+                // Information Page 0 -
+                //
+                BPAG (Arg1 | 0x00) /* Battery dynamic information */
+
+                // get voltage for conversion
+                Local6 = B1B2 (VO00, VO01)
+
+                // Present rate is a 16bit signed int, positive while charging
+                // and negative while discharging.
+                Local1 = B1B2 (AC00, AC01)
+
 
                 //
                 // 0: BATTERY STATE
@@ -761,103 +886,81 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // bit 1 = charging
                 // bit 2 = critical level
                 //
+                Local0 = 0
 
                 // Get battery state from EC
                 If (Arg2 & 0x20) // Charging
                 {
-                    Local0 = 2
+                    // 2 = charging
+                    Local0 = 0x02
                 }
                 Else
                 {
                     If (Arg2 & 0x40) // Discharging
                     {
-                        Local0 = 2
+                        // 1 = discharging
+                        Local0 = 0x01
+
+                        // Negate present rate
+                        Local1 = (0x00010000 - Local1)
                     }
                     Else // Full battery, force to 0
                     {
-                        Local0 = 0
+                        Local0 = 0x00
                     }
                 }
 
-                // Set critical flag if battery is empty
-                If (Arg2 & 0x0F <= 0)
-                {
-                    Local0 = Local0 ^ 4
-                }
+                Arg0[0x00] = Local0
 
-                Arg1[0x00] = Local0
 
                 //
                 // 1: BATTERY PRESENT RATE/CURRENT
                 //
 
-                /*
-                 * Present rate is a 16bit signed int, positive while charging
-                 * and negative while discharging.
-                 */
-                Local1 = B1B2 (AC00, AC01)
-
-                If (Local1 >= 0x8000) 
+                If (Local1 <= 0x8000) 
                 {
                     /*
                      * The present rate value must be positive now, if it is not we have an
                      * EC bug or inconsistency and force the value to 0.
                      */
-                    If (Local0 & 1)
-                    {
-                        // Negate present rate
-                        Local1 = 0x10000 - Local1
-                    }
-                    Else
-                    {
-                        // Error
-                        Local1 = 0
-                    }
+                    Local1 = 0x00
                 }
-                Else
-                {
-                    If (!Local0 & 2)
-                    {
-                        // Battery is not charging
-                        Local1 = 0
-                    }
-                }
-
-                // _BST 1 - Battery Present Rate 
-                Local6 = B1B2 (VO00, VO01)
 
                 If (Local7)
                 {
-                    Local1 = Local1 * Local6 / 1000
+                    Local1 = 1000 * Local1 / Local6
                 }
 
-                Arg1[0x01] = Local1
+                Arg0[0x01] = Local1
+
 
                 //
                 // 2: BATTERY REMAINING CAPACITY
                 //
-                If (Local6)
+                Local1 = B1B2 (RC00, RC01)
+
+                If (Local7)
                 {
-                    Arg1[0x02] = B1B2 (RC00, RC01) * 10
+                    Local1 = 1000 * Local1 / Local6
                 }
-                Else
-                {
-                    Arg1[0x02] = B1B2 (RC00, RC01)
-                }
+
+                Arg0[0x02] = Local1
+
 
                 //
                 // 3: BATTERY PRESENT VOLTAGE
                 //
-                Arg1[0x03] = Local6
-
-                If (DerefOf (Arg1[0x03]) == 0xffff) 
+                If (Local6 == 0xffff) 
                 {
-                    Arg1[0x03] = 0
+                    Local6 = 0
                 }
 
-                Release(^^BATM)
+                Arg0[0x03] = Local6
 
-                Return (Arg1)
+
+                Release (^^BATM)
+
+                Return (Arg0)
             }
 
             /**
@@ -869,17 +972,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 0xFF,        // 0x01: BAT1 present or not
             })
 
-
+            /**
+             * Battery status
+             */
             Method (_BST, 0, NotSerialized)  // _BST: Battery Status
             {
                 Debug = "BATX:_BST()"
 
                 Local0 = PBST
-                Local1 = PBST
 
                 If (HB0A) 
                 {
-                    Local0 = BSTA (0x00, PBST, HB0S)
+                    Local0 = GBST (Local0, 0x00, HB0S)
 
                     If (BDBG == One)
                     {
@@ -890,9 +994,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     }
                 } 
 
+                Local1 = PBST
+
                 If (HB1A) 
                 {
-                    Local1 = BSTA (0x10, PBST, HB1S)
+                    Local1 = GBST (Local1, 0x10, HB1S)
 
                     If (BDBG == One)
                     {
@@ -912,34 +1018,22 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Local4 = DerefOf (Local0[0x00])
                     Local5 = DerefOf (Local1[0x00])
 
-                    If (Local4 != Local5)
+                    If (Local4 == 0x02 || Local5 == 0x02)
                     {
-                        If (Local4 == 2 || Local5 == 2)
-                        {
-                            // 2 = charging
-                            PBST[0x00] = 2
-                        }
-                        ElseIf (Local4 == 1 || Local5 == 1)
-                        {
-                            // 1 = discharging
-                            PBST[0x00] = 1
-                        }
-                        ElseIf (Local4 == 3 || Local5 == 3)
-                        {
-                            PBST[0x00] = 3
-                        }
-                        ElseIf (Local4 == 4 || Local5 == 4)
-                        {
-                            // critical
-                            PBST[0x00] = 4
-                        }
-                        ElseIf (Local4 == 5 || Local5 == 5)
-                        {
-                            // critical and discharging
-                            PBST[0x00] = 5
-                        }
-                        // if none of the above, just leave as BAT0 is
+                        // 2 = charging
+                        PBST[0x00] = 0x02
                     }
+                    ElseIf (Local4 == 0x01 || Local5 == 0x01)
+                    {
+                        // 1 = discharging
+                        PBST[0x00] = 0x01
+                    }
+                    ElseIf (Local4 == 0x00 && Local5 == 0x00)
+                    {
+                        // Full battery, force to 0
+                        PBST[0x00] = 0x00
+                    }
+                    // if none of the above, just leave as BAT0 is
 
                     // _BST 1 - Battery Present Rate - add BAT0 and BAT1 values
                     PBST[0x01] = DerefOf (Local0[0x01]) + DerefOf (Local1[0x01])
@@ -948,7 +1042,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     PBST[0x02] = DerefOf (Local0[0x02]) + DerefOf (Local1[0x02])
 
                     // _BST 3 - Battery Present Voltage - average between BAT0 and BAT1 values
-
                     Local4 = DerefOf (Local0[0x03])
                     Local5 = DerefOf (Local1[0x03])
 
@@ -974,7 +1067,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     PBST = Local0
                 }
 
-
+                // Check if battery is added or removed
                 Local3 = DerefOf(PBAI[0x00])
                 Local4 = DerefOf(PBAI[0x01])
 
@@ -983,16 +1076,16 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     PBAI[0x00] = HB0A
                     PBAI[0x01] = HB1A
 
-                    If (BDBG == One)
-                    {
-                        Concatenate ("BATX:_BST() - PBAI:HB0A (old): ", Local3, Debug)
-                        Concatenate ("BATX:_BST() - PBAI:HB1A (old): ", Local4, Debug)
-                        Concatenate ("BATX:_BST() - PBAI:HB0A (new): ", HB0A, Debug)
-                        Concatenate ("BATX:_BST() - PBAI:HB1A (new): ", HB1A, Debug)
-                    }
-
                     If (Local3 != 0xFF || Local4 != 0xFF)
                     {
+                        If (BDBG == One)
+                        {
+                            Concatenate ("BATX:_BST() - PBAI:HB0A (old): ", Local3, Debug)
+                            Concatenate ("BATX:_BST() - PBAI:HB1A (old): ", Local4, Debug)
+                            Concatenate ("BATX:_BST() - PBAI:HB0A (new): ", HB0A, Debug)
+                            Concatenate ("BATX:_BST() - PBAI:HB1A (new): ", HB1A, Debug)
+                        }
+
                         //
                         // Here we actually would need an option to tell VirtualSMC to refresh the static battery data
                         // because a battery was dettached or attached.
@@ -1000,7 +1093,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         //
                         // @TODO Try to investigate or open a bug.
                         //
-                        // Notify (BATX, 0x80) // Information Change
+                        Notify (BATX, 0x81) // Status Change
                     }
                 }
 
@@ -1010,15 +1103,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Concatenate ("BATX:BSTPresentRate: BATX ", ToDecimalString(DerefOf(Index(PBST, 0x01))), Debug)
                     Concatenate ("BATX:BSTRemainingCapacity: BATX ", ToDecimalString(DerefOf(Index(PBST, 0x02))), Debug)
                     Concatenate ("BATX:BSTPresentVoltage: BATX ", ToDecimalString(DerefOf(Index(PBST, 0x03))), Debug)
-
-                    Concatenate ("BATX:BST BATX:HB0A ", HB0A, Debug)
-                    Concatenate ("BATX:BST BATX:HB1A ", HB1A, Debug)
                 }
 
                 // Return combined battery
                 Return (PBST)
             }
-
 
             /**
              *  Battery Status Supplement pack layout
@@ -1026,73 +1115,97 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
             Name (PBSS, Package ()
             {
                 0x28,        // 0x00: BSSTemperature - Temperature, AppleSmartBattery format
-                0xFF,        // 0x01: BSSTimeToFull - TimeToFull, minutes (0xFF)
-                0x0,         // 0x02: BSSTimeToEmpty - TimeToEmpty, minutes (0)
-                100,         // 0x03: BSSChargeLevel - ChargeLevel, percentage
-                0xFFFFFFFF,  // 0x04: BSSAverageRate - AverageRate, mA (signed)
-                0xFFFFFFFF,  // 0x05: BSSChargingCurrent - ChargingCurrent, mA
-                0xFFFFFFFF,  // 0x06: BSSChargingVoltage - ChargingVoltage, mV
+                0xFF,        // 0x01: BSSTimeToFull - TimeToFull [minutes] (0xFF)
+                0x0,         // 0x02: BSSTimeToEmpty - TimeToEmpty [minutes] (0)
+                100,         // 0x03: BSSChargeLevel - ChargeLevel [percent]
+                0xFFFFFFFF,  // 0x04: BSSAverageRate - AverageRate [mA] (signed)
+                0xFFFFFFFF,  // 0x05: BSSChargingCurrent - ChargingCurrent [mA]
+                0xFFFFFFFF,  // 0x06: BSSChargingVoltage - ChargingVoltage [mV]
                 0xFFFFFFFF,
             })
 
+            /**
+             * Get Battery Status Supplement per battery
+             *
+             * Arg0: package
+             * Arg1: Battery 0x00/0x10
+             */
+            Method (GBSS, 2, Serialized)
+            {
+                If (Acquire (^^BATM, 65535))
+                {
+                    Debug = "BATX:AcquireLock failed in GBSS"
+
+                    Return (PBSS)
+                }
+
+                //
+                // Information Page 0 -
+                //
+                BPAG (Arg1 | 0x00)
+
+                // 0x01: TimeToFull (0x11), minutes (0xFF)
+                Local6 = B1B2 (AF00, AF01)
+
+                If (Local6 == 0xFFFF)
+                {
+                    Arg0[0x01] = 0
+                }
+                Else
+                {
+                    Arg0[0x01] = Local6
+                }
+
+                // 0x02: TimeToEmpty (0x12), minutes (0)
+                Local6 = B1B2 (AE00, AE01)
+
+                If (Local6 == 0xFFFF)
+                {
+                    // Charging
+                    Arg0[0x02] = 0
+                }
+                Else
+                {
+                    // Discharging
+                    Arg0[0x02] = Local6
+                }
+
+                // 0x03: BSSChargeLevel - ChargeLevel, percentage
+                Arg0[0x03] = B1B2 (RS00, RS01)
+                
+                // 0x04: AverageRate (0x14), mA (signed)
+                Arg0[0x04] = B1B2 (AC00, AC01) // & 0xFFFF
+
+                // 0x05: ChargingCurrent (0x15), mA
+                // Arg0[0x05] = B1B2 (CC00, CC01)
+
+                // 0x06: ChargingVoltage (0x16), mV
+                // Arg0[0x06] = B1B2 (CV00, CV01)
+
+                Release (^^BATM)
+
+                Return (Arg0)
+            }
+
+
+            /**
+             *  Battery Status Supplement
+             */
             Method (CBSS, 0, Serialized)
             {
                 Debug = "BATX:CBSS()"
+
+                If (!H8DR)
+                {
+                    Return (PBSS)
+                }
 
                 // BAT0
                 Local0 = PBSS
 
                 If (HB0A)
                 {
-                    If (Acquire (^^BATM, 65535))
-                    {
-                        Return (PBSS)
-                    }
-
-                    //
-                    // Information Page 0 -
-                    //
-                    BPAG(0x00 | 0x00)
-
-                    // 0x01: TimeToFull (0x11), minutes (0xFF)
-                    Local6 = B1B2 (AF00, AF01)
-
-                    If (Local6 == 0xFFFF)
-                    {
-                        Local0[0x01] = 0
-                    }
-                    Else
-                    {
-                        Local0[0x01] = Local6
-                    }
-
-                    // 0x02: TimeToEmpty (0x12), minutes (0)
-                    Local6 = B1B2 (AE00, AE01)
-
-                    If (Local6 == 0xFFFF)
-                    {
-                        // Charging
-                        Local0[0x02] = 0
-                    }
-                    Else
-                    {
-                        // Discharging
-                        Local0[0x02] = Local6
-                    }
-
-                    // 0x03: BSSChargeLevel - ChargeLevel, percentage
-                    Local0[0x03] = B1B2 (RS00, RS01)
-                    
-                    // 0x04: AverageRate (0x14), mA (signed)
-                    Local0[0x04] = B1B2 (AC00, AC01) // & 0xFFFF
-
-                    // 0x05: ChargingCurrent (0x15), mA
-                    // Local0[0x05] = B1B2 (CC00, CC01)
-
-                    // 0x06: ChargingVoltage (0x16), mV
-                    // Local0[0x06] = B1B2 (CV00, CV01)
-
-                    Release (^^BATM)
+                    Local0 = GBSS (Local0, 0x00)
 
                     If (BDBG == One)
                     {
@@ -1100,7 +1213,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Concatenate ("BATX:BSSTimeToEmpty: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x02))), Debug)
                         Concatenate ("BATX:BSSChargeLevel: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x03))), Debug)
                         Concatenate ("BATX:BSSAverageRate: BAT0 ", ToDecimalString(DerefOf(Index(Local0, 0x04))), Debug)
-                        Concatenate ("BATX:BSSAverageRate: BAT0 x ", DerefOf(Index(Local0, 0x04)), Debug)
                         // Concatenate ("BATX:BSSChargingCurrent: ", ToDecimalString(DerefOf(Index(Local0, 0x05))), Debug)
                         // Concatenate ("BATX:BSSChargingVoltage: ", ToDecimalString(DerefOf(Index(Local0, 0x06))), Debug)
                     }
@@ -1109,51 +1221,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // BAT1
                 Local1 = PBSS
 
-                If (HB0A)
+                If (HB1A)
                 {
-                    If (Acquire (^^BATM, 65535))
-                    {
-                        Return (PBSS)
-                    }
-
-                    //
-                    // Information Page 0 -
-                    //
-                    BPAG(0x10 | 0x00)
-
-                    // 0x01: TimeToFull (0x11), minutes (0xFF)
-                    Local6 = B1B2 (AF00, AF01)
-
-                    If (Local6 == 0xFFFF)
-                    {
-                        Local1[0x01] = 0
-                    }
-                    Else
-                    {
-                        Local1[0x01] = Local6
-                    }
-
-                    // 0x02: TimeToEmpty (0x12), minutes (0)
-                    Local6 = B1B2 (AE00, AE01)
-
-                    If (Local6 == 0xFFFF)
-                    {
-                        // Charging
-                        Local1[0x02] = 0
-                    }
-                    Else
-                    {
-                        // Discharging
-                        Local1[0x02] = Local6
-                    }
-
-                    // 0x03: BSSChargeLevel - ChargeLevel, percentage
-                    Local1[0x03] = B1B2 (RS00, RS01)
-                    
-                    // 0x04: AverageRate (0x14), mA (signed)
-                    Local1[0x04] = B1B2 (AC00, AC01) // & 0xFFFF
-
-                    Release (^^BATM)
+                    Local1 = GBSS (Local1, 0x10)
 
                     If (BDBG == One)
                     {
@@ -1161,19 +1231,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         Concatenate ("BATX:BSSTimeToEmpty: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x02))), Debug)
                         Concatenate ("BATX:BSSChargeLevel: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x03))), Debug)
                         Concatenate ("BATX:BSSAverageRate: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x04))), Debug)
-                        Concatenate ("BATX:BSSAverageRate: BAT1 x ", DerefOf(Index(Local1, 0x04)), Debug)
-                        // Concatenate ("BATX:BSSChargingCurrent: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x05))), Debug)
-                        // Concatenate ("BATX:BSSChargingVoltage: BAT1 ", ToDecimalString(DerefOf(Index(Local1, 0x06))), Debug)
+                        // Concatenate ("BATX:BSSChargingCurrent: ", ToDecimalString(DerefOf(Index(Local0, 0x05))), Debug)
+                        // Concatenate ("BATX:BSSChargingVoltage: ", ToDecimalString(DerefOf(Index(Local0, 0x06))), Debug)
                     }
                 }
 
                 // BATX
-
-                // combine batteries into Local2 result if possible
+                // combine batteries into PBSS result if possible
                 If (HB0A && HB1A)
                 {
                     PBSS = Local0
-                    
+
                     // 0x01: TimeToFull (0x11), minutes (0xFF)
                     // Valid integer in minutes when charging, otherwise 0xFF.
                     Local4 = DerefOf (Local0 [0x01])
@@ -1203,10 +1271,18 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Local4 = DerefOf (Local0 [0x04])
                     Local5 = DerefOf (Local1 [0x04])
 
-                    PBSS[0x04] = (Local4 + Local5)
-
-                    // Concatenate ("BATX:BSSChargingCurrent: BATX ", ToDecimalString(DerefOf(Index(Local2, 0x05))), Debug)
-                    // Concatenate ("BATX:BSSChargingVoltage: BATX ", ToDecimalString(DerefOf(Index(Local2, 0x06))), Debug)
+                    If (Local4 > 0 && Local5 > 0)
+                    {
+                        PBSS[0x04] = (Local4 + Local5)
+                    }
+                    ElseIf (Local5 > 0)
+                    {
+                        PBSS[0x04] = Local5
+                    }
+                    Else
+                    {
+                        PBSS[0x04] = Local4
+                    }
                 }
                 ElseIf (!HB0A && HB1A)
                 {
@@ -1219,16 +1295,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                 If (HB0S & 0x20 || HB1S & 0x20)
                 {
-                    // charging
+                    // 0x02: BSSTimeToEmpty - TimeToEmpty, minutes (0) while charging always 0
                     PBSS[0x02] = 0
                 }
                 Else
                 {
-                    // discharging
+                    // 0x01: TimeToFull (0x11), minutes (0xFF) while discharging
                     PBSS[0x01] = 0xFF
-
-                    // Negate present rate
-                    // PBSS[0x04] = 0x10000 - DerefOf(PBSS[0x04])
                 }
 
                 If (BDBG == One)
@@ -1237,7 +1310,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Concatenate ("BATX:BSSTimeToEmpty: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x02))), Debug)
                     Concatenate ("BATX:BSSChargeLevel: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x03))), Debug)
                     Concatenate ("BATX:BSSAverageRate: BATX ", ToDecimalString(DerefOf(Index(PBSS, 0x04))), Debug)
-                    Concatenate ("BATX:BSSAverageRate: BATX x ", DerefOf(Index(PBSS, 0x04)), Debug)
                 }
 
                 Return (PBSS)
