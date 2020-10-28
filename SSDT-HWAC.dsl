@@ -1,4 +1,12 @@
 /**
+ *
+ * SSDT-HWAC
+ * Version 1.0
+ *
+ * Copyleft (c) 2020 by bb. No rights reserved.
+ *
+ *
+ * Abstract:
  * On many modern hackintoshed thinkpads there are ofthen accesses to the 16-bit EC-field `HWAC`, which are mostly 
  * not handled by battery-patches (f.e. those currated by @daliansky). Those accesses are (mostly) located in the _OWAK() 
  * and/or _L17-ACPI-methods of the original DSDT.
@@ -16,7 +24,7 @@
  * 
  * It repleaces all reads to HWAC with a call to XWAC(), returning a newly stitched 16-bit-field out of the
  * two overlayed 8-bit-fields `WAC0` & `WAC1`.
- * 
+ *
  *
  * Background:
  * `Later releases of AppleACPIPlatform are unable to correctly access fields within the EC (embedded controller). 

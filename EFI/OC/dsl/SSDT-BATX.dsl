@@ -15,8 +15,8 @@
 // It is faster, more compatbile and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
 // for battery-handling and EC-access. It therefor doesn't need to patch the existing DSDT-accesses to various 16-bit EC-fields.
 //
-// It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and 3 helper methods 
-// to access those memory-fields. These methods are not included as they are used in multiple places (f.e. by YogaSMC) but can be found in SSDT-EC.dsl.
+// It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and
+// nothing else. Just drop the SSDT in and be done.
 //
 // It replaces any batterie-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
 //
