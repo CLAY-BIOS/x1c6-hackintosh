@@ -11,7 +11,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
     External (_SB_.PCI0.XHC.RHUB._PS0, MethodObj)
     External (_SB_.PCI0.XHC.RHUB._PS2, MethodObj)
     External (_SB_.PCI0.XHC.RHUB._PS3, MethodObj)
-    External (_SB_.PCI0.XHC.XFLT, IntObj)
+    External (_SB_.PCI0.XHC.XFLT, FieldUnitObj)
     External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2, DeviceObj)
     External (_SB_.PCI0.RP09.UPSB.DSB2.XHC2.MODU, MethodObj)    // 0 Arguments
 
@@ -59,7 +59,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                 Return (Zero)
             }
-
 
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
@@ -951,15 +950,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6 ", "_XHC1", 0x00001000)
 
                 Return (One)
             }
-
-            Name (SSP, Package (0x01)
-            {
-                "XHC2"
-            })
-            Name (SS, Package (0x01)
-            {
-                "XHC2"
-            })
         }
     }
 }
