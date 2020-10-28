@@ -62,17 +62,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
     
     Scope (\_SB.PCI0.LPCB.EC)
     {
-        // /*
-        //  * Read status from two EC fields
-        //  * Comment in if you dont have the method externally defined
-        //  */
-        // Method (B1B2, 2, NotSerialized)
-        // {
-        //     Local0 = (Arg1 << 0x08)
-        //     Local0 |= Arg0
-        //     Return (Local0)
-        // }
-
         //
         // EC region overlay.
         //
@@ -86,7 +75,11 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
         // Method used for replacing reads to HWAC in _L17() & OWAK().
         Method(XWAC, 0, NotSerialized)
         {
-            Return (B1B2(WAC0, WAC1))
+            Local0 = (WAC1 << 0x08)
+            Local0 |= WAC0
+
+            Return (Local0)
         }
     }
 }
+// EOF
