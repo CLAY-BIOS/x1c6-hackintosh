@@ -438,7 +438,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 " ",         // 0x12: BIXBatteryType - Battery Type - String
                 " ",         // 0x13: BIXOEMInformation - OEM Information - String
                 0x00000000   // 0x14: ??? - Battery Swapping Capability, 0x00000000 = non-swappable - Integer (DWORD)
-                             //       added in Revision 1: Zero means Non-swappable, One ? Cold-swappable, 0x10 ? Hot-swappable
+                             //       added in Revision 1: Zero means Non-swappable, One - Cold-swappable, 0x10 - Hot-swappable
             })
 
             Method (GBIX, 2, Serialized)
@@ -734,17 +734,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                         PBIX[0x08] = Local5
                     }
 
-                    // _BIX 10 Model Number - concatenate BAT0 and BAT1 values
-                    PBIX[0x10] = Concatenate (Concatenate (DerefOf (Local0[0x10]), " / "), DerefOf (Local1[0x10]))
+                    // // _BIX 10 Model Number - concatenate BAT0 and BAT1 values
+                    // PBIX[0x10] = Concatenate (Concatenate (DerefOf (Local0[0x10]), " / "), DerefOf (Local1[0x10]))
 
-                    // _BIX 11 Serial Number - concatenate BAT0 and BAT1 values
-                    PBIX[0x11] = Concatenate (Concatenate (DerefOf (Local0[0x11]), " / "), DerefOf (Local1[0x11]))
+                    // // _BIX 11 Serial Number - concatenate BAT0 and BAT1 values
+                    // PBIX[0x11] = Concatenate (Concatenate (DerefOf (Local0[0x11]), " / "), DerefOf (Local1[0x11]))
 
-                    // _BIX 12 Battery Type - concatenate BAT0 and BAT1 values
-                    PBIX[0x12] = Concatenate (Concatenate (DerefOf (Local0[0x12]), " / "), DerefOf (Local1[0x12]))
+                    // // _BIX 12 Battery Type - concatenate BAT0 and BAT1 values
+                    // PBIX[0x12] = Concatenate (Concatenate (DerefOf (Local0[0x12]), " / "), DerefOf (Local1[0x12]))
 
-                    // _BIX 13 OEM Information - concatenate BAT0 and BAT1 values
-                    PBIX[0x13] = Concatenate (Concatenate (DerefOf (Local0[0x13]), " / "), DerefOf (Local1[0x13]))
+                    // // _BIX 13 OEM Information - concatenate BAT0 and BAT1 values
+                    // PBIX[0x13] = Concatenate (Concatenate (DerefOf (Local0[0x13]), " / "), DerefOf (Local1[0x13]))
 
                     // _BIX 14 Battery Swapping Capability - leave BAT0 value for now
                 }
@@ -1268,20 +1268,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
                     // 0x04: BSSAverageRate - AverageRate, mA (signed)
                     // Valid signed integer in mA. Double check if you have valid value since this bit will disable quickPoll.
-                    Local4 = DerefOf (Local0 [0x04])
-                    Local5 = DerefOf (Local1 [0x04])
-
-                    If (Local4 > 0 && Local5 > 0)
+                    If (HB0S & 0x20 || HB0S & 0x40)
                     {
-                        PBSS[0x04] = (Local4 + Local5)
-                    }
-                    ElseIf (Local5 > 0)
-                    {
-                        PBSS[0x04] = Local5
+                        PBSS[0x04] = DerefOf (Local0 [0x04])
                     }
                     Else
                     {
-                        PBSS[0x04] = Local4
+                        PBSS[0x04] = DerefOf (Local1 [0x04])
                     }
                 }
                 ElseIf (!HB0A && HB1A)
