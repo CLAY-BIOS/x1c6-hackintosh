@@ -42,7 +42,6 @@
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
-    External (_SB.PCI0.LPCB.EC.BATM, MutexObj)
     
     External (_SB.PCI0.LPCB.EC.BAT0, DeviceObj)
     External (_SB.PCI0.LPCB.EC.BAT0._STA, MethodObj)
@@ -255,6 +254,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 DN0F,   8,
             }
 
+
+            Mutex (BAXM, 0x00)
+
             /**
              * Method to read 128byte-field SBMN 
              */
@@ -443,7 +445,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
 
             Method (GBIX, 2, Serialized)
             {
-                If (Acquire (^^BATM, 65535))
+                If (Acquire (BAXM, 65535))
                 {
                     Debug = "BATX:AcquireLock failed in GBIX"
 
@@ -525,7 +527,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // Model Number - Device Name
                 Arg0[0x10] = SBDN (0x00)
 
-                Release (^^BATM)
+                Release (BAXM)
 
                 Return (Arg0)
             }
@@ -805,7 +807,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     Return (PBIS)
                 }
 
-                If (Acquire (^^BATM, 65535))
+                If (Acquire (BAXM, 65535))
                 {
                     Debug = "BATX:AcquireLock failed in CBIS"
 
@@ -821,7 +823,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                 PBIS[0x01] = B1B2 (DT00, DT01)
 
-                Release (^^BATM)
+                Release (BAXM)
 
                 Return (PBIS)
             }
@@ -849,7 +851,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              */
             Method (GBST, 3, Serialized)
             {
-                If (Acquire (^^BATM, 65535))
+                If (Acquire (BAXM, 65535))
                 {
                     Debug = "BATX:AcquireLock failed in GBST"
 
@@ -958,7 +960,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 Arg0[0x03] = Local6
 
 
-                Release (^^BATM)
+                Release (BAXM)
 
                 Return (Arg0)
             }
@@ -1132,7 +1134,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              */
             Method (GBSS, 2, Serialized)
             {
-                If (Acquire (^^BATM, 65535))
+                If (Acquire (BAXM, 65535))
                 {
                     Debug = "BATX:AcquireLock failed in GBSS"
 
@@ -1182,7 +1184,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                 // 0x06: ChargingVoltage (0x16), mV
                 // Arg0[0x06] = B1B2 (CV00, CV01)
 
-                Release (^^BATM)
+                Release (BAXM)
 
                 Return (Arg0)
             }
