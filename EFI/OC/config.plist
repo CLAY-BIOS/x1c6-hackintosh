@@ -46,14 +46,14 @@
 				<key>Path</key>
 				<string>SSDT-PM.aml</string>
 			</dict>
-                        <dict>
-                                <key>Comment</key>
-                                <string>Comprehensive sleep-patch</string>
-                                <key>Enabled</key>
-                                <true/>
-                                <key>Path</key>
-                                <string>SSDT-SLEEP.aml</string>
-                        </dict>
+			<dict>
+				<key>Comment</key>
+				<string>Comprehensive sleep-patch</string>
+				<key>Enabled</key>
+				<true/>
+				<key>Path</key>
+				<string>SSDT-SLEEP.aml</string>
+			</dict>
 			<dict>
 				<key>Comment</key>
 				<string>LPCB/Memory Controller</string>
@@ -422,58 +422,6 @@
 				<integer>0</integer>
 				<key>TableSignature</key>
 				<data></data>
-			</dict>
-			<dict>
-				<key>Comment</key>
-				<string>IRQFIX: RTC IRQ 8 Patch</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<false/>
-				<key>Find</key>
-				<data>IgABeQA=</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>IgAAeQA=</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
-			</dict>
-			<dict>
-				<key>Comment</key>
-				<string>IRQFIX: TIMR IRQ 0 Patch</string>
-				<key>Count</key>
-				<integer>0</integer>
-				<key>Enabled</key>
-				<false/>
-				<key>Find</key>
-				<data>IgEAeQA=</data>
-				<key>Limit</key>
-				<integer>0</integer>
-				<key>Mask</key>
-				<data></data>
-				<key>OemTableId</key>
-				<data></data>
-				<key>Replace</key>
-				<data>IgAAeQA=</data>
-				<key>ReplaceMask</key>
-				<data></data>
-				<key>Skip</key>
-				<integer>0</integer>
-				<key>TableLength</key>
-				<integer>0</integer>
-				<key>TableSignature</key>
-				<data>RFNEVA==</data>
 			</dict>
 			<dict>
 				<key>Comment</key>
