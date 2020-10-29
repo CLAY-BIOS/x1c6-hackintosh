@@ -66,7 +66,6 @@
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
-    External (B1B2, MethodObj) // 2 Arguments
     
     Scope (\_SB.PCI0.LPCB.EC)
     {
