@@ -15,7 +15,7 @@
 // It is faster, more compatbile and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
 // for battery-handling and EC-access. It therefor doesn't need to patch the existing DSDT-accesses to various 16-bit EC-fields.
 //
-// It's only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and
+// Its only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and
 // nothing else. Just drop the SSDT in and be done.
 //
 // It replaces any batterie-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
@@ -784,8 +784,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              */
             Name (PBIS, Package (0x08)
             {
-                0x007F007F,  // 0x00: BISConfig - config, double check if you have valid AverageRate before
+                // 0x006F007F,  // 0x00: BISConfig - config, double check if you have valid AverageRate before
                              //       fliping that bit to 0x007F007F since it will disable quickPoll
+                0x007F007F // disable quickpoll
                 0xFFFFFFFF,  // 0x01: BISManufactureDate - ManufactureDate (0x1), AppleSmartBattery format
                 0x00002342,  // 0x02: BISPackLotCode - PackLotCode 
                 0x00002342,  // 0x03: BISPCBLotCode - PCBLotCode
@@ -1116,10 +1117,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
              */
             Name (PBSS, Package ()
             {
-                0x28,        // 0x00: BSSTemperature - Temperature, AppleSmartBattery format
-                0xFF,        // 0x01: BSSTimeToFull - TimeToFull [minutes] (0xFF)
-                0x0,         // 0x02: BSSTimeToEmpty - TimeToEmpty [minutes] (0)
-                100,         // 0x03: BSSChargeLevel - ChargeLevel [percent]
+                0xFFFFFFFF,  // 0x00: BSSTemperature - Temperature, AppleSmartBattery format
+                0xFFFFFFFF,  // 0x01: BSSTimeToFull - TimeToFull [minutes] (0xFF)
+                0xFFFFFFFF,  // 0x02: BSSTimeToEmpty - TimeToEmpty [minutes] (0)
+                0xFFFFFFFF,  // 0x03: BSSChargeLevel - ChargeLevel [percent]
                 0xFFFFFFFF,  // 0x04: BSSAverageRate - AverageRate [mA] (signed)
                 0xFFFFFFFF,  // 0x05: BSSChargingCurrent - ChargingCurrent [mA]
                 0xFFFFFFFF,  // 0x06: BSSChargingVoltage - ChargingVoltage [mV]
@@ -1298,6 +1299,9 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00001000)
                     // 0x01: TimeToFull (0x11), minutes (0xFF) while discharging
                     PBSS[0x01] = 0xFF
                 }
+
+                // Fake Temperature (0x10), AppleSmartBattery format for now
+                PBSS[0x00] = 0xBD7
 
                 If (BDBG == One)
                 {
