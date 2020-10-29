@@ -15,7 +15,7 @@
 // It is faster, more compatible and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
 // for battery-handling and EC-access. It eliminates the need to patch mutexes, notifies or EC-fields completely.
 //
-// It replaces any batterie-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
+// It replaces any battery-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
 //
 // Its only dependency is the memory-layout of the Embedded Controller (EC), which is mostly the same for all decent modern thinkpads 
 // (at least T440/X440 upwards) and nothing else. Just drop the SSDT in and be done.
