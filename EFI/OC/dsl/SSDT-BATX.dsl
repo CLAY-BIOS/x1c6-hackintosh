@@ -6,21 +6,20 @@
 //
 //
 // Abstract:
-// This SSDT is a complete, (mostly) self-contained replacement for all(?) battery-patches on Thinkpads which share
-// the same EC-layout. It should be compatible with all(?) T- and X-series Thinkpads and maybe more.
+// This SSDT is a complete, completely self-contained replacement for all battery-patches on Thinkpads which share
+// a common EC-layout for battery-handling. It should be compatible with all(?) T- and X-series Thinkpads and maybe even more.
 //
 // It doesn't need any patches to the original DSDT, handles single- and dual-battery-systems gracefully and adds
-// support for `Battery Information Supplement` (see: https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md)
+// support for `Battery Information Supplement` (see: https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md).
 //
-// It is faster, more compatbile and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
-// for battery-handling and EC-access. It therefor doesn't need to patch the existing DSDT-accesses to various 16-bit EC-fields.
-//
-// Its only dependencies are the memory-layout of the Embedded Controller (EC), which is mostly the same for all modern thinkpads and
-// nothing else. Just drop the SSDT in and be done.
+// It is faster, more compatible and much more robust than existing patches as it doesn't relie on the original DSDT-implementation 
+// for battery-handling and EC-access. It eliminates the need to patch mutexes, notifies or EC-fields completely.
 //
 // It replaces any batterie-related DSDT-patches and any SSDT like SSDT-BAT0, SSDT-BATT, SSDT-BATC, SSDT-BATN and similar.
 //
-// For most thinkpads, this should be the only thing you need to handle your batteries. Nothing more, nothing less.
+// Its only dependency is the memory-layout of the Embedded Controller (EC), which is mostly the same for all decent modern thinkpads 
+// (at least T440/X440 upwards) and nothing else. Just drop the SSDT in and be done.
+// For most Thinkpads, this should be the only thing you need to handle your batteries. Nothing more, nothing less.
 //
 // But be aware: this is newly created stuff, not much tested or battle proven yet. May contain bugs and edgecases. 
 // If so, please open a bug @ https://github.com/benbender/x1c6-hackintosh/issues
