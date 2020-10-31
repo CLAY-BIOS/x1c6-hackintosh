@@ -6,7 +6,7 @@
 //
 //
 // Abstract:
-// This SSDT is a complete, completely self-contained replacement for all battery-patches on Thinkpads which share
+// This SSDT is a complete, self-contained replacement for all battery-patches on Thinkpads which share
 // a common EC-layout for battery-handling. It should be compatible with all(?) T- and X-series Thinkpads and maybe even more.
 //
 // It doesn't need any patches to the original DSDT, handles single- and dual-battery-systems gracefully and adds
