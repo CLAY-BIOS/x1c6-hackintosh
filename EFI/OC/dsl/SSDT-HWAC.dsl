@@ -55,9 +55,10 @@
 // 	<data>RFNEVA==</data>
 // </dict>
 
-DefinitionBlock ("", "SSDT", 2, "T480", "_HWAC", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_HWAC", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
+    External (_SB.PCI0.LPCB.EC.HWAC, FieldUnitObj)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
@@ -74,12 +75,18 @@ DefinitionBlock ("", "SSDT", 2, "T480", "_HWAC", 0x00001000)
         // Method used for replacing reads to HWAC in _L17() & OWAK().
         Method (XWAC, 0, NotSerialized)
         {
-            Local0 = (WAC1 << 0x08)
-            Local0 |= WAC0
+            If (_OSI ("Darwin"))
+            {
+                Local0 = (WAC1 << 0x08)
+                Local0 |= WAC0
 
-            Return (Local0)
+                Return (Local0)
+            }
+            Else
+            {
+                Return (HWAC)
+            }
         }
     }
 }
 // EOF
-
