@@ -1,6 +1,6 @@
 //
-// SSDT-BATX
-// Revision 5
+// SSDT-SSD0
+// Revision 1
 //
 // Copyleft (c) 2020 by bb. No rights reserved.
 //
@@ -9,6 +9,9 @@
 // Experimental port of the sleep-handling for the PCIe-port of the NVME
 //
 // Real-life-benefit yet to be proven.
+//
+// Changelog:
+// Revision 1 - Initial implementation
 //
 DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
 {
