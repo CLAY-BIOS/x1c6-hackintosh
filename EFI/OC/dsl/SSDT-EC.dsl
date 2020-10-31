@@ -245,11 +245,14 @@ Memory layout of X1C6-embedded controller as far as known:
     }
 */
 
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "T480", "_EC", 0x00001000)
 {
+    // EC path
+    External (_SB.PCI0.LPCB.EC, DeviceObj)
+
     Scope (\)
     {
-        /*
+        /**
          * Status from two EC fields
          * 
          * e.g. B1B2 (0x3A, 0x03) -> 0x033A
@@ -259,7 +262,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
             Return ((Arg0 | (Arg1 << 0x08)))
         }
 
-        /*
+        /**
          * Status from four EC fields
          */
         Method (B1B4, 4, NotSerialized)
@@ -283,18 +286,16 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
     }
 
     /*
-     * Methods to EC read / write access in case you don't have battery patch
-     * Taken from Rehabmman's guide: https://www.tonymacx86.com/threads/guide-how-to-patch-dsdt-for-working-battery-status.116102/
-     * https://xstar-dev.github.io/hackintosh_advanced/Guide_For_Battery_Hotpatch.html#%E6%8B%86%E5%88%86%E5%87%BD%E6%95%B0%E5%8E%9F%E7%90%86
-     */
-    External (_SB_.PCI0.LPCB.EC, DeviceObj)    // EC path
-
+    * Methods to EC read / write access in case you don't have battery patch
+    * Taken from Rehabmman's guide: https://www.tonymacx86.com/threads/guide-how-to-patch-dsdt-for-working-battery-status.116102/
+    * https://xstar-dev.github.io/hackintosh_advanced/Guide_For_Battery_Hotpatch.html#%E6%8B%86%E5%88%86%E5%87%BD%E6%95%B0%E5%8E%9F%E7%90%86
+    */
     Scope (_SB.PCI0.LPCB.EC)
     {   
         /* 
-         * Called from RECB, grabs a single byte from EC
-         * Arg0 - offset in bytes from zero-based EC
-         */
+        * Called from RECB, grabs a single byte from EC
+        * Arg0 - offset in bytes from zero-based EC
+        */
         Method (RE1B, 1, Serialized)
         {
             OperationRegion (ERAM, EmbeddedControl, Arg0, One)
@@ -307,32 +308,35 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
         }
 
         /** 
-         * Read specified number of bytes from EC
-         *
-         * Arg0 - offset in bytes from zero-based EC
-         * Arg1 - size of buffer in bits
-         */
+        * Read specified number of bytes from EC
+        *
+        * Arg0 - offset in bytes from zero-based EC
+        * Arg1 - size of buffer in bits
+        */
         Method (RECB, 2, Serialized)
         {
             Arg1 = ((Arg1 + 0x07) >> 0x03)
-            Name (TEMP, Buffer (Arg1) {})
+
+            Local7 = Buffer (Arg1) {}
+
             Arg1 += Arg0
             Local0 = Zero
+
             While ((Arg0 < Arg1))
             {
-                TEMP [Local0] = RE1B (Arg0)
+                Local7 [Local0] = RE1B (Arg0)
                 Arg0++
                 Local0++
             }
 
-            Return (TEMP) /* \RECB.TEMP */
+            Return (Local7) /* \RECB.TEMP */
         }
 
         /**
-         * Write 1 byte to EC
-         *
-         * Arg0: Offset, Arg1: Byte to be written
-         */
+        * Write 1 byte to EC
+        *
+        * Arg0: Offset, Arg1: Byte to be written
+        */
         Method (WE1B, 2, Serialized)
         {
             OperationRegion (ERAM, EmbeddedControl, Arg0, One)
@@ -345,27 +349,29 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_EC", 0x00001000)
         }
 
         /**
-         * Write to EC field
-         *
-         * Arg0: Offset
-         * Arg1: Length, Arg2: Data to be written
-         */
+        * Write to EC field
+        *
+        * Arg0: Offset
+        * Arg1: Length, Arg2: Data to be written
+        */
         Method (WECB, 3, Serialized)
         {
             Arg1 = ((Arg1 + 0x07) >> 0x03)  // Arg1 = ceil(Arg1 / 8), this is loop counter
 
-            Name (TEMP, Buffer (Arg1) {})   // Initial buffer to be written
-            TEMP = Arg2
+            Local7 = Buffer (Arg1) {}   // Initial buffer to be written
+            Local7 = Arg2
 
             Arg1 += Arg0                    // Shift write window to target area
             Local0 = Zero                   // Buffer index
 
             While ((Arg0 < Arg1))
             {
-                WE1B (Arg0, DerefOf (TEMP [Local0]))
+                WE1B (Arg0, DerefOf (Local7 [Local0]))
                 Arg0++                      // Offset++
                 Local0++                    // Index++
             }
         }
     }
 }
+// EOF
+

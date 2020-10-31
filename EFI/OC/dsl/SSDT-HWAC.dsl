@@ -55,51 +55,31 @@
 // 	<data>RFNEVA==</data>
 // </dict>
 
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_HWAC", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "T480", "_HWAC", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
-    External (_SB.PCI0.LPCB.EC.HWAC, FieldUnitObj)
 
-    // External method from SSDT-UTILS
-    External (OSDW, MethodObj) // 0 Arguments
-
-    // External method from SSDT-EC
-    External (B1B2, MethodObj) // 2 Arguments
-
-    
     Scope (\_SB.PCI0.LPCB.EC)
     {
-        // /*
-        //  * Read status from two EC fields
-        //  * Comment in if you dont have the method externally defined
-        //  */
-        // Method (B1B2, 2, NotSerialized)
-        // {
-        //     Local0 = (Arg1 << 0x08)
-        //     Local0 |= Arg0
-        //     Return (Local0)
-        // }
-
         //
         // EC region overlay.
         //
         OperationRegion (ERAM, EmbeddedControl, 0x00, 0x0100)
         Field (ERAM, ByteAcc, NoLock, Preserve)
         {
-            Offset(0x36),
+            Offset (0x36),
             WAC0, 8, WAC1, 8,
         }
 
         // Method used for replacing reads to HWAC in _L17() & OWAK().
         Method (XWAC, 0, NotSerialized)
         {
-            If (OSDW ())
-            {
-                Return (B1B2 (WAC0, WAC1))
-            }
+            Local0 = (WAC1 << 0x08)
+            Local0 |= WAC0
 
-            Return (HWAC)
+            Return (Local0)
         }
     }
 }
 // EOF
+
