@@ -26,7 +26,7 @@
 //
 // But be aware: this is newly created stuff, not much tested or battle proven yet. May contain bugs and edgecases. 
 // If so, please open a bug @ https://github.com/benbender/x1c6-hackintosh/issues.
-// Additionally, as this implementation is more straight-forward and according to specss, it may reveal bugs and glitches
+// Additionally, as this implementation is more straight-forward and according to specs, it may reveal bugs and glitches
 // in other parts of the system.
 //
 //
@@ -54,14 +54,22 @@
 //
 // As the ACPI-battery-interface is a proven standard and commonly implemented, this approach should, theoretically, 
 // work out of the box on most laptop-systems.
-
-// In practice the AppleACPIPlatform.kext doesn't implement access to EC-fields larger than 8-bits and 
-// will crash on reading them. This driver-limitation in OSX is the reason while all those battery-patching 
-// is neccessary in the first place. We need to ensure that every EC-field, accessed from OSX, is 8-bit at most.
+//
+// In practice the AppleACPIPlatform.kext doesn't implement access to EC-fields larger than 8 bits and 
+// will crash on reading them. This limitation of the driver in OSX is the reason why all those battery-patching 
+// is neccessary in the first place. We need to ensure that every EC-field, accessed from OSX, is 8 bit at most.
 //
 // Additionally no such thing as dual-battery-systems exist in mac-world. OSX is able to recognize 
 // multiple batteries, but will only handle display of the data for the first battery. Therefor we need
 // to combine multiple batteries transperantly into one and hide additional batteries to the OS.
+//
+// Implementation-wise, the apple-approach is able to provide some more data to the OS in comparison to ACPI.
+// That might be the reason why apple opted for their implementation in the first place. To circumvent those 
+// limitations of the ACPI specification, VirtualSMC adds `Battery Information Supplement` (BIS).
+//
+// BIS tries to add the missing information normally provided on genuine MacBooks. Therefor it enables 
+// much more OSX-native handling of batteries but also may reveal glitches and bugs between implementations 
+// of OSX/ACPI/EC. Therefor its configureable in this SSDT.
 //
 // 
 // Known Issues:
@@ -135,7 +143,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
             Name (BDBG, Zero) // possible values: One / Zero
 
             //
-            // Enable Battery Information Supplement
+            // Enable Battery Information Supplement (BIS)
+            //
+            // BIS tries to add the missing information normally provided on genuine MacBooks
+            // but not available in the ACPI-specification. It enables much more OSX-native handling
+            // of batteries but also may reveal glitches and bugs between implementation of OSX/ACPI/EC.
+            //
+            // Therefor its configureable here.
             //
             // See https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md
             //
@@ -158,7 +172,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
 
             /************************* EC overlay *****************************/
 
-            Field(BRAM, ByteAcc, NoLock, Preserve)
+            Field (BRAM, ByteAcc, NoLock, Preserve)
             {
                 Offset (0x38),
                             // HB0S: [Battery 0 status (read only)]
@@ -1294,6 +1308,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
             }
 
 
+            // Provide the API for `Battery Information Supplement` if enabled in configuration above
             If (BBIS)
             {
                 /**
