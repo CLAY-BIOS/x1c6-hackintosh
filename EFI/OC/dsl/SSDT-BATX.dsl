@@ -99,9 +99,11 @@
 // Revision 1 - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
 // 
 //
-// Add the following methods if didn't have them defined anyways:
 DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
 {
+    // Please ensure that your LPC bus-device is available at \_SB.PCI0.LPCB (check your DSDT). 
+    // Some older Thinkpads provide the LPC on \_SB.PCI0.LPC and if thats the case for you,
+    // you need to adjust the paths in the following line until the first "Scope ()".
     External (_SB.PCI0.LPCB.EC, DeviceObj)
 
     // @see https://en.wikipedia.org/wiki/Bank_switching
