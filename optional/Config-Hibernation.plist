@@ -59,7 +59,7 @@
 		<key>Boot</key>
 		<dict>
 			<key>HibernateMode</key>
-			<string>Auto</string>
+			<string>NVRAM</string>
 		</dict>
 	</dict>
 	<key>NVRAM</key>
