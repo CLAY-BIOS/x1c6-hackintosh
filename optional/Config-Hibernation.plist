@@ -66,10 +66,11 @@
 	<dict>
 		<key>Add</key>
 		<dict>
-			<key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key>
-			<dict>
-				<string>rtcfx_exclude=80-AB</string>
-			</dict>
+                        <key>4D1FDA02-38C7-4A6A-9CC6-4BCCA8B30102</key>
+                        <dict>
+                                <key>rtc-blacklist</key>
+                                <data>gIGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqs=</data>
+                        </dict>
 		</dict>
 	</dict>
 	<key>UEFI</key>
