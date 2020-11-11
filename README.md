@@ -17,6 +17,8 @@ I am not responsible for any damages you may cause.
 
 > ## Differencies to the original repo
 
+<img align="right" src="https://i.imgur.com/eQN9MWO.png" alt="Thunderbolt native" width="300">
+
 * **Native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl). Disables the ICM and loads native OSX drivers without patched TB-FW. Enables PM for TB. Broken hotplug for USB 3.1 Gen2 for now.**
 * Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
 * Complete, Battery reimplementation without ACPI-patching or any dependencies besides the one SSDT. Integrates [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md), supports multi-battery-setups and should be compatible with almost all x-/t-series Thinkpads. See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
