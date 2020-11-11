@@ -1531,7 +1531,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00007000)
                 */
                 Method (CBIS, 0, NotSerialized)
                 {
-                    If (BDQP == Zero)
+                    If (BDQP == One)
                     {
                         PBIS[0x00] = 0x006F007F
                     }
