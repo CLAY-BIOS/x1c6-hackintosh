@@ -62,9 +62,9 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_HWAC", 0x00001000)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
-        //
-        // EC region overlay.
-        //
+        /**
+         * EC region overlay.
+         */
         OperationRegion (ERAM, EmbeddedControl, 0x00, 0x0100)
         Field (ERAM, ByteAcc, NoLock, Preserve)
         {
@@ -72,7 +72,9 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_HWAC", 0x00001000)
             WAC0, 8, WAC1, 8,
         }
 
-        // Method used for replacing reads to HWAC in _L17() & OWAK().
+        /**
+         * Method used for replacing reads to HWAC in _L17() & OWAK().
+         */
         Method (XWAC, 0, NotSerialized)
         {
             If (_OSI ("Darwin"))

@@ -3,9 +3,10 @@
  *
  * Needed to load com.apple.driver.AppleSMBusController
  */
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_SBUS", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_SBUS", 0x00001000)
 {
-    External(OSDW, MethodObj) // 0 Arguments
+    // External method from SSDT-UTILS.dsl
+    External (OSDW, MethodObj) // 0 Arguments
 
     External (_SB_.PCI0, DeviceObj)
 
@@ -73,3 +74,4 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_SBUS", 0x00001000)
         }
     }
 }
+//EOF

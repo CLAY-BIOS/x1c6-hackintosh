@@ -1,7 +1,7 @@
-/**
- * 
- */
-DefinitionBlock ("", "SSDT", 0, "X1C6", "_DBG", 0x00001000)
+//
+// Debug-helper to redirect ACPI's native ADGB()-helper to syslog
+//
+DefinitionBlock ("", "SSDT", 0, "THKP", "_DBG", 0x00001000)
 {
     //
     // Many OEM ACPI implementations have a ADBG method which is used for debug
@@ -20,24 +20,5 @@ DefinitionBlock ("", "SSDT", 0, "X1C6", "_DBG", 0x00001000)
     {
         Debug = Arg0
     }
-
-    // to see debug messages        
-    Method (DBG1, 1, NotSerialized)
-    {
-        Debug = Arg0
-    }
-
-    Method (DBG2, 2, NotSerialized)
-    {
-        Debug = Arg0
-        Debug = Arg1
-    }
-
-    Method (DBG3, 3, NotSerialized)
-    {
-        Debug = Arg0
-        Debug = Arg1
-        Debug = Arg2
-    }
-
 }
+// EOF

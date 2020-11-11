@@ -1,6 +1,6 @@
 //
 // SSDT-SSD0
-// Revision 1
+// Revision 2
 //
 // Copyleft (c) 2020 by bb. No rights reserved.
 //
@@ -11,55 +11,23 @@
 // Real-life-benefit yet to be proven.
 //
 // Changelog:
+// Revision 2 - Initial implementation
 // Revision 1 - Initial implementation
 //
-DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00002000)
 {
-    External (_SB.PCI0.RP05, DeviceObj)
-    External (_SB.PCI0.RP05.PXSX, DeviceObj)
-    External (_SB.PCI0.RP05.PXSX._DSM, MethodObj)
-    External (_SB.PCI0.RP05.LDIS, FieldUnitObj)
-    External (_SB.PCI0.RP05.LEDM, FieldUnitObj)
-    External (_SB.PCI0.RP05.L23E, FieldUnitObj)
-    External (_SB.PCI0.RP05.L23R, FieldUnitObj)
-    External (_SB.PCI0.RP05.D3HT, FieldUnitObj)
-
     // External method from SSDT-UTILS.dsl
     External (OSDW, MethodObj) // 0 Arguments
     External (DTGP, MethodObj) // 5 Arguments
 
+    External (_SB.PCI0.RP05, DeviceObj)
+    External (_SB.PCI0.RP05.PXSX, DeviceObj)
+    External (_SB.PCI0.RP05.PXSX._DSM, MethodObj)
 
-    Scope (_SB.PCI0.RP05.PXSX)
-    {
-        Method (_STA, 0, NotSerialized)  // _STA: Status
-        {
-            Debug = "_SB.PCI0.RP05.PXSX:_STA"
-
-            If (OSDW ())
-            {
-                Return (Zero) // hidden
-            }
-
-            Return (0x0F)
-        }
-    }
 
     // SSD
     Scope (_SB.PCI0.RP05)
     {
-        OperationRegion (A1E0, PCI_Config, Zero, 0x40)
-        Field (A1E0, ByteAcc, NoLock, Preserve)
-        {
-            Offset (0x04), 
-            BMIE,   3, 
-            Offset (0x19), 
-            SECB,   8, 
-            SBBN,   8, 
-            Offset (0x1E), 
-                ,   13, 
-            MABT,   1
-        }
-
         OperationRegion (A1E1, PCI_Config, Zero, 0x0380)
         Field (A1E1, ByteAcc, NoLock, Preserve)
         {
@@ -69,7 +37,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
             Offset (0x50), 
             ASPM,   2, 
                 ,   2, 
-            // LDIS,   1, 
+            LDIX,   1, 
             LRTN,   1, 
             Offset (0x52), 
             LSPD,   4, 
@@ -84,25 +52,29 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
                 ,   10, 
             LTRE,   1, 
             Offset (0xA4), 
-            // PSTA,   2, -> D3HT
+            PSTX,   2,
             Offset (0xE2), 
                 ,   2, 
-            // L23E,   1, 
-            // L23D,   1, -> L23R
+            L23X,   1, 
+            L23D,   1,
             Offset (0x324), 
                 ,   3, 
-            // LEDM,   1
+            LEDX,   1
         }
 
         Method (_PS3, 0, Serialized)  // _PS3: Power State 3
         {
             If (OSDW ())
             {
-                Debug = "_SB.PCI0.SSD0._PS3"
-                L23E = One
+                Debug = "SSD0._PS3"
+
+                L23X = One
+
                 Sleep (One)
+
                 Local0 = Zero
-                While (L23E)
+
+                While (L23X)
                 {
                     If (Local0 > 0x04)
                     {
@@ -113,10 +85,11 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
                     Local0++
                 }
 
-                LEDM = One
-                D3HT = 0x03
+                LEDX = One
+                PSTX = 0x03
+
                 Local0 = Zero
-                While (D3HT != 0x03)
+                While (PSTX != 0x03)
                 {
                     If (Local0 > 0x1388)
                     {
@@ -133,105 +106,108 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
                 // Sleep (0x1E)
                 // SGOV (0x02040016, Zero)
                 // SGDO (0x02040016)
-                Sleep (One)
+                // Sleep (One)
             }
         }
 
         Method (_PS0, 0, Serialized)  // _PS0: Power State 0
         {
-            Debug = "SSD0:_SB.PCI0.SSD0._PS0"
-            // SGDI (0x02040016)
-            // Sleep (One)
-            // SGDI (0x02070001)
-            // Sleep (0x1E)
-
-            D3HT = Zero
-
-            Local0 = Zero
-
-            While (D3HT != Zero)
+            If (OSDW ())
             {
-                If (Local0 > 0x1388)
+
+                Debug = "SSD0:_PS0"
+                // SGDI (0x02040016)
+                // Sleep (One)
+                // SGDI (0x02070001)
+                // Sleep (0x1E)
+
+                PSTX = Zero
+
+                Local0 = Zero
+
+                While (PSTX != Zero)
                 {
-                    Break
+                    If (Local0 > 0x1388)
+                    {
+                        Break
+                    }
+
+                    Sleep (One)
+                    Local0++
                 }
+
+                L23D = One
 
                 Sleep (One)
-                Local0++
-            }
+                Local0 = Zero
 
-            L23R = One
-
-            Sleep (One)
-            Local0 = Zero
-
-            While (Local0 <= 0x04)
-            {
-                Local2 = L23R /* \_SB_.PCI0.RP05.L23R */
-
-                Debug = Concatenate( "SSD0:L23R = ", Local2)
-
-                If (Local2 == Zero)
+                While (Local0 <= 0x04)
                 {
-                    Break
+                    Local2 = L23D /* \_SB_.PCI0.RP05.L23D */
+
+                    Debug = Concatenate( "SSD0:_PS0 - L23D: ", Local2)
+
+                    If (Local2 == Zero)
+                    {
+                        Break
+                    }
+
+                    Sleep (One)
+                    Local0++
                 }
 
-                Sleep (One)
-                Local0++
-            }
+                LEDX = Zero
 
-            LEDM = Zero
+                Local0 = (Timer + 0x01C9C380)
+                Local1 = One
 
-            Local0 = (Timer + 0x01C9C380)
-            Local1 = One
-
-            While (Timer <= Local0)
-            {
-                Local2 = LACT /* \_SB_.PCI0.RP05.LACT */
-
-                Debug = Concatenate( "SSD0:LACT = ", Local2)
-
-                If (Local2 == One)
+                While (Timer <= Local0)
                 {
-                    Local1 = Zero
-                    Break
+                    Local2 = LACT /* \_SB_.PCI0.RP05.LACT */
+
+                    Debug = Concatenate( "SSD0:_PS0 - LACT: ", Local2)
+
+                    If (Local2 == One)
+                    {
+                        Local1 = Zero
+                        Break
+                    }
+
+                    Sleep (One)
                 }
 
-                Sleep (One)
-            }
-
-            If (Local1 != Zero)
-            {
-                Return (Zero)
-            }
-
-            Local0 = (Timer + 0x01C9C380)
-            Local1 = 0x02
-
-            While (Timer <= Local0)
-            {
-                Local2 = ^SSD0.CLAS /* \_SB_.PCI0.RP05.SSD0.CLAS */
-
-                Debug = Concatenate( "SSD0:Class code = ", Local2)
-
-                If (Local2 == One)
+                If (Local1 != Zero)
                 {
-                    Local1 = Zero
-                    Break
+                    Return (Zero)
                 }
 
-                Sleep (0x0A)
-            }
+                Local0 = (Timer + 0x01C9C380)
+                Local1 = 0x02
 
-            LTRS = One
-            LTRE = One
+                While (Timer <= Local0)
+                {
+                    Local2 = ^PXSX.CLAS /* \_SB_.PCI0.RP05.PXSX.CLAS */
+
+                    Debug = Concatenate( "SSD0:_PS0 - Class code: ", Local2)
+
+                    If (Local2 == One)
+                    {
+                        Local1 = Zero
+                        Break
+                    }
+
+                    Sleep (0x0A)
+                }
+
+                LTRS = One
+                LTRE = One
+            }
 
             Return (Zero)
         }
 
-        Device (SSD0)
+        Scope (PXSX)
         {
-            Name (_ADR, Zero)  // _ADR: Address
             Method (_RMV, 0, NotSerialized)  // _RMV: Removal Status
             {
                 Return (Zero)
@@ -250,14 +226,13 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_SSD0", 0x00001000)
 
             Method (_DSM, 4, NotSerialized)  // _DSM: Device-Specific Method
             {
-                Local0 = Package (0x06)
+                Local0 = Package ()
                     {
-                        "deep-idle", 
-                        One, 
-                        "use-msi", 
-                        One, 
-                        "nvme-LPSR-during-S3-S4", 
-                        One
+                        "model", "NVME SSD",
+                        "device_type", "Non-Volatile memory controller",
+                        "deep-idle", One, 
+                        "use-msi", One, 
+                        "nvme-LPSR-during-S3-S4", One
                     }
 
                 DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))

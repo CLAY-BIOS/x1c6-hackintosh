@@ -1,8 +1,9 @@
-/**
- * Fix up memory controller
- */
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_DMAC", 0x00001000)
+//
+// Fix up memory controller-device
+//
+DefinitionBlock ("", "SSDT", 2, "THKP", "_DMAC", 0x00001000)
 {
+    // External method from SSDT-UTILS.dsl
     External (OSDW, MethodObj) // 0 Arguments
 
     External (_SB.PCI0.LPCB, DeviceObj)
@@ -36,26 +37,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_DMAC", 0x00001000)
                 Return (Zero)
             }
         }
-
-        /* FPU / MATH */
-        Device(MAT0)
-        {
-            Name (_HID, EISAID("PNP0C04"))
-            Name (_CRS, ResourceTemplate()
-            {
-                IO (Decode16, 0xf0, 0xf0, 0x01, 0x01)
-                IRQNoFlags() { 13 }
-            })
-
-            Method (_STA, 0, NotSerialized)
-            {
-                If (OSDW ())
-                {
-                    Return (0x0F)
-                }
-
-                Return (Zero)
-            }
-        }
     }
 }
+// EOF

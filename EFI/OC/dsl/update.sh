@@ -41,7 +41,8 @@ function compile() {
   chmod +x iasl*
   echo "${green}[${reset}${magenta}${bold} Compiling ACPI Files ${reset}${green}]${reset}"
   echo
-  find . -type f -maxdepth 1 -name "*.dsl" -print0 | xargs -0 -I{} ./iasl -x 10  {} || compileErr && find .. -iname '._*' -delete && rm -f ../ACPI/*.aml && mv *.aml ../ACPI
+  find . -type f -maxdepth 1 -name "*.dsl" -print0 | xargs -0 -I{} ./iasl -x 10  {} || compileErr && \
+  find .. -iname '._*' -delete && rm -f ../ACPI/*.aml && mv *.aml ../ACPI
 }
 
 function enjoy() {

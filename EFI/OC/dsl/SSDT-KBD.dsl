@@ -1,4 +1,10 @@
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_KBD", 0x00001000)
+//
+// (Optional) Fix keyboard-layout to be as windows-native as possible
+//
+// based on a german keyboard-layout.
+//
+//
+DefinitionBlock ("", "SSDT", 2, "THKP", "_KBD", 0x00001000)
 {
     // Change _SB.PCI0.LPCB.KBD if your PS2 keyboard is at a different ACPI path
     External(_SB.PCI0.LPCB.KBD, DeviceObj)
@@ -11,17 +17,17 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_KBD", 0x00001000)
             {
                 "Swap command and option", ">n", // Disable key-swap
 
-                // Disable that stupid 
+                // Disable that stupid $&!§
                 "Custom PS2 Map", Package()
                 {
                     Package() {},
-                    "e037=64", // PrtSc=F13
+                    "e037=64",  // PrtSc=F13
                 },
 
                 "Custom ADB Map", Package()
                 {
                     Package() {},
-                    "29=a",    // Key ^
+                    "29=a",     // Key ^
                     "56=32",    // Key <
                 },
             },

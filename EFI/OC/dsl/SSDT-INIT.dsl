@@ -41,26 +41,55 @@
 //   Offset(82),     TBSE, 8,  // Offset(82),    Thunderbolt(TM) Root port selector
 //   Offset(83),     TBS1, 8,  // Offset(83),    Thunderbolt(TM) Root port selector
 //   Offset(84),     BDID, 8,  // Offset(84),    Board ID
-
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_INIT", 0x00001000)
+//
+DefinitionBlock ("", "SSDT", 2, "THKP", "_INIT", 0x00001000)
 {
-    External (OSDW, MethodObj)    // 0 Arguments
+    // External method from SSDT-UTILS.dsl
+    External (OSDW, MethodObj) // 0 Arguments
 
+    External (_SB.PCI0, DeviceObj)
+
+    // System
     External (HPTE, FieldUnitObj) // HPET enabled?
     External (WNTF, FieldUnitObj) // DYTC enabled?
     External (DPTF, FieldUnitObj) // DPTF enabled?
+    External (OSYS, FieldUnitObj) // OS type
 
-    If (OSDW ())
+    External (ZINI, MethodObj)
+
+    // Thunderbolt
+    External (_SB.PCI0.RP09.INIT, MethodObj)
+
+
+    Scope (\_SB.PCI0)
     {
-        Debug = "Set Variables..."
+        Method (OINI, 0, NotSerialized)
+        {
+            If (OSDW())
+            {
+                Debug = "INIT: Set Variables..."
 
-        // disable HPET. It shouldn't be needed on modern systems anyway and is also disabled in genuine OSX
-        HPTE = Zero
+                // disable HPET. It shouldn't be needed on modern systems anyway and is also disabled in genuine OSX
+                HPTE = Zero
 
-        // Enables DYTC, Lenovos thermal solution. Can be controlled by YogaSMC
-        WNTF = One
+                // Enables DYTC, Lenovos thermal solution. Can be controlled by YogaSMC
+                WNTF = One
 
-        // Disable DPTF, we use DYTC!
-        DPTF = Zero
+                // Disable DPTF, we use DYTC!
+                DPTF = Zero
+
+                // Patch OSYS to native value of darwin
+                OSYS = 0x07DF
+            }
+
+            ZINI ()
+
+            // Thunderbolt-setup
+            If (OSDW () && CondRefOf (\_SB.PCI0.RP09.INIT))
+            {
+                \_SB.PCI0.RP09.INIT ()
+            }
+        }
     }
 }
+//EOF

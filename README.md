@@ -1,8 +1,8 @@
 # macOS on Thinkpad X1 Carbon 6th Generation, Experimental branch
 
-[![macOS](https://img.shields.io/badge/macOS-Big_Sur_Beta_9-yellow.svg)](https://www.apple.com/de/macos/big-sur-preview/)
+[![macOS](https://img.shields.io/badge/macOS-Big_Sur_RC_2-yellow.svg)](https://www.apple.com/de/macos/big-sur-preview/)
 [![BIOS](https://img.shields.io/badge/BIOS-1.49-blue)](https://pcsupport.lenovo.com/us/en/products/laptops-and-netbooks/thinkpad-x-series-laptops/thinkpad-x1-carbon-6th-gen-type-20kh-20kg/downloads/driver-list/component?name=BIOS%2FUEFI)
-[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.2-green)](https://github.com/acidanthera/OpenCorePkg)
+[![OpenCore](https://img.shields.io/badge/OpenCore-0.6.3-green)](https://github.com/acidanthera/OpenCorePkg)
 [![LICENSE](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 <img align="right" src="https://i.imgur.com/I3yUS4Q.png" alt="Critter" width="300">
@@ -24,17 +24,17 @@ I am not responsible for any damages you may cause.
 * Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper S3-sleep on OSX. See [SSDT-SLEEP](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-SLEEP.dsl)
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
 * Complete, Battery reimplementation without ACPI-patching or any dependencies besides the one SSDT. Integrates [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md), supports multi-battery-setups and should be compatible with almost all x-/t-series Thinkpads. See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
-* (Beta) "native" ACPI-API for broadcom-wifi-cards to handle complete power-down of the PCIe-interface if the OS requests it. As on genuine machines. See [SSDT-ARPT](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-ARPT.dsl)
 * Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
 * Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
-* (WIP) (mostly) native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl)
+* Native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl). Disables the ICM and loads native OSX drivers without patched TB-FW. Enables PM for TB. Broken hotplug for USB 3.1 Gen2 for now.
 * Hibernation (hibernatemode 25)
 * Relative comprehensive debug-setup for ACPI-development. See [Config-Debug](https://github.com/benbender/x1c6-hackintosh/blob/experimental/optional/Config-Debug.plist)
+* ~(Beta) "native" ACPI-API for broadcom-wifi-cards to handle complete power-down of the PCIe-interface if the OS requests it. As on genuine machines. See [SSDT-ARPT](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-ARPT.dsl)~
 * ~(WIP) Enables DeepSleep on S3 for OSX~
 * ~(WIP) Support for S0-DeepIdle (or ACPI-Sleep/Modern Standby/Always on always connected, however you wanna call it)~ doesnt seem to be helpful in terms of suspend power draw
 * ...
 
-#### Expects patched bios, patched TB-firmware and latest versions of everything. Big Sur only atm.
+#### Expects patched bios, ~patched TB-firmware~ and latest versions of everything. Big Sur only atm.
 
 > ## CREDITS
 

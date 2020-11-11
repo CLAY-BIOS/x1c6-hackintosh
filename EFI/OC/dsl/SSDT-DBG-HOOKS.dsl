@@ -1,4 +1,4 @@
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_HOOKS", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_HOOKS", 0x00001000)
 {
     External (_SB.PCI0.LPCB.EC, DeviceObj)
 
@@ -1842,3 +1842,4 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_HOOKS", 0x00001000)
 				<data>RFNEVA==</data>
 			</dict>
 */
+// EOF

@@ -1,4 +1,4 @@
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00001000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_UTILS", 0x00001000)
 {
     Scope (\)
     {
@@ -34,8 +34,8 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00001000)
         }
 
         /**
-        * Detect OSX to enable other patches
-        */
+         * Detect OSX to enable other patches
+         */
         Method (OSDW, 0, NotSerialized)
         {
             If (CondRefOf (\_OSI))
@@ -50,3 +50,4 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_UTILS", 0x00001000)
         }
     }
 }
+//EOF
