@@ -1,6 +1,6 @@
 //
 // SSDT-BATX
-// Revision 6
+// Revision 7
 //
 // Copyleft (c) 2020 by bb. No rights reserved.
 //
@@ -10,8 +10,10 @@
 // This SSDT is a complete, self-contained replacement for all battery-patches on Thinkpads which share
 // a common EC-layout [1] for battery-handling. It should be compatible with all(?) T- and X-series Thinkpads which are using the basic H8-EC-Layout [2].
 //
-// Its designed for the requirements of VirtualSMC [3], doesn't need any patches to the original DSDT, 
+// Its designed for the requirements of VirtualSMC [3], leaves the original DSDT largely untouched, 
 // handles single- and dual-battery-systems gracefully and adds support for `Battery Information Supplement` [4].
+//
+// Sadly, it needs patching of battery-ACPI-notifies as the EC doesn't seem to be updated correctly by the firmware if they are missing.
 //
 // It is faster, more compatible and much more robust than existing patches as it doesn't rely on the original DSDT-implementation 
 // for battery-handling and EC-access. It eliminates the need to patch mutexes and EC-fields completely. Patching notify()'s is
@@ -28,6 +30,63 @@
 // If so, please open a bug @ https://github.com/benbender/x1c6-hackintosh/issues.
 // Additionally, as this implementation is more straight-forward and according to specs, it may reveal bugs and glitches
 // in other parts of the system.
+//
+//
+// Needed patches:
+//
+// <dict>
+// 	<key>Comment</key>
+// 	<string>BATX: Nofify(BAT0, xx) to BATX</string>
+// 	<key>Count</key>
+// 	<integer>0</integer>
+// 	<key>Enabled</key>
+// 	<true/>
+// 	<key>Find</key>
+// 	<data>hkJBVDA=</data>
+// 	<key>Limit</key>
+// 	<integer>0</integer>
+// 	<key>Mask</key>
+// 	<data></data>
+// 	<key>OemTableId</key>
+// 	<data></data>
+// 	<key>Replace</key>
+// 	<data>hkJBVFg=</data>
+// 	<key>ReplaceMask</key>
+// 	<data></data>
+// 	<key>Skip</key>
+// 	<integer>0</integer>
+// 	<key>TableLength</key>
+// 	<integer>0</integer>
+// 	<key>TableSignature</key>
+// 	<data>RFNEVA==</data>
+// </dict>
+//
+// <dict>
+// 	<key>Comment</key>
+// 	<string>BATX: Nofify(BAT1, xx) to BATX</string>
+// 	<key>Count</key>
+// 	<integer>0</integer>
+// 	<key>Enabled</key>
+// 	<true/>
+// 	<key>Find</key>
+// 	<data>hkJBVDE=</data>
+// 	<key>Limit</key>
+// 	<integer>0</integer>
+// 	<key>Mask</key>
+// 	<data></data>
+// 	<key>OemTableId</key>
+// 	<data></data>
+// 	<key>Replace</key>
+// 	<data>hkJBVFg=</data>
+// 	<key>ReplaceMask</key>
+// 	<data></data>
+// 	<key>Skip</key>
+// 	<integer>0</integer>
+// 	<key>TableLength</key>
+// 	<integer>0</integer>
+// 	<key>TableSignature</key>
+// 	<data>RFNEVA==</data>
+// </dict>
 //
 //
 // Compatibility:
@@ -74,7 +133,7 @@
 // 
 // Known Issues:
 //
-// - TBD
+// - no known issues atm
 //
 //
 // Links & References:
@@ -91,6 +150,7 @@
 //
 // Changelog:
 //
+// Revision 7 - Smaller fixes, adds Notify-patches as EC won't update without them in edge-cases, replaces fake serials with battery-serial
 // Revision 6 - fixes, make the whole system more configureable, adds technical backround-documentation
 // Revision 5 - optimization, bug-fixing. Adds temp, concatenates string-data on combined batteries. 
 // Revision 4 - Waits on initialization of the batts now. Besides that: Optimization, rework, cleanup, fixes. Truely self-contained now. And faster. 
@@ -99,7 +159,7 @@
 // Revision 1 - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
 // 
 //
-DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
+DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00007000)
 {
     // Please ensure that your LPC bus-device is available at \_SB.PCI0.LPCB (check your DSDT). 
     // Some older Thinkpads provide the LPC on \_SB.PCI0.LPC and if thats the case for you,
@@ -155,14 +215,14 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
             //
             // See https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md
             //
-            Name (BBIS, Zero) // possible values: One / Zero
+            Name (BBIS, One) // possible values: One / Zero
 
             //
-            // Enable quickpoll in VirtualSMC SMCBatteryManager
+            // Disable quickpoll in VirtualSMC SMCBatteryManager
             //
             // Implicitly disabled if BBIS is disabled
             //
-            Name (BEQP, Zero) // possible values: One / Zero
+            Name (BDQP, One) // possible values: One / Zero
 
 
             /************************* Mutex **********************************/
@@ -529,23 +589,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
              */
             Method (SBSN, 0, NotSerialized)
             {
-                Local0 = B1B2 (SN00, SN01)
-
-                Local3 = Buffer (0x06)
-                {
-                    "     "
-                }
-
-                Local2 = 0x04
-
-                While (Local0)
-                {
-                    Divide (Local0, 10, Local1, Local0)
-                    Local3 [Local2] = (Local1 + 0x30)
-                    Local2--
-                }
-
-                Return (ToString (Local3))
+                Return (B1B2 (SN00, SN01))
             }
 
             /**
@@ -704,7 +748,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 0x01,        // 0x00: BIXRevision - Revision - Integer
                 0x01,        // 0x01: BIXPowerUnit - Power Unit: mAh - Integer (DWORD)
                              //       ACPI spec     : 0 - mWh   : 1 - mAh                
-                             //       We are always outputting mAh.
                 0xFFFFFFFF,  // 0x02: BIXDesignCapacity - Design Capacity - Integer (DWORD)
                 0xFFFFFFFF,  // 0x03: BIXLastFullChargeCapacity - Last Full Charge Capacity - Integer (DWORD)
                 0x01,        // 0x04: BIXBatteryTechnology - Battery Technology: Rechargeable - Integer (DWORD)
@@ -860,7 +903,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 Arg1 [0x05] = SBDV /* \_SB_.PCI0.LPCB.EC__.BATX.SBDV */
 
                 // Serial Number
-                Arg1 [0x11] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                Arg1 [0x11] = ToString (SBSN) /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
 
 
                 //
@@ -1079,12 +1122,12 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 ElseIf ((Local6 & 0x40) )
                 {
                     // 1 = Discharging
-                    Local0 = One
+                    Local0 = 1
                 }
                 Else
                 {
-                    // Not charging
-                    Local0 = Zero
+                    // 0 = Not charging / Full
+                    Local0 = 0
                 }
 
                 // Set critical flag if battery is empty
@@ -1092,7 +1135,6 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 {
                     Local6 = Local6 | 0x04
                 }
-
 
                 Store (Zero, Local1)
 
@@ -1105,7 +1147,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 Else
                 {
                     // Always discharging when on battery power
-                    Store (One, Local1)
+                    Local0 = One
                 }
 
                 // Flag if the battery level is critical
@@ -1472,8 +1514,10 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 */
                 Name (PBIS, Package (0x07)
                 {
-                    0x007F007F,  // 0x00: BISConfig - config, double check if you have valid AverageRate before
-                                //       fliping that bit to 0x007F007F since it will disable quickPoll
+                    0x007F007F,  // 0x00: BISConfig - config
+                                 //   double check if you have valid AverageRate before disabling QuicPoll
+                                 //     - 0x007F007F - Quickpoll disabled, more native battery handling
+                                 //     - 0x006F007F - Quickpoll enabled, more robust battery handling
                     0xFFFFFFFF,  // 0x01: BISManufactureDate - ManufactureDate (0x1), AppleSmartBattery format
                     0x00002342,  // 0x02: BISPackLotCode - PackLotCode 
                     0x00002342,  // 0x03: BISPCBLotCode - PCBLotCode
@@ -1487,7 +1531,7 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
                 */
                 Method (CBIS, 0, NotSerialized)
                 {
-                    If (BEQP)
+                    If (BDQP == Zero)
                     {
                         PBIS[0x00] = 0x006F007F
                     }
@@ -1511,6 +1555,13 @@ DefinitionBlock ("", "SSDT", 2, "X1C6", "_BATX", 0x00006000)
 
                     // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                     PBIS [0x01] = SBDT
+
+                    // Serial Number
+                    PBIS [0x02] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                    PBIS [0x03] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                    PBIS [0x04] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                    PBIS [0x05] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                    PBIS [0x06] = SBSN /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
 
                     Release (BAXM)
 
