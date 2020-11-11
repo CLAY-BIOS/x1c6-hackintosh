@@ -17,16 +17,16 @@ I am not responsible for any damages you may cause.
 
 > ## Differencies to the original repo
 
-* (Beta) Updated for Big Sur
+* **Native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl). Disables the ICM and loads native OSX drivers without patched TB-FW. Enables PM for TB. Broken hotplug for USB 3.1 Gen2 for now.**
+* Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
+* Complete, Battery reimplementation without ACPI-patching or any dependencies besides the one SSDT. Integrates [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md), supports multi-battery-setups and should be compatible with almost all x-/t-series Thinkpads. See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
+* Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper S3-sleep on OSX. See [SSDT-SLEEP](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-SLEEP.dsl)
+* Updated for Big Sur
 * Cleans up much old and unneeded stuff
 * Enabled DYTC (Lenovo thermal management)
 * Disables DPTF (Intel thermal management)
-* Enables the possibility to run "Sleep State: [Windows]" in Bios to have "modern standby" on Windows and proper S3-sleep on OSX. See [SSDT-SLEEP](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-SLEEP.dsl)
 * Integration of [YogaSMC](https://github.com/zhen-zen/YogaSMC)
-* Complete, Battery reimplementation without ACPI-patching or any dependencies besides the one SSDT. Integrates [Battery Information Supplement](https://github.com/acidanthera/VirtualSMC/blob/master/Docs/Battery%20Information%20Supplement.md), supports multi-battery-setups and should be compatible with almost all x-/t-series Thinkpads. See [SSDT-BATX](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-BATX.dsl)
 * Patches for the X1C6 Touchscreen (via [@voodooI2C](https://gitter.im/alexandred/VoodooI2C))
-* Native ACPI-implementation of USB 2.0/3.0. See [SSDT-XHC1](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC1.dsl)/[SSDT-XHC2](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-XHC2.dsl)
-* Native TB-Hotplug-support with complete power-management. See [SSDT-TB](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-TB.dsl). Disables the ICM and loads native OSX drivers without patched TB-FW. Enables PM for TB. Broken hotplug for USB 3.1 Gen2 for now.
 * Hibernation (hibernatemode 25)
 * Relative comprehensive debug-setup for ACPI-development. See [Config-Debug](https://github.com/benbender/x1c6-hackintosh/blob/experimental/optional/Config-Debug.plist)
 * ~(Beta) "native" ACPI-API for broadcom-wifi-cards to handle complete power-down of the PCIe-interface if the OS requests it. As on genuine machines. See [SSDT-ARPT](https://github.com/benbender/x1c6-hackintosh/blob/experimental/EFI/OC/dsl/SSDT-ARPT.dsl)~
