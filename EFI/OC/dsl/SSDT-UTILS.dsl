@@ -1,3 +1,7 @@
+
+//
+// Commenly used utils
+//
 DefinitionBlock ("", "SSDT", 2, "THKP", "_UTILS", 0x00001000)
 {
     Scope (\)
