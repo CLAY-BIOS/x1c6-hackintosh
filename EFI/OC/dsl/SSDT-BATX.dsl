@@ -178,8 +178,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00007000)
     External (_SB.PCI0.LPCB.EC.BAT1._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT1._HID, IntObj)
 
-    External (H8DR, FieldUnitObj)
-
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
@@ -1442,11 +1440,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00007000)
                         Debug = "BATX:CBSS()"
                     }
 
-                    If (!H8DR)
-                    {
-                        Return (PBSS)
-                    }
-
                     If (HB0A)
                     {
                         PBS0 = GBSS (0x00, PBSS)
@@ -1506,7 +1499,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00007000)
 
                     Return (Local0)
                 }
-
 
 
                 /**
