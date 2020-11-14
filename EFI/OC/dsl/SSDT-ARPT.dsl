@@ -1,7 +1,18 @@
 //
+// SSDT-ARPT
+// Revision 2
+//
+// Copyleft (c) 2020 by bb. No rights reserved.
+//
+//
+// Abstract:
 // Adds the OSX-native ACPI-interface for broadcom-wifi-cards.
 //
 // Stub for now, needs rework to be actually useful.
+//
+// Changelog:
+// Revision 2 - Removed experiments
+// Revision 1 - Initial implementation
 //
 DefinitionBlock ("", "SSDT", 2, "THKP", "_ARPT", 0x00002000)
 {
@@ -24,44 +35,17 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_ARPT", 0x00002000)
         Method (_PS0, 0, Serialized)  // _PS0: Power State 0
         {
             Debug = "ARPT:_PS0"
-
-            If (OSDW ())
-            {
-            }
         }
 
         Method (_PS3, 0, Serialized)  // _PS3: Power State 3
         {
             Debug = "ARPT:_PS3"
 
-            If (OSDW ())
-            {
-            }
         }
 
         Scope (PXSX)
         {
             Name (_GPE, 0x31)  // _GPE: General Purpose Events
-
-            OperationRegion (ARE2, PCI_Config, Zero, 0x80)
-            Field (ARE2, ByteAcc, NoLock, Preserve)
-            {
-                AVND,   16, 
-                ADID,   16, 
-                Offset (0x4C), 
-                PSTX,   2
-            }
-
-            OperationRegion (ARE3, PCI_Config, 0x80, 0x80)
-            Field (ARE3, DWordAcc, NoLock, Preserve)
-            {
-                BDMR,   32, 
-                Offset (0x08), 
-                BDEN,   32, 
-                Offset (0x20), 
-                BDIR,   32, 
-                BDDR,   32
-            }
 
             Method (_STA, 0, NotSerialized)  // _STA: Status
             {
