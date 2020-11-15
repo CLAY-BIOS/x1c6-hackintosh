@@ -36,10 +36,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
 
     External (_SB.PCI0.GPCB, MethodObj)              // 0 Arguments
 
-    External (_GPE.TBFF, MethodObj)                  // detect TB root port
-    External (_GPE.TFPS, MethodObj)                  // TB force status
     External (_GPE.XTFY, MethodObj)                  // Notify TB-controller on hotplug
-    External (_SB.TBFP, MethodObj)                   // 1 Arguments
     External (MMRP, MethodObj)                       // Memory mapped root port
     External (MMTB, MethodObj)                       // Memory mapped TB port
 
@@ -443,27 +440,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                     Else
                     {
                         Debug = "TB:INIT: TB bios-assist enabled"
-
-                        If (\_GPE.TFPS ())
-                        {
-                            Debug = "TB:INIT: TB Force Power alread enabled"
-                        }
-                        Else
-                        {
-                            Debug = "TB:INIT: enabling TB Force Power"
-
-                            \_SB.TBFP (One) // force power
-
-                            Local0 = 10000 // 10 seconds
-                            While (Local0 > 0 && RPVD == 0xFFFFFFFF)
-                            {
-                                Sleep (1)
-                                Local0--
-                            }
-
-                            Debug = Concatenate ("TB:INIT: TB-Controller root-port RPVD: ", RPVD)
-                            Debug = Concatenate ("TB:INIT: ms waited:  ", (10000 - Local0))
-                        }
                     }
                 }
             }
@@ -1347,7 +1323,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                         // CIO force power back to 0
                         // SGOV (0x02060000, Zero)
                         // SGDO (0x02060000)
-                        // \_SB.TBFP (Zero)
 
                         Sleep (0x03E8)
                     }
@@ -1923,10 +1898,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                 {
                     Local1 = One
 
-                    // If (((GGDV (0x02060000) == One) || (GGDV (0x02060001) == One)) && 
-                    // If (((GGDV (0x02060000) == One)) && 
-                    //      (\_SB.PCI0.RP09.PXSX.AVND != 0xFFFFFFFF))
-                    // If ((\_GPE.TFPS () == One) && (\_SB.PCI0.RP09.PXSX.AVND != 0xFFFFFFFF))
                     If (\_SB.PCI0.RP09.PSTA () == One && AVND != 0xFFFFFFFF)
                     {
                         Local3 = Zero
@@ -2433,7 +2404,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
 
                                     // SGOV (0x02060000, Zero)
                                     // SGDO (0x02060000)
-                                    // \_SB.TBFP (Zero)
                                 }
                                 Else
                                 {
@@ -2454,7 +2424,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                                             \_SB.PCI0.RP09.PON ()
 
                                             // SGDI (0x02060000)
-                                            // \_SB.TBFP (One)
                                             Local1 = Zero
                                             Local2 = (Timer + 0x00989680)
                                             While (Timer <= Local2)
@@ -2501,7 +2470,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
 
                                             // SGOV (0x02060000, Zero)
                                             // SGDO (0x02060000)
-                                            // \_SB.TBFP (Zero)
                                             Sleep (0x03E8)
                                         }
 
