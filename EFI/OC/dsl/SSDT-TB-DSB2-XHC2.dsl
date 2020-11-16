@@ -6,8 +6,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBXHC2", 0x00003000)
 
     External (_SB.PCI0.RP09.PXSX, DeviceObj)
     External (_SB.PCI0.RP09.PXSX.DSB0.NHI0, DeviceObj)
-    External (_SB.PCI0.RP09.PXSX.TBDU, DeviceObj)
-    External (_SB.PCI0.RP09.PXSX.TBDU.XHC, DeviceObj)
 
     External (_SB.PCI0.RP09.TBST, MethodObj) // 0 Arguments
     External (_SB.PCI0.RP09.UGIO, MethodObj) // 0 Arguments
