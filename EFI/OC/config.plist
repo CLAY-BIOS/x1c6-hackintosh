@@ -680,34 +680,23 @@
 		<dict>
 			<key>PciRoot(0x0)/Pci(0x2,0x0)</key>
 			<dict>
+				<string>onboard-1</string>
 				<key>AAPL,ig-platform-id</key>
-				<data>
-				BAAnWQ==
-				</data>
-				<key>complete-modeset</key>
-				<data>
-				AQAAAA==
-				</data>
+				<data>BAAnWQ==</data>
 				<key>complete-modeset-framebuffers</key>
-				<data>
-				AAAAAAAAAAE=
-				</data>
+				<data>AAAAAAAAAAE=</data>
 				<key>device-id</key>
-				<data>
-				FlkAAA==
-				</data>
+				<data>FlkAAA==</data>
+				<key>framebuffer-con1-alldata</key>
+				<data>AQUSAAAIAADHAwAA</data>
 				<key>framebuffer-con1-enable</key>
-				<data>
-				AQAAAA==
-				</data>
-				<key>framebuffer-con1-type</key>
-				<data>
-				AAgAAA==
-				</data>
+				<data>AQAAAA==</data>
+				<key>framebuffer-con2-alldata</key>
+				<data>AgQSAAAEAADHAwAA</data>
+				<key>framebuffer-con2-enable</key>
+				<data>AQAAAA==</data>
 				<key>framebuffer-patch-enable</key>
-				<data>
-				AQAAAA==
-				</data>
+				<data>AQAAAA==</data>
 				<key>model</key>
 				<string>Intel UHD Graphics 620 (Mobile)</string>
 			</dict>
