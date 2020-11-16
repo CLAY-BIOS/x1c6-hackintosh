@@ -69,13 +69,13 @@ DefinitionBlock ("", "SSDT", 2, "THKP ", "_XHC", 0x00001000)
                 Local0 = Package ()
                     {
                         "kUSBSleepPortCurrentLimit", 
-                        3000, 
+                        2100, 
                         "kUSBWakePortCurrentLimit", 
-                        3000,
+                        2100,
                         "kUSBSleepPowerSupply", 
-                        9600, 
+                        5100, 
                         "kUSBWakePowerSupply", 
-                        9600, 
+                        5100, 
                     }
                 DTGP (Arg0, Arg1, Arg2, Arg3, RefOf (Local0))
                 Return (Local0)
@@ -430,23 +430,11 @@ DefinitionBlock ("", "SSDT", 2, "THKP ", "_XHC", 0x00001000)
                             Debug = "XHC:U2OP - companion ports enabled"
                         }
 
-                        If (\TBAS)
-                        {
-                            Local0 = Package (0x04) {
-                                0xFF,
-                                0x08,
-                                Zero,
-                                Zero
-                            }
-                        }
-                        Else
-                        {
-                            Local0 = Package (0x04) {
-                                One,
-                                0x09,
-                                Zero,
-                                Zero
-                            }
+                        Local0 = Package (0x04) {
+                            One,
+                            0x08,
+                            Zero,
+                            Zero
                         }
 
                         Return (Local0)
@@ -487,23 +475,12 @@ DefinitionBlock ("", "SSDT", 2, "THKP ", "_XHC", 0x00001000)
                 {
                     Method (_UPC, 0, NotSerialized)  // _UPC: USB Port Capabilities
                     {
-                        If (\TBAS)
-                        {
-                            Local0 = Package (0x04) {
-                                0xFF,
-                                0x08,
-                                Zero,
-                                Zero
-                            }
-                        }
-                        Else
-                        {
-                            Local0 = Package (0x04) {
-                                One,
-                                0x09,
-                                Zero,
-                                Zero
-                            }
+
+                        Local0 = Package (0x04) {
+                            One,
+                            0x08,
+                            Zero,
+                            Zero
                         }
 
                         Return (Local0)
