@@ -59,7 +59,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBXHC2", 0x00003000)
 
                     If (OSDW ())
                     {
-                        // PCED ()
+                        PCED ()
 
                         If (CondRefOf (\_SB.PCI0.RP09.TBST))
                         {
