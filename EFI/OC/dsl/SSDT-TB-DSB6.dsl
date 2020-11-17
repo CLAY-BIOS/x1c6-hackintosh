@@ -72,7 +72,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB6", 0x00001000)
 
                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                 {
-                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB6.SECB */
+                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB6.SECB */
                 }
 
                 Method (_STA, 0, NotSerialized)  // _STA: Status

@@ -103,8 +103,8 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
     {
         Scope (\_SB.PCI0.RP09)
         {
-            Name (UPN1, 0x02)                                // USBCPortNumber of SSP1/HS03
-            Name (UPN2, 0x01)                                // USBCPortNumber of SSP2/HS04
+            Name (UPN1, 0x01)                                // USBCPortNumber of SSP1/HS03
+            Name (UPN2, 0x02)                                // USBCPortNumber of SSP2/HS04
 
             Name (R020, Zero)
             Name (R024, Zero)
@@ -2552,6 +2552,15 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                                         /* 0x63   2 */  0x0c, 0x02, 0x58, 0x31, 0x20, 0x43, 0x61, 0x72, 0x62, 0x6f, 0x6e, 0x00, // Device Name: "X1 Carbon"
                                     },
 
+                                    "ThunderboltConfig", 
+                                    Buffer (0x20)
+                                    {
+                                        /* 0000 */  0x00, 0x02, 0x1C, 0x00, 0x02, 0x00, 0x05, 0x03,  // ........
+                                        /* 0008 */  0x01, 0x00, 0x04, 0x00, 0x05, 0x03, 0x02, 0x00,  // ........
+                                        /* 0010 */  0x03, 0x00, 0x05, 0x03, 0x01, 0x00, 0x00, 0x00,  // ........
+                                        /* 0018 */  0x03, 0x03, 0x02, 0x00, 0x01, 0x00, 0x02, 0x00   // ........
+                                    }, 
+
                                     "TBTDPLowToHigh",
                                     Buffer (One)
                                     {
@@ -2574,7 +2583,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB0", 0x00002000)
                                     Buffer ()
                                     {
                                         0x08, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00
-                                    }, 
+                                    },
 
                                     "power-save", 
                                     One, 

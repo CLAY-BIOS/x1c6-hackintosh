@@ -16,6 +16,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
             Device (DSB5)
             {
                 Name (_ADR, 0x00050000)  // _ADR: Address
+
                 OperationRegion (A1E0, PCI_Config, Zero, 0x40)
                 Field (A1E0, ByteAcc, NoLock, Preserve)
                 {
@@ -71,7 +72,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                 {
-                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.SECB */
+                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.SECB */
                 }
 
                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -125,7 +126,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                         Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                         {
-                            Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB0.SECB */
+                            Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB0.SECB */
                         }
 
                         Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -172,7 +173,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                         Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                         {
-                            Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.SECB */
+                            Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.SECB */
                         }
 
                         Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -221,7 +222,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.UPS0.DSB0.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.UPS0.DSB0.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -258,7 +259,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.UPS0.DSB3.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.UPS0.DSB3.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -305,7 +306,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.UPS0.DSB4.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.UPS0.DSB4.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -352,7 +353,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.UPS0.DSB5.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.UPS0.DSB5.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -385,7 +386,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB3.UPS0.DSB6.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB3.UPS0.DSB6.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -420,7 +421,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                         Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                         {
-                            Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.SECB */
+                            Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.SECB */
                         }
 
                         Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -469,7 +470,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.UPS0.DSB0.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.UPS0.DSB0.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -511,7 +512,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.UPS0.DSB3.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.UPS0.DSB3.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -558,7 +559,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.UPS0.DSB4.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.UPS0.DSB4.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -605,7 +606,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.UPS0.DSB5.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.UPS0.DSB5.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -638,7 +639,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                                 Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                                 {
-                                    Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB4.UPS0.DSB6.SECB */
+                                    Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB4.UPS0.DSB6.SECB */
                                 }
 
                                 Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -673,7 +674,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                         Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                         {
-                            Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB5.SECB */
+                            Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB5.SECB */
                         }
 
                         Method (_STA, 0, NotSerialized)  // _STA: Status
@@ -706,7 +707,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBDSB5", 0x00001000)
 
                         Method (_BBN, 0, NotSerialized)  // _BBN: BIOS Bus Number
                         {
-                            Return (SECB) /* \_SB_.PCI0.RP09.UPSB.DSB5.UPS0.DSB6.SECB */
+                            Return (SECB) /* \_SB_.PCI0.RP09.PXSX.DSB5.UPS0.DSB6.SECB */
                         }
 
                         Method (_STA, 0, NotSerialized)  // _STA: Status

@@ -102,7 +102,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_TBXHC2", 0x00003000)
                             "AAPL,xhci-clock-id", 
                             One, 
                             "UsbCompanionControllerPresent", 
-                            Zero
+                            Zero,
                         }
 
                     If (CondRefOf (\_SB.PCI0.RP09.PXSX.DSB0.NHI0) && \USME == One)
