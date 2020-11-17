@@ -23,13 +23,6 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_KBD", 0x00001000)
                     Package() {},
                     "e037=64",  // PrtSc=F13
                 },
-
-                "Custom ADB Map", Package()
-                {
-                    Package() {},
-                    "29=a",     // Key ^
-                    "56=32",    // Key <
-                },
             },
         })
     }

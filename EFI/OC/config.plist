@@ -1660,7 +1660,7 @@
 				<key>csr-active-config</key>
 				<data>/w8AAA==</data>
 				<key>prev-lang:kbd</key>
-				<data>ZGU6Mw==</data>
+				<data></data>
 				<key>debug-boot-args</key>
 				<string>-v batman=0xff keepsyms=1 debug=0x12a acpi_layer=0x8 acpi_level=0x2</string>
 			</dict>
