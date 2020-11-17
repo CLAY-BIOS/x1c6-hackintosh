@@ -1,6 +1,6 @@
 //
 // SSDT-BATX
-// Revision 9
+// Revision 10
 //
 // Copyleft (c) 2020 by bb. No rights reserved.
 //
@@ -150,6 +150,7 @@
 //
 // Changelog:
 //
+// Revision 10 - Maybe fix that stupid race condition which leads to 20hrs battery time, fix quickpoll-handling
 // Revision 9 - Fix serials for batteries with broken values
 // Revision 8 - Fix battery-state handling, small corrections
 // Revision 7 - Smaller fixes, adds Notify-patches as EC won't update without them in edge-cases, replaces fake serials with battery-serial
@@ -161,7 +162,7 @@
 // Revision 1 - Raised timeout for mutexes, factored bank-switching out, added sleep to bank-switching, moved HWAC to its own SSDT
 // 
 //
-DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00009000)
+DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00010000)
 {
     // Please ensure that your LPC bus-device is available at \_SB.PCI0.LPCB (check your DSDT). 
     // Some older Thinkpads provide the LPC on \_SB.PCI0.LPC and if thats the case for you,
@@ -179,6 +180,8 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00009000)
 
     External (_SB.PCI0.LPCB.EC.BAT1._STA, MethodObj)
     External (_SB.PCI0.LPCB.EC.BAT1._HID, IntObj)
+
+    External (H8DR, FieldUnitObj)
 
     Scope (\_SB.PCI0.LPCB.EC)
     {
@@ -685,21 +688,36 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00009000)
              */
             Method (_STA, 0, NotSerialized)
             {
+                Local0 = Zero
+
                 // call original _STA for BAT0 and BAT1
                 // result is bitwise OR between them
                 If (_OSI ("Darwin"))
                 {
-                    If (CondRefOf (^^BAT1._STA) && CondRefOf (^^BAT1._STA))
-                    {
-                        Return (^^BAT0._STA() | ^^BAT1._STA())
-                    }
-                    
                     If (CondRefOf (^^BAT1._STA))
                     {
-                        Return (^^BAT1._STA())
+                        If (CondRefOf (^^BAT0._STA))
+                        {
+                            Local0 = (^^BAT0._STA () | ^^BAT1._STA ())
+                        }
+                        Else
+                        {
+                            Local0 = (^^BAT1._STA ())
+                        }
+                    }
+                    Else 
+                    {
+                        Local0 = (^^BAT0._STA ())
                     }
 
-                    Return (^^BAT0._STA())
+                    If (\H8DR)
+                    {
+                        Return (Local0)
+                    }
+                    Else
+                    {
+                        Return (0x0F)
+                    }
                 }
 
                 Return (Zero)
@@ -1459,7 +1477,7 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00009000)
                 /**
                 *  Battery Information Supplement pack layout
                 */
-                Name (PBIS, Package (0x07)
+                Name (PBIS, Package ()
                 {
                     0x007F007F,  // 0x00: BISConfig - config
                                  //   double check if you have valid AverageRate before disabling QuicPoll
@@ -1495,15 +1513,23 @@ DefinitionBlock ("", "SSDT", 2, "THKP", "_BATX", 0x00009000)
                         Return (PBIS)
                     }
 
+                    // Check your _BST method for similiar condition of EC accessibility
+                    If (!HB0A)
+                    {
+                        Debug = "BATX:CBIS - Error HB0A not ready yet. Returning defaults."
+
+                        Return (PBIS)
+                    }
+
                     //
                     // Information Page 2 -
                     //
-                    HIID = (0x00 | 0x02)
+                    HIID = (0x02)
 
                     // 0x01: ManufactureDate (0x1), AppleSmartBattery format
                     PBIS [0x01] = SBDT
 
-                    Local6 = ToString (SBSN) /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
+                    Local6 = ToDecimalString (SBSN) /* \_SB_.PCI0.LPCB.EC__.BATX.SBSN */
 
                     // Serial Number
                     PBIS [0x02] = Local6
